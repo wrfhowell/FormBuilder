@@ -31,6 +31,56 @@ Create form{
 }
 ```
 
+The example below demonstrates how a user can create a form with two sections - one “Basic Information” and one “Quiz Section”. Each question would be constructed by the DSL based on the data provided in their definition. A procedure is added to grade answers to the questions upon submission by the user.
+
+```
+create form “Math Exam”
+
+section "Basic Information"
+
+question text shown Q1 "What is your name?"
+type: short_answer
+
+question scale shown Q2 "Rate your happiness (1-5)"
+range: 1 to 5
+
+question choice shown Q3 "What is your favorite color?"
+options: ["Red", "Blue", "Green", "Yellow"]
+
+
+// similar to prairielearn:
+section "Quiz Section"
+
+variable score = 0
+
+question choice hidden Q4 “What is 2+2”
+options: [“1” ,”4”]
+correct: “4”
+
+question choice hidden Q5 “What is 3x3”
+options: [“6” ,”9”]
+correct: “9”
+
+question choice hidden Q6 “What is Capital of Canada”
+options: randomized[“Vancouver” ,”Washington”, “Paris”, “Ottawa”]
+correct: “Ottawa”
+
+question group "Exam Questions"
+show 2 from [Q4, Q5, Q6]
+
+question submit "Submit Answers"
+
+// script to answer questions
+for each question:
+	if selected correct:
+		score += 1
+
+if score > 2
+   display "Great job!"
+else
+   display "You failed. Please drop out"
+```
+
 ## Note any important changes/feedback from TA discussion.
 
 Three ideas for DSLs were presented to the TA during the discussion. The general feedback was that a form creator DSL would provide the runway for the greatest feature set out of the ideas presented. There was one main piece of feedback from the TA for the Form Builder DSL when it was presented during the check-in:
