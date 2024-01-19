@@ -31,7 +31,7 @@ Create form{
 }
 ```
 
-The example below demonstrates how a user can create a form with two sections - one “Basic Information” and one “Quiz Section”. Each question would be constructed by the DSL based on the data provided in their definition. A procedure is added to grade answers to the questions upon submission by the user.
+The example below demonstrates how a user can create a form with two sections - one “Basic Information” and one “Quiz Section”. Each question would be constructed by the DSL based on the data provided in their definition. A procedure is added to grade answers to the questions upon submission by the user. This example uses an alternative syntax to the example provided above.
 
 ```
 create form “Math Exam”
