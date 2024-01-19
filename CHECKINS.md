@@ -1,6 +1,6 @@
 Use this file to commit information clearly documenting your check-ins' content. If you want to store more information/details besides what's required for the check-ins that's fine too. Make sure that your TA has had a chance to sign off on your check-in each week (before the deadline); typically you should discuss your material with them before finalizing it here.
 
-### Check-In 1 - January 19, 2024
+# Check-In 1 - January 19, 2024
 
 ## What is the high-level purpose of your DSL? What kind of users is it aimed at? What will it enable users to do?
 
@@ -10,9 +10,9 @@ The language may also be used in other applications that require processing of f
 
 ## What are the 2-3 rich features of your DSL? What customisation will each feature enable? Which features can be combined to interact in useful or creative ways?
 
-Loops: Enable users to ask the same questions about different items in an array.
-Conditional: Allow users to make questions/fields appear based on answers to previous questions.
-Functions/Procedure: Provide functionality to create grading criteria, which can mark answers to questions as correct or incorrect after submitting. Procedures can also be used to programmatically generate questions so they change slightly each time the page is loaded (similar to the “Try new variant” functionality in PrairieLearn).
+**1. Loops**: Enable users to ask the same questions about different items in an array. \
+**2. Conditional Statements**: Allow users to make questions/fields appear based on answers to previous questions. \
+**3. Functions/Procedure**: Provide functionality to create grading criteria, which can mark answers to questions as correct or incorrect after submitting. Procedures can also be used to programmatically generate questions so they change slightly each time the page is loaded (similar to the “Try new variant” functionality in PrairieLearn).
 
 Each of the features listed above can be combined. For example, a function can consist of a loop to iterate over questions with a conditional statement that can check for correct answers.
 
