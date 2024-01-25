@@ -9,7 +9,7 @@ Types:
         header: string || function
         instructions: string || function
         // The displayQuestions field is to control how many questions are displayed. So the developer can write a number of questions, but only display them randomly to the quiz taker as a way to make each quiz slightly different
-        displayQuestions: all | num
+        displayQuestions: all | int
         questions: []
         vars: {}
     - question
@@ -20,7 +20,7 @@ Types:
         dependsOn: string
         displayIf: function || regex || string
         // Can use the loop field to repeat the question a number of times with different input. For example, if we want to ask a math question with different inputs, the question is only written once and displayed multiple times with different inputs. 
-        loop: num
+        loop: int
         isRequired: 0 | 1 # (default: 0)
         correctAnswer: string || function || null
         vars: {}
