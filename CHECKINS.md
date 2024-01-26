@@ -92,3 +92,50 @@ This feedback has been incorporated as one of the rich features of the language.
 ## Note any planned follow-up tasks or features still to design.
 
 The language tokens and syntax still need to be decided upon.
+
+# Check-In 2 - January 26, 2024
+
+## Planned division of main responsibilities between team members, considering how to enable working in parallel as much as possible.
+
+### Modular Design for the software system: what is the input, output of each component? Who is responsible for each component? Do you want to be jointly responsible for some components?
+
+| Module                        | Input                                 | Output        | Who is Responsible |
+| ----------------------------- | ------------------------------------- | ------------- | ------------------ |
+| Tokenizer, Parser             | String, Grammar Rules, List of Tokens | Parse Tree    | Rodrigo            |
+| AST Conversion, Static Checks | Parse Tree                            | Validated AST | Mohan, Kenny       |
+| Evaluation                    | Validated AST                         | Form          | Alex, Will         |
+
+### What is the data at each interface point? Are there invariants over the data other than the class structure?
+
+The data at each interface point has generally been described in the table above.
+
+### How will you be able to build component X independently? Can you write tests for component X independently of its dependent components?
+
+By defining the structure of each input/output, the group will be able to separate the implementation of each module. This will be completed once the language grammar has been defined.
+
+### Who will be responsible for writing which tests, and when (will the same people write the tests as the code)?
+
+The people who are responsible for each module will write their own tests. We will try test driven development. All tests will be written prior to beginning the DSL implementation. Tests can be peer reviewed by team members working on other modules, to ensure that the team is aligned.
+
+### Are there design or other project tasks (possibly including team management), other than these components, that need to be assigned/completed?
+
+The group needs to create the design for the form interface. As far as project tasks, the group has set up weekly meetings to review project progress.
+
+## Roadmap/timeline(s) for what should be done when, and how you will synchronise/check-in with each other to make sure progress is on-track. Talk clearly with your team members about your expectations for communication and progress, and what you will do as a team if someone falls behind.
+
+| Item                                                               | Timeline | Responsible      |
+| ------------------------------------------------------------------ | -------- | ---------------- |
+| Define a grammar for the DSL                                       | Jan 26   | Rodrigo          |
+| Define inputs and output data structures for each module           | Jan 28   | All team members |
+| Complete tests - AST conversion                                    | Feb 1    | Mohan, Kenny     |
+| Complete tests - AST evaluation                                    | Feb 1    | Alex, Will       |
+| Perform first User Study                                           | Feb 1    | Alex             |
+| Language design revisions from first User Study                    | Feb 2    | All team members |
+| Complete language implementation                                   | Feb 9    | All team members |
+| Perform final User Study                                           | Feb 12   | All team members |
+| Language design and implementation revisions from final User Study | Feb 14   | All team members |
+| Final project submission                                           | Feb 16   | All team members |
+
+## Summary of progress so far.
+
+This far into the project, the group has decided on the DSL to build as well as its feature set, and created several examples that make use of the feature set. The grammar of the language is actively being developed and reviewed. Once this has been completed, the group can proceed with creating tests and working on the implementation for the various modules.
