@@ -62,65 +62,60 @@ Types:
     pages: [
         // About You page
         {
-            id: "about-you-pg",
-            header: "About You",
-            sections: [
+            id: "personal-info",
+            header: "Personal Information",
+            instructions: "Please provide the following personal information",
+            questions: [
                 {
-                    id: "personal-info",
-                    header: "Personal Information",
-                    instructions: "Please provide the following personal information",
-                    questions: [
-                        {
-                            id: "first-name",
-                            type: "textInput",
-                            label: "First Name",
-                            isRequired: 1
-                        },
-                        {
-                            id: "last-name",
-                            type: "textInput",
-                            label: "Last Name",
-                            isRequired: 1
-                        },
-                        {
-                            // This question asks for a date, so I picked the textInput question type. If we want, we can add a question type for calendar input. 
-                            id: "dob",
-                            type: "textInput",
-                            label: "Date of Birth",
-                            isRequired: 1
-                        }
-                    ]
+                    id: "first-name",
+                    type: "textInput",
+                    label: "First Name",
+                    isRequired: 1
+                },
+                {
+                    id: "last-name",
+                    type: "textInput",
+                    label: "Last Name",
+                    isRequired: 1
+                },
+                {
+                    // This question asks for a date, so I picked the textInput question type. If we want, we can add a question type for calendar input. 
+                    id: "dob",
+                    type: "textInput",
+                    label: "Date of Birth",
+                    isRequired: 1
                 }
+
             ]
         },
         {
             id: "demographic-info",
-                    header: "Demographic Information",
-                    instructions: "Please provide the following demographic information",
-                    questions: [
-                        {
-                            id: 'ethnicity',
-                            label: 'What ethnicity do you identify as?',
-                            type: 'checkbox',
-                            options: [
-                                'White',
-                                'Black or African American',
-                                'Hispanic or Latino',
-                                'Asian',
-                                'First Nations',
-                                'Other'
-                            ],
-                            isRequired: 0,
-                        },
-                        {
-                            id: 'ethnicity-other',
-                            label: 'If other, please specify your ethnicity',
-                            type: 'textInput',
-                            // This question is only displayed if the user selects 'Other' in the previous question
-                            dependsOn: 'ethnicity',
-                            displayIf: 'Other'
-                        }
-                    ]
+            header: "Demographic Information",
+            instructions: "Please provide the following demographic information",
+            questions: [
+                {
+                    id: 'ethnicity',
+                    label: 'What ethnicity do you identify as?',
+                    type: 'checkbox',
+                    options: [
+                        'White',
+                        'Black or African American',
+                        'Hispanic or Latino',
+                        'Asian',
+                        'First Nations',
+                        'Other'
+                    ],
+                    isRequired: 0,
+                },
+                {
+                    id: 'ethnicity-other',
+                    label: 'If other, please specify your ethnicity',
+                    type: 'textInput',
+                    // This question is only displayed if the user selects 'Other' in the previous question
+                    dependsOn: 'ethnicity',
+                    displayIf: 'Other'
+                }
+            ]
         },
         {
             id: "contact-info-pg",
@@ -287,6 +282,7 @@ Types:
         {
             id: "metal-pg",
             header: "Metal",
+            instructions: "Please specify the type of metal you are",
             goto: {
                 if: "metal",
                 go: {
@@ -301,24 +297,17 @@ Types:
             questions: [
                 {
                     id: "metal",
-                    header: "Metal",
-                    instructions: "Please specify the type of metal you are",
-                    questions: [
-                        {
-                            id: "metal",
-                            type: "radio",
-                            label: "What type of metal are you?",
-                            options: [
-                                "Alkali Metal",
-                                "Alkaline Earth Metal",
-                                "Transition Metal",
-                                "Post-Transition Metal",
-                                "Lanthanide",
-                                "Actinide"
-                            ],
-                            isRequired: 1
-                        }
-                    ]
+                    type: "radio",
+                    label: "What type of metal are you?",
+                    options: [
+                        "Alkali Metal",
+                        "Alkaline Earth Metal",
+                        "Transition Metal",
+                        "Post-Transition Metal",
+                        "Lanthanide",
+                        "Actinide"
+                    ],
+                    isRequired: 1
                 }
             ]
         },
