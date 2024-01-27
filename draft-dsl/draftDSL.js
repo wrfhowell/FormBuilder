@@ -3,20 +3,14 @@ Types:
     - page:
         *id: string
         header: string | function | var
-        *sections: []
+        instructions: string | function | var
         goTo: {}
         vars: {}
-    - section
-        *id: string 
-        header: string | function
-        instructions: string | function
-        // The displayQuestions field is to control how many questions are displayed. So the developer can write a number of questions, but only display them randomly to the quiz taker as a way to make each quiz slightly different
         displayQuestions: all | int
         questions: []
-        vars: {}
     - question
         *id: string 
-        *type: "textInput" | "radio" | "checkbox" | "dropdown"
+        *type: "textInput" | "radio" | "checkbox" | "dropdown" 
         *label: string | function 
         options: function | [] | null
         dependsOn: string
@@ -56,8 +50,7 @@ Types:
 
     // The form object has static methods the developer can use for question generation
     - Form: {
-        getRandomInt(lowRange, highRange),
-        getRandomFromList(list),
+        getRandomInt(lowRange, highRange)
     }
 
 
@@ -97,9 +90,11 @@ Types:
                             isRequired: 1
                         }
                     ]
-                },
-                {
-                    id: "demographic-info",
+                }
+            ]
+        },
+        {
+            id: "demographic-info",
                     header: "Demographic Information",
                     instructions: "Please provide the following demographic information",
                     questions: [
@@ -126,9 +121,6 @@ Types:
                             displayIf: 'Other'
                         }
                     ]
-                }
-                
-            ]
         },
         {
             id: "contact-info-pg",
@@ -179,7 +171,7 @@ Types:
                                 Alberta: albertaCities,
                                 'Newfoundland and Labrador': newfoundlandAndLabradorCities
                             },
-                            isRequired: 1
+                            isRequired: 1,
                             vars: {
                                 ontarioCities: ['Toronto', 'Ottawa', 'Mississauga', 'Brampton', 'Hamilton', 'London', 'Markham', 'Vaughan', 'Kitchener', 'Windsor'],
                                 quebecCities: ['Montreal', 'Quebec City', 'Laval', 'Gatineau', 'Longueuil', 'Sherbrooke', 'Saguenay', 'Levis', 'Trois-Rivieres', 'Terrebonne'],
@@ -225,7 +217,7 @@ Types:
                             vars: {
                                 num1: Form.getRandomInt(1, 100),
                                 num2: Form.getRandomInt(1, 100),
-                                ans: () => {num1 + num2}
+                                ans: () => {num1 + num2} // - / % *
                             }
                         },
                     ]
@@ -269,6 +261,7 @@ Types:
         {
             id: "classification-pg",
             header: "Classification",
+            instructions: "Please classify yourself",
             goTo: {
                 if: "what-are-you",
                 go: {
@@ -277,31 +270,35 @@ Types:
                     "Metalloid": "metalloid-pg"
                 }
             },
-            sections: [
+            questions: [
                 {
-                    id: "classification",
-                    header: "Classification",
-                    instructions: "Please classify yourself",
-                    questions: [
-                        {
-                            id: "what-are-you",
-                            type: "radio",
-                            label: "What are you?",
-                            options: [
-                                "Metal",
-                                "Nonmetal",
-                                "Metalloid"
-                            ],
-                            isRequired: 1
-                        }
-                    ]
+                    id: "what-are-you",
+                    type: "radio",
+                    label: "What are you?",
+                    options: [
+                        "Metal",
+                        "Nonmetal",
+                        "Metalloid"
+                    ],
+                    isRequired: 1
                 }
             ]
         },
         {
             id: "metal-pg",
             header: "Metal",
-            sections: [
+            goto: {
+                if: "metal",
+                go: {
+                    "Alkali Metal": "alkali-metal-pg",
+                    "Alkaline Earth Metal": "alkaline-earth-metal-pg",
+                    "Transition Metal": "transition-metal-pg",
+                    "Post-Transition Metal": "post-transition-metal-pg",
+                    "Lanthanide": "lanthanide-pg",
+                    "Actinide": "actinide-pg"
+                }
+            },
+            questions: [
                 {
                     id: "metal",
                     header: "Metal",
@@ -328,23 +325,24 @@ Types:
         {
             id: "nonmetal-pg",
             header: "Nonmetal",
-            sections: [
+            goto: {
+                if: "nonmetal",
+                go: {
+                    "Reactive Nonmetal": "reactive-nonmetal-pg",
+                    "Noble Gas": "noble-gas-pg"
+                }
+            },
+            instructions: "Please specify the type of nonmetal you are",
+            questions: [
                 {
                     id: "nonmetal",
-                    header: "Nonmetal",
-                    instructions: "Please specify the type of nonmetal you are",
-                    questions: [
-                        {
-                            id: "nonmetal",
-                            type: "radio",
-                            label: "What type of nonmetal are you?",
-                            options: [
-                                "Reactive Nonmetal",
-                                "Noble Gas"
-                            ],
-                            isRequired: 1
-                        }
-                    ]
+                    type: "radio",
+                    label: "What type of nonmetal are you?",
+                    options: [
+                        "Reactive Nonmetal",
+                        "Noble Gas"
+                    ],
+                    isRequired: 1
                 }
             ]
         }
