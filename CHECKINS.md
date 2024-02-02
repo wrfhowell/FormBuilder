@@ -139,3 +139,369 @@ The group needs to create the design for the form interface. As far as project t
 ## Summary of progress so far.
 
 This far into the project, the group has decided on the DSL to build as well as its feature set, and created several examples that make use of the feature set. The grammar of the language is actively being developed and reviewed. Once this has been completed, the group can proceed with creating tests and working on the implementation for the various modules.
+
+# Check-In 3 - February 2, 2024
+
+## Explain a mockup of your concrete language design (as used for your first user study), including descriptions of both the syntax and what is meant to happen. Include the example snippets you used in your user study, and their outputs.
+
+The code snippet below contains a mock up of the language design that was used in the first user study. This snippet generates a quiz as a series of forms. The first form contains a prompt “Please classify yourself”. Based on the answer to this question, the quiz branches out and users will be directed to different questions. If they answer “Metal”, they will be directed to a page prompting them “Please specify the type of metal you are” with options “Alkali Metal”, “Alkaline Earth Metal”, “Transition Metal”, “Post-Transition Metal”, “Lanthanide”, and “Actinide”. If the user had answered “Nonmetal” to the first question, they would be directed to a form prompting them to “Please specify the type of nonmetal you are”. The options for this question are “Reactive Nonmetal” and “Noble Gas”.
+
+### Language Mock-Up Used in User Study:
+
+```
+/**
+ * Form Generator script example 2
+ *
+ * Question 1: Basic Classification
+ *  Option A: Are you a Metal?
+ *  Option B: Are you a Nonmetal?
+ *  Option C: Are you a Metalloid?
+ *
+ * Based on the answer to Question 1, the follow-up questions will branch out:
+ *  Follow-Up Questions if Option A (Metal) is Chosen
+ *      Question 2A: Type of Metal
+ *          Option A1: Alkali Metal
+ *          Option A2: Alkaline Earth Metal
+ *          Option A3: Transition Metal
+ *          Option A4: Post-Transition Metal
+ *          Option A5: Lanthanide
+ *          Option A6: Actinide
+ *
+ *  Follow-Up Questions if Option B (Nonmetal) is Chosen
+ *      Question 2B: Type of Nonmetal
+ *          Option B1: Reactive Nonmetal
+ *          Option B2: Noble Gas
+ */
+
+{
+  pages: [
+    {
+      id: "classification-pg",
+      header: "Classification",
+      instructions: "Please classify yourself",
+      goTo: {
+        if: "what-are-you",
+        go: {
+          Metal: "metal-pg",
+          Nonmetal: "nonmetal-pg",
+          Metalloid: "metalloid-pg",
+        },
+      },
+      questions: [
+        {
+          id: "what-are-you",
+          type: "radio",
+          label: "What are you?",
+          options: ["Metal", "Nonmetal", "Metalloid"],
+          isRequired: 1,
+        },
+      ],
+    },
+    {
+      id: "metal-pg",
+      header: "Metal",
+      instructions: "Please specify the type of metal you are",
+      goto: {
+        if: "metal",
+        go: {
+          "Alkali Metal": "alkali-metal-pg",
+          "Alkaline Earth Metal": "alkaline-earth-metal-pg",
+          "Transition Metal": "transition-metal-pg",
+          "Post-Transition Metal": "post-transition-metal-pg",
+          Lanthanide: "lanthanide-pg",
+          Actinide: "actinide-pg",
+        },
+      },
+      questions: [
+        {
+          id: "metal",
+          type: "radio",
+          label: "What type of metal are you?",
+          options: [
+            "Alkali Metal",
+            "Alkaline Earth Metal",
+            "Transition Metal",
+            "Post-Transition Metal",
+            "Lanthanide",
+            "Actinide",
+          ],
+          isRequired: 1,
+        },
+      ],
+    },
+    {
+      id: "nonmetal-pg",
+      header: "Nonmetal",
+      goto: {
+        if: "nonmetal",
+        go: {
+          "Reactive Nonmetal": "reactive-nonmetal-pg",
+          "Noble Gas": "noble-gas-pg",
+        },
+      },
+      instructions: "Please specify the type of nonmetal you are",
+      questions: [
+        {
+          id: "nonmetal",
+          type: "radio",
+          label: "What type of nonmetal are you?",
+          options: ["Reactive Nonmetal", "Noble Gas"],
+          isRequired: 1,
+        },
+      ],
+    },
+  ];
+}
+```
+
+### User Study Participant #1 Results:
+
+```
+{
+    pages: [
+        {
+            id: "garment-pg",
+            header: "Garment Type",
+            instructions: "What type of garment are you?",
+            goTo: {
+                if: "what-garment-are-you",
+                go: {
+                    Sweater: "sweater-pg",
+                    Scarf: "scarf-pg"
+                },
+            },
+            questions: [
+                {
+                    id: "what-garment-are-you",
+                    type: "radio",
+                    label: "What type of garment are you?",
+                    options: [ "Sweater", "Scarf" ],
+                    isRequired: 1
+                },
+            ],
+        },
+        {
+            id: "sweater-pg",
+            header: "What colour sweater are you?",
+            instructions: "Choose a colour",
+            goTo: {
+                if: "blue",
+                go: {
+                    LightBlue: "light-blue-pg",
+                    DarkBlue: "dark-blue-pg"
+                },
+            },
+            questions: [
+                {
+                    id: "what-colour-are-you",
+                    type: "radio",
+                    label: "What colour sweater are you?",
+                    options: [ "Light Blue", "Dark Blue" ],
+                    isRequired: 1
+                }
+            ]
+        },
+
+        {
+            id: "scarf-pg",
+            header: "What sized scarf are you?",
+            instructions: "Choose a size",
+            goTo {
+                if: "what-size-are-you",
+                go: {
+                    Large: "large-scarf-pg",
+                    Small: "small-scarf-pg",
+                }
+
+            },
+            questions: [
+                id: "what-size-are-you",
+                type: "radio",
+                label: "What size scarf are you?",
+                options: ["Large", "Small],
+                isRequired: 1
+            ]
+        }
+    ],
+}
+```
+
+### User Study Participant #2 Results
+
+```
+{
+    pages: [
+        {
+            id: "choose-your-own-adventure-pg",
+            header: "Interactive Adventure Game",
+            instructions: "Choose your own path to make a unique adventure",
+            goTo: {
+                if: "area",
+                go: {
+                    "Jungle": "jungle-pg",
+                    "Mountains": "mountain-pg",
+                    "Sea": "sea-pg",
+                    "Desert": "desert-pg",
+                }
+            },
+            questions: [
+                {
+                    id: "name",
+                    type: "textInput",
+                    label: "Name",
+                    isRequired: 1,
+                },
+                {
+                    id: "area",
+                    type: "radio",
+                    label: "What landscape do you want to explore?",
+                    options: ["Jungle", "Mountains", "Sea", "Desert"],
+                    isRequired: 1,
+                }
+            ]
+        },
+        {
+            id: "jungle-pg",
+            header: "Welcome to the Jungle!",
+            goTo: {
+                if: "jungle-method",
+                go: {
+                    "by zipline": "zipline-pg",
+                    "by boat": "boat-pg",
+                    "by foot": "foot-pg",
+                }
+            },
+            questions: [
+                {
+                    id: "jungle-method",
+                    type: "radio",
+                    label: "The air is hot and humid here, and I can feel the day getting warmer. We need to find somewhere cooler with food and shelter soon. How do you want to explore the jungle?",
+                    options: ["by zipline", "by boat", "by foot"],
+                    isRequired: 1,
+                }
+            ]
+        },
+        {
+            id: "zipline-pg",
+            header: "The zipline through the treetops was beautiful! But a thick mist just rolled in and it's getting hard to see...",
+            questions: [
+                {
+                    id: "zipline",
+                    type: "radio",
+                    label: "What should we do next?",
+                    options: ["keep going, follow the birds for directions", "get down and shelter by the waterfall below", "climb through the trees above the mist to see the way"],
+                    isRequired: 1,
+                }
+            ]
+        },
+        {
+            id: "boat-pg",
+            header: "The local tribes let us join their boat down the river and showed us how to build our own rafts. But now it looks like crocodiles may be following us...",
+            questions: [
+                {
+                    id: "river",
+                    type: "radio",
+                    label: "What should we do next?",
+                    options: ["abandon the raft and swim to the nearest shore quick!", "hold steady and go down the rapids ahead to escape them", "call for help from the local tribesmen"],
+                    isRequired: 1,
+                }
+            ]
+        },
+        {
+            id: "foot-pg",
+            header: "Travelling by foot has proved a great way of exploring the jungle floor, finding lots of food. We even stumbled upon an old Mayan temple...",
+            questions: [
+                {
+                    id: "temple",
+                    type: "radio",
+                    label: "What should we do next?",
+                    options: ["go in the temple! let's see what's in there!", "stay outside, there could be deadly traps or a jaguar inside", "make ourselves some weapons then head inside"],
+                    isRequired: 1,
+                }
+            ]
+        },
+        {
+            id: "mountain-pg",
+            header: "Welcome to the Mountains!",
+            goTo: {
+                if: "mountain-method",
+                go: {
+                    "on skis": "ski-pg",
+                    "on bikes": "bike-pg",
+                    "on foot": "hike-pg",
+                }
+            },
+            questions: [
+                {
+                    id: "mountain-method",
+                    type: "radio",
+                    label: "The beautiful mountains lie ahead of us, with glaciers and lakes, but there's a lot of terrain we need to cover to find safety. How should we explore the mountains?",
+                    options: ["on skis", "on bikes", "on foot"],
+                    isRequired: 1,
+                }
+            ]
+        },
+        {
+            id: "ski-pg",
+            header: "Skis were definitely the right way to go, there's a lot of snow out here! But I see some deep crevasses in our way...",
+            questions: [
+                {
+                    id: "crevasse",
+                    type: "radio",
+                    label: "What should we do next?",
+                    options: ["keep going, trust the glacier to keep us safe", "turn back and try to find a way through the valley", "get climbing gear and try to climb along the ridgeline"],
+                    isRequired: 1,
+                }
+            ]
+        },
+        {
+            id: "bike-pg",
+            header: "Bikes allowed us to cover a lot of distance and find an old cabin to shelter in! But unfortunately the cabin doesn't have any food or water nearby...",
+            questions: [
+                {
+                    id: "cabin",
+                    type: "radio",
+                    label: "What should we do next?",
+                    options: ["hope that someone finds us tomorrow for help", "bike through the night to find a lake for some fish", "try to build a squirrel trap and get our own food"],
+                    isRequired: 1,
+                }
+            ]
+        },
+        {
+            id: "hike-pg",
+            header: "Hiking through the mountains has let us navigate the terrain easily and follow ridgelines to see the safest path. But it's getting dark now and we have nowhere to shelter...",
+            questions: [
+                {
+                    id: "night",
+                    type: "radio",
+                    label: "What should we do next?",
+                    options: ["find some snow and try to build a warm snow cave", "keep hiking through the night to try and find shelter", "hike into the valley floor and try to start a fire to stay warm"],
+                    isRequired: 1,
+                }
+            ]
+        }
+    ]
+}
+```
+
+## Notes about your first user study. What did they find easy/difficult? What did you learn from your user(s)? Is there anything you would have done differently? Can this be done for your final user study?
+
+The first user study went well for the most part. The users found it straightforward to study the example provided to generate quizzes of their own.
+
+From the user study, the group learned that the number of brackets involved in the language does not make it easy to write. One user claimed it would be simpler to write a quiz if the syntax allowed for a more written language-like approach (as in JavaScript, Python, etc.). This user also experienced some confusion around the syntax of the “if” statements in the language, and suggested that this could be refined.
+
+Due to time constraints, the user study was administered separately to the participants. In future, it may be better to attempt to get two participants who can meet together at the same time, and administer the user study once. This approach could be taken for the final user study, given that some planning is done beforehand to arrange the schedule.
+
+## What changes to your language design have you made so far, or are considering? How does this affect the example snippets you include here?
+
+- Removed sections in favour of having just pages and questions. Examples already updated.
+- In the process of moving from JSON format to a more Python-esque format. There will be less brackets and be easier to read.
+- Moving variables and functions to a global scope as opposed to question scoped.
+
+## Any changes to your project timeline/plan that you need to make?
+
+There is one definite change that must be made to the project timeline, with one potential change. The original timeline aimed to have the language design revisions from the first user study completed by February 2nd. Now that the group has decided to move from the JSON format to a more Python-esque format, this step will need a few extra days. It will not impact the remainder of the schedule. The same set of tokens will be used to create the AST, and therefore work can begin on the AST conversion and on the Evaluator components of the DSL while the grammar is being revised. Given the complexity of the language, completion of the implementation may take more than one week, which was the original estimate. The team will start on the implementation soon and will need to update this item in the project timeline as required. The final user study can still be expected to be completed on February 12, given that it does not take too long to administer these.
+
+## Are there new tests you can write now, based on your current project status? How can your snippets be made into unit tests, and for which component(s)? What about planned error handling in your components? Tests for these?
+
+We can use the existing JSON format generated lexer/parser to test that the parse tree converts to our desired AST. We can also begin working on AST and evaluation tests, as those require a visualisation of the parse tree and the AST tree, which we have diagrams completed for. If our grammar rules are changing however, that might mean a change in the types and numbers of tests we are doing, which should be simple enough to refactor.
