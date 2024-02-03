@@ -25,6 +25,7 @@ or use a version manager like SDKMAN! or jEnv for easier management of multiple 
 Ensure that the `JAVA_HOME` environment variable is set to your JDK installation path. This is needed for Maven to 
 compile the project.
 
+
 ### Download maven
 
 If on mac, do `brew install mvn`
