@@ -25,11 +25,16 @@ or use a version manager like SDKMAN! or jEnv for easier management of multiple 
 Ensure that the `JAVA_HOME` environment variable is set to your JDK installation path. This is needed for Maven to 
 compile the project.
 
+
+### Download maven
+
+If on mac, do `brew install mvn`
+
+Check you have mvn using `mvn -v`
+
 ## Getting Started
 
 1. **Clone the repository**:
-   git clone https://github.com/yourusername/cpsc410-form-builder.git
-   cd cpsc410-form-builder
 2. **Build the project** (ensure Maven is installed):
 mvn clean install
 3. **Run the application**:
