@@ -22,9 +22,9 @@ export class PagesObj {
   createPageHTML(page: PageObj) {
     console.log(`createPageHTML for page ${page.getId()}`);
     let html: string = `<html>
-${page.getHeader() ? `<h1>${page.getHeader()}</h1>` : ""}
-<p>${page.getInstructions()}</p>
-</html>`;
+    ${page.getHeader() ? `<h1>${page.getHeader()}</h1>` : ""}
+    <p>${page.getInstructions()}</p>
+    </html>`;
 
     try {
       fs.mkdirSync("out");

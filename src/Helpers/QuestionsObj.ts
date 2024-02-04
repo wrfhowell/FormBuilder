@@ -8,4 +8,8 @@ export class QuestionsObj {
   addQuestion(question: QuestionObj) {
     this.questions.push(question);
   }
+
+  getQuestions() {
+    return this.questions;
+  }
 }
