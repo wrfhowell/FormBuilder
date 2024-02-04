@@ -1,13 +1,13 @@
 parser grammar FormGeneratorParser;
 options { tokenVocab=FormGeneratorLexer; }
 
-program: OBJECT_START pages SEP variables  OBJECT_END;
+program: OBJECT_START pages (SEP variables)*  OBJECT_END;
 
 // Pages Array
 pages: PAGES_KEY COLON page_array;
 page_array: LIST_START page (SEP page)* LIST_END;
-page: OBJECT_START page_fields OBJECT_END;
-page_fields: id_field (SEP header_field)? (SEP instructions_field)? (SEP questions_field)? (SEP goTo_field)? (SEP variables)? (SEP displayQuestions_field)?;
+page: OBJECT_START page_fields OBJECT_END (SEP OBJECT_START page_fields OBJECT_END)*;
+page_fields: id_field (SEP header_field)? (SEP instructions_field)? (SEP goTo_field)? (SEP variables)? (SEP questions_field)?;
 id_field: ID_KEY COLON STRING;
 header_field: HEADER_KEY COLON (STRING | expression | variable_name);
 instructions_field: INSTRUCTIONS_KEY COLON (STRING | expression | variable_name);
@@ -22,8 +22,11 @@ variables_object: OBJECT_START (variable_name COLON variable_value (SEP STRING C
 variable_name: STRING;
 variable_value: array | NUM | STRING | REGEX;
 
-// goTo object {if: string, goTo: string}
-goTo_object: OBJECT_START (IF_KEY COLON STRING SEP GO_KEY COLON STRING) OBJECT_END;
+// goTo object {if: string, goTo: object}
+goTo_object: OBJECT_START (IF_KEY COLON STRING SEP go_object (SEP go_object)*)? OBJECT_END;
+
+// go object { string, string, ... }
+go_object: GO_KEY COLON OBJECT_START (STRING (SEP STRING)*)? OBJECT_END ;
 
 // Question Array
 question_array: LIST_START (question (SEP question)*)? LIST_END;
