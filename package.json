@@ -5,12 +5,16 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx tsc --outDir ./dist && node ./dist/index.js"
+    "start": "npx tsc --outDir ./dist && node ./dist/index.js",
+    "antlr": "antlr4ts -visitor -o ./generated ./src/parser/FormGeneratorLexer.g4 && antlr4ts -visitor -o ./generated -lib ./generated/src/parser ./src/parser/FormGeneratorParser.g4"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^20.11.16",
     "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "antlr4ts": "^0.5.0-alpha.4"
   }
 }
