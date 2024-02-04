@@ -20,3 +20,8 @@
 *.rar
 
 hs_err_pid*
+
+# Node Modules
+node_modules/
+dist/
+out/
