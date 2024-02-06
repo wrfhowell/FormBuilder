@@ -2,18 +2,17 @@ import {
   Visitor,
   Page,
   Pages,
-  Header,
-  Instructions,
+  Header_Field,
+  Instructions_Field,
   Program,
-  PageId,
+  Id_Field,
   PagesObj,
   PageObj,
-  Questions,
   Question,
-  QuestionObj,
+  QuestionObj, Node,
 } from "../export";
 
-type ASTNode = Page | Pages | Header | Instructions | Program;
+type ASTNode = Page | Pages | Header_Field | Instructions_Field | Program;
 
 export class Evaluator implements Visitor<string, void> {
   pages: PagesObj | undefined;
@@ -33,7 +32,8 @@ export class Evaluator implements Visitor<string, void> {
     Question: this.visitQuestion,
   };
 
-  visit(context: string, node: ASTNode) {
+  //TODO: May have to reimplement this
+  visit(context: string, node: Node) {
     let nodeType: string = node.constructor.name;
     this.jumpTable[nodeType](this, context, node);
   }
@@ -53,8 +53,8 @@ export class Evaluator implements Visitor<string, void> {
     }
   }
 
-  visitHeader(evaluator: Evaluator, context: string, header: Header) {
-    console.log("Visiting Header");
+  visitHeader(evaluator: Evaluator, context: string, header: Header_Field) {
+    console.log("Visiting Header_Field");
     if (evaluator.latestPage) {
       evaluator.latestPage.setHeader(header.toString());
     } else {
@@ -65,9 +65,9 @@ export class Evaluator implements Visitor<string, void> {
   visitInstructions(
     evaluator: Evaluator,
     context: string,
-    instructions: Instructions
+    instructions: Instructions_Field
   ) {
-    console.log("Visiting Instructions");
+    console.log("Visiting Instructions_Field");
     if (evaluator.latestPage) {
       evaluator.latestPage.setInstructions(instructions.toString());
     } else {
@@ -75,20 +75,21 @@ export class Evaluator implements Visitor<string, void> {
     }
   }
 
+  //TODO: FIX THIS
   visitProgram(evaluator: Evaluator, context: string, program: Program) {
     console.log("Visiting Program");
-    program.getNodes().forEach((node) => {
+    /*program.getNodes().forEach((node) => {
       node.accept(context, evaluator);
-    });
+    });*/
   }
 
-  visitPageId(evaluator: Evaluator, context: string, id: PageId) {
-    console.log("Visiting PageId");
+  visitPageId(evaluator: Evaluator, context: string, id: Id_Field) {
+    console.log("Visiting Id_Field");
     evaluator.latestPage?.setId(id.toString());
   }
 
-  visitQuestions(evaluator: Evaluator, context: string, questions: Questions) {
-    console.log("Visiting Questions");
+  visitQuestions(evaluator: Evaluator, context: string, questions: Questions_Field) {
+    console.log("Visiting Questions_Field");
     evaluator.latestPage?.initQuestions();
   }
 

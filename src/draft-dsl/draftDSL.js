@@ -334,7 +334,7 @@ Types:
  *  Option C: Are you a Metalloid?
  *
  * Based on the answer to Question 1, the follow-up questions will branch out:
- *  Follow-Up Questions if Option A (Metal) is Chosen
+ *  Follow-Up Questions_Field if Option A (Metal) is Chosen
  *      Question 2A: Type of Metal
  *          Option A1: Alkali Metal
  *          Option A2: Alkaline Earth Metal
@@ -343,7 +343,7 @@ Types:
  *          Option A5: Lanthanide
  *          Option A6: Actinide
  *
- *  Follow-Up Questions if Option B (Nonmetal) is Chosen
+ *  Follow-Up Questions_Field if Option B (Nonmetal) is Chosen
  *      Question 2B: Type of Nonmetal
  *          Option B1: Reactive Nonmetal
  *          Option B2: Noble Gas

@@ -6,7 +6,7 @@ program: OBJECT_START pages (SEP variables)*  OBJECT_END;
 // Pages Array
 pages: PAGES_KEY COLON page_array;
 page_array: LIST_START page (SEP page)* LIST_END;
-page: OBJECT_START page_fields OBJECT_END (SEP OBJECT_START page_fields OBJECT_END)*;
+page: OBJECT_START page_fields OBJECT_END;
 page_fields: id_field (SEP header_field)? (SEP instructions_field)? (SEP goTo_field)? (SEP variables)? (SEP questions_field)?;
 id_field: ID_KEY COLON STRING;
 header_field: HEADER_KEY COLON (STRING | expression | variable_name);
@@ -53,8 +53,7 @@ object_value: STRING COLON (NUM | STRING);
 
 
 // Question Types
-question_type: TEXT_INPUT | select_question_type;
-select_question_type: RADIO | CHECKBOX | DROPDOWN;
+question_type: TEXT_INPUT | RADIO | CHECKBOX | DROPDOWN;
 
 // expressions
 expression: math_expression | string_expression;

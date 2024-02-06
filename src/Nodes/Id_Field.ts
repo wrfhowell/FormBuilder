@@ -1,14 +1,13 @@
-import { Node, Visitor } from "../export";
+import {Node, Questions_Field, Visitor} from "../export";
 
-export class PageId extends Node {
+export class Id_Field extends Node {
   id: string;
-
   constructor(str: string) {
     super();
     this.id = str;
   }
 
-  toString(): string {
+  getIdValue(): string {
     return this.id;
   }
 
