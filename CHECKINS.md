@@ -65,7 +65,7 @@ question choice hidden Q6 “What is Capital of Canada”
 options: randomized[“Vancouver” ,”Washington”, “Paris”, “Ottawa”]
 correct: “Ottawa”
 
-question group "Exam Questions"
+question group "Exam Questions_Field"
 show 2 from [Q4, Q5, Q6]
 
 question submit "Submit Answers"
@@ -158,7 +158,7 @@ The code snippet below contains a mock up of the language design that was used i
  *  Option C: Are you a Metalloid?
  *
  * Based on the answer to Question 1, the follow-up questions will branch out:
- *  Follow-Up Questions if Option A (Metal) is Chosen
+ *  Follow-Up Questions_Field if Option A (Metal) is Chosen
  *      Question 2A: Type of Metal
  *          Option A1: Alkali Metal
  *          Option A2: Alkaline Earth Metal
@@ -167,7 +167,7 @@ The code snippet below contains a mock up of the language design that was used i
  *          Option A5: Lanthanide
  *          Option A6: Actinide
  *
- *  Follow-Up Questions if Option B (Nonmetal) is Chosen
+ *  Follow-Up Questions_Field if Option B (Nonmetal) is Chosen
  *      Question 2B: Type of Nonmetal
  *          Option B1: Reactive Nonmetal
  *          Option B2: Noble Gas

@@ -1,22 +1,26 @@
-import { Node, Visitor } from "../export";
+import { Node, Visitor, Pages } from "../export";
+import {Variable} from "./Variable";
 
 export class Program extends Node {
-  statements: Node[];
+  private pages: Pages;
+  private variables: Variable[]
 
-  constructor() {
+
+  constructor(pages: Pages, variables: Variable[]) {
     super();
-    this.statements = [];
+    this.pages = pages;
+    this.variables = variables;
   }
 
-  addNode(node: Node) {
-    this.statements.push(node);
+  getPages(): Pages {
+    return this.pages;
   }
 
-  getNodes(): Node[] {
-    return this.statements;
+  getVariables(): Variable[] {
+    return this.variables;
   }
 
-  accept<C, T>(context: C, visitor: Visitor<C, T>): T {
-    return visitor.visit(context, this);
+  accept<C, T>(context: C, v: Visitor<C, T>): T {
+    return v.visit(context, this);
   }
 }
