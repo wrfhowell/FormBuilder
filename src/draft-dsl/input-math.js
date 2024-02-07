@@ -11,9 +11,9 @@
                     id: "addition-q-" + loopIndex,
 
 
-                    
+
                     type: "textInput",
-                    label: "{{num1}} + {{num2}} = ", 
+                    label: getAdditionQuestionLabel(num1, num2), 
                     isRequired: 1,
                     correctAnswer: ans,
                     // This question is repeated 5 times with different inputs
@@ -34,9 +34,9 @@
             displayQuestions: 5,
             questions: [
               {
-                id: "multiplication-q-{{loop}}",
+                id: "multiplication-q-" + loopIndex,
                 type: "textInput",
-                label: "{{num1}} * {{num2}} = ", 
+                label: "" + num1 + " * " + num2 + " = ", 
                 isRequired: 1,
                 correctAnswer: ans,
                 loop: 5,
@@ -56,9 +56,9 @@
             displayQuestions: 5,
             questions: [
               {
-                id: "algebra-q-{{loop}}",
+                id: "algebra-q-" + loopIndex,
                 type: "textInput",
-                label: "({{num1}}x * {{num2}}) + {{num3}} = {{num4}}", 
+                label: "" + num1 + "x * " + num2 + " + " num3 + " = " + num4,  //"({{num1}}x * {{num2}}) + {{num3}} = {{num4}}", 
                 isRequired: 1,
                 correctAnswer: ans,
                 loop: 5,
@@ -82,6 +82,10 @@
         algebraQuestionAns(num1, num2) {
             // Round to 2 decimal places
             return Form.roundNum((num4 - num3)/(num1 * num2) * 100)/100;
+        },
+
+        getAdditionQuestionLabel(num1, num2) {
+            return "" + num1 + " + " + num2 + " = ";
         },
 
     ];
