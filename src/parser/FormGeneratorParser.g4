@@ -1,7 +1,7 @@
 parser grammar FormGeneratorParser;
 options { tokenVocab=FormGeneratorLexer; }
 
-program: OBJECT_START pages (SEP functions)* (SEP variables)*  OBJECT_END;
+program: OBJECT_START pages (SEP functions) (SEP variables)  OBJECT_END;
 
 // Pages Array
 pages: PAGES_KEY COLON page_array;
