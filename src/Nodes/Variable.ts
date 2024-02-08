@@ -14,6 +14,7 @@ export class Variable extends Node {
         this.variableName = variableName;
         this.variableValue = variableValue;
         this.variableNameObject = new VariableName(variableName);
+        this.variable = {};
         this.variable[variableName] = variableValue;
     }
 

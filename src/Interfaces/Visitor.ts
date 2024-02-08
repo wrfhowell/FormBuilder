@@ -20,8 +20,8 @@ export interface Visitor<C, T> {
   visit(context: C, page: Page): T;
   visit(context: C, pages: Pages): T;
   visit(context: C, program: Program): T;
-  visit(context: C, question: Question);
-  visit(context: C, questionsArray: Question_Array);
+  visit(context: C, question: Question): T;
+  visit(context: C, questionsArray: Question_Array): T;
   visit(context: C, regex: Regex): T;
   visit(context: C, stringExpression: StringExpression): T;
   visit(context: C, variable: Variable): T;

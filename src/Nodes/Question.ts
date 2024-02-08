@@ -11,6 +11,7 @@ export class Question extends Node {
   private type: string | undefined;
   private label:  string | Expression | VariableName | undefined;
   private options: Options;
+  private dependsOn: string | undefined;
   private displayIf: string | Regex | Expression | undefined;
   private loop: number | undefined;
   private isRequired: boolean | undefined;
@@ -27,6 +28,7 @@ export class Question extends Node {
     this.type = type;
     this.label = label;
     this.options = options;
+    this.dependsOn = dependsOn;
     this.displayIf = displayIf;
     this.loop = loop;
     this.isRequired = isRequired;

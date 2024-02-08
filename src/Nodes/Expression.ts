@@ -12,7 +12,7 @@ export class Expression extends Node {
     }
 
     get getExpression() {
-        return this.getExpression;
+        return this.expression;
     }
 
     accept <C, T>(context: C, v: Visitor<C, T>): T {
