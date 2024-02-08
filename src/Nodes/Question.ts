@@ -1,26 +1,37 @@
-import {Header_Field, Id_Field, Instructions_Field, Node, Visitor} from "../export";
-import {QuestionType_Field} from "./QuestionType_Field";
-import {Label_Field} from "./Label_Field";
-import {Options_Field} from "./Options_Field";
-import {IsRequired_Field} from "./IsRequired_Field";
-import {GoTo_Object} from "./GoTo_Object";
-import {Question_Array} from "./Question_Array";
+import {Node, Visitor} from "../export";
+
+import {Options} from "./Options";
+import {Expression} from "./Expression";
+import {Regex} from "./Regex";
+import {VariablesArray} from "./VariablesArray";
+import {VariableName} from "./VariableName";
 
 export class Question extends Node {
+  private id: string;
+  private type: string | undefined;
+  private label:  string | Expression | VariableName | undefined;
+  private options: Options;
+  private displayIf: string | Regex | Expression | undefined;
+  private loop: number | undefined;
+  private isRequired: boolean | undefined;
+  private correctAnswer: string | number | Regex | Expression | undefined;
+  private questionVariables: VariablesArray | undefined
 
-  private id: Id_Field;
-  private type: QuestionType_Field;
-  private label: Label_Field;
-  private options: Options_Field;
-  private isRequired: IsRequired_Field;
-
-  constructor(id: Id_Field, type: QuestionType_Field, label: Label_Field, options: Options_Field, isRequired: IsRequired_Field) {
+  constructor(id: string, type: string | undefined, label: string | Expression | VariableName | undefined,
+              options: Options, dependsOn: string | undefined,
+              displayIf: string | Regex | Expression | undefined,
+              loop: number | undefined, isRequired: boolean | undefined,
+              correctAnswer: string | number | Regex | Expression | undefined, questionVariables: VariablesArray | undefined) {
     super();
     this.id = id;
-    this.type = QuestionType_Field;
-    this.label = Label_Field;
-    this.options = Options_Field;
-    this.isRequired = IsRequired_Field;
+    this.type = type;
+    this.label = label;
+    this.options = options;
+    this.displayIf = displayIf;
+    this.loop = loop;
+    this.isRequired = isRequired;
+    this.correctAnswer = correctAnswer;
+    this.questionVariables = questionVariables;
   }
 
   getId() {
@@ -39,8 +50,24 @@ export class Question extends Node {
     return this.options
   }
 
+  getDisplayIf() {
+    return this.displayIf;
+  }
+
+  getLoop() {
+    return this.loop;
+  }
+
   isQuestionRequired() {
     return this.isRequired;
+  }
+
+  getCorrectAnswer() {
+    return this.correctAnswer;
+  }
+
+  getQuestionVariables() {
+    return this.questionVariables;
   }
 
   accept<C, T>(context: C, v: Visitor<C, T>): T {

@@ -1,8 +1,39 @@
-import { Node, Visitor, Pages } from "../export";
+import { Node, Visitor } from "../export";
+import {Regex} from "./Regex";
+import {VariableName} from "./VariableName";
 
 export class Variable extends Node {
-    //TODO: Should this class be a page fields or a different variables
-    // class or a child of node? Should we make a different variable type for page fields?
+    private variable: { [id: string]:  (string | number | undefined)[] | number | string | Regex | undefined }
+    private variableName: string;
+    private variableNameObject: VariableName;
+    private variableValue: (string | number | undefined)[] | number | string | Regex | undefined;
+
+    constructor(variableName: string,
+                variableValue: (string | number | undefined)[] | number | string | Regex | undefined) {
+        super();
+        this.variableName = variableName;
+        this.variableValue = variableValue;
+        this.variableNameObject = new VariableName(variableName);
+        this.variable[variableName] = variableValue;
+    }
+
+    getVariable() {
+        return this.variable;
+    }
+
+    getVariableNameObject() {
+        return this.variableNameObject;
+    }
+
+    getVariableName() {
+        return this.variableName
+    }
+
+    getVariableValue() {
+        return this.variableValue;
+    }
+
+
     accept<C, T>(context: C, v: Visitor<C, T>): T {
         return v.visit(context, this);
     }

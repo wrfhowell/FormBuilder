@@ -1,176 +1,293 @@
 import {
-    Id_Field,
     Program,
     Pages,
     Page,
     Node,
-    Instructions_Field,
     Question,
-    Header_Field
 } from "../export";
 import {
     Array_valueContext,
-    ArrayContext, Go_objectContext, GoTo_objectContext,
+    ArrayContext,
+    CorrectAnswer_fieldContext,
+    DisplayIf_fieldContext, ExpressionContext,
+    Go_objectContext,
+    GoTo_objectContext,
     Header_fieldContext,
-    Id_fieldContext,
-    Instructions_fieldContext, IsRequired_fieldContext, Label_fieldContext, Object_valueContext, Options_fieldContext,
-    Page_arrayContext,
+    Instructions_fieldContext,
+    Label_fieldContext, Math_expressionContext,
+    Options_fieldContext,
     PageContext,
     PagesContext,
     Question_arrayContext,
-    QuestionContext,
-    Type_fieldContext,
-    VariablesContext
+    QuestionContext, String_expressionContext,
+    VariableContext,
+    Variables_objectContext,
 } from "../../generated/FormGeneratorParser";
 import {ProgramContext} from "../../generated/FormGeneratorParser";
 import {FormGeneratorParserVisitor} from "../../generated/FormGeneratorParserVisitor";
 import {AbstractParseTreeVisitor} from "antlr4ts/tree";
-import {Variable} from "../Nodes/Variable";
-import {Page_Array} from "../Nodes/Page_Array";
+import {VariablesArray} from "../Nodes/VariablesArray";
 import {Question_Array} from "../Nodes/Question_Array";
-import {QuestionType_Field} from "../Nodes/QuestionType_Field";
-import {Label_Field} from "../Nodes/Label_Field";
-import {Options_Field} from "../Nodes/Options_Field";
-import {Array_Value} from "../Nodes/Array_Value";
-import {ArrayCustom} from "../Nodes/ArrayCustom";
-import {IsRequired_Field} from "../Nodes/IsRequired_Field";
+import {Options} from "../Nodes/Options";
 import {GoTo_Object} from "../Nodes/GoTo_Object";
-import {Go_Object} from "../Nodes/Go_Object";
-import {TerminalNode} from "antlr4ts/tree/TerminalNode";
-import {Object_Value} from "../Nodes/Object_Value";
+import {Variable} from "../Nodes/Variable";
+import {Expression} from "../Nodes/Expression";
+import {Option} from "../Nodes/Option";
+import {Regex} from "../Nodes/Regex";
+import {VariableName} from "../Nodes/VariableName";
+import {StringExpression} from "../Nodes/StringExpression";
+import {MathExpression} from "../Nodes/MathExpression";
 
-export class ParseTreeToAST extends AbstractParseTreeVisitor<any> implements FormGeneratorParserVisitor<any>{
+export class ParseTreeToAST extends AbstractParseTreeVisitor<Node> implements FormGeneratorParserVisitor<Node>{
 
     visitProgram(ctx: ProgramContext): Program {
-        let variables: Variable[] = [];
-        for (const v:VariablesContext in ctx.variables()) {
-            variables.push(v.accept(this));
+        if (ctx.variables()?.variables_object()) {
+            return new Program(<Pages>ctx.pages().accept(<FormGeneratorParserVisitor<Node>>this),
+                <VariablesArray>ctx.variables()?.variables_object().accept(<FormGeneratorParserVisitor<Node>>this));
+        } else {
+            return new Program(<Pages>ctx.pages().accept(<FormGeneratorParserVisitor<Node>>this), undefined);
         }
-        return new Program(<Pages> ctx.pages().accept(this), variables);
     }
 
-    //TODO: Can probably just call visit children here!
+    visitVariables_object(ctx: Variables_objectContext): VariablesArray {
+        let variableList: Variable[] = [];
+        for (const v: VariableContext in ctx.variable()) {
+            const varName = v.variable_name().STRING().text;
+            const varValue = v.variable_value();
+            const regexValCheck = varValue.REGEX()?.text;
+            if (varValue.NUM()?.text) {
+                variableList.push(new Variable(varName, Number(varValue.NUM()?.text)));
+            } else if (varValue.STRING()?.text) {
+                variableList.push(new Variable(varName, varValue.STRING()?.text));
+            } else if (regexValCheck) {
+                variableList.push(new Variable(varName, new Regex(regexValCheck)));
+            } else if (varValue.array()) {
+                variableList.push(new Variable(varName, <(string | number | undefined)[]> varValue.array()?.accept(<FormGeneratorParserVisitor<Node>>this)));
+            } else {
+                variableList.push(new Variable(varName, undefined));
+            }
+        }
+        return new VariablesArray(variableList);
+    }
+
     visitPages(ctx: PagesContext): Pages {
-        return new Pages(<Page_Array> ctx.page_array().accept(this));
+        let pagesList: Page[] = []
+        for (const p:PageContext in ctx.page_array().page()) {
+            pagesList.push(<Page> p.accept(<FormGeneratorParserVisitor<Node>>this));
+        }
+        return new Pages(pagesList);
     }
 
-    visitPage_array(ctx: Page_arrayContext): Page_Array {
-        return this.visitChildren(ctx)
-    }
-
+    //TODO: Adjust field once Boolean problem is fixed
     visitPage(ctx: PageContext): Page  {
-        //TODO: Adjust instructions, header, and also include vars field!
-        let pageFields = ctx.page_fields()
-        let id = pageFields.id_field().accept(this);
-        let goTo = pageFields.goTo_field()?.goTo_object().accept(this);
-        let header = pageFields.header_field()?.accept(this);
-        let instructions = pageFields.instructions_field()?.accept(this);
-        let questionArray = pageFields.questions_field()?.question_array().accept(this);
-        return new Page(id, goTo, header, instructions, questionArray);
+        let pageFields = ctx.page_fields();
+        let id = pageFields.id_field().STRING().text;
+        let goTo = <GoTo_Object> pageFields.goTo_field()?.goTo_object().accept(<FormGeneratorParserVisitor<Node>>this);
+        let header = <string | Expression | VariableName | undefined> pageFields.header_field()?.accept(<FormGeneratorParserVisitor<Node>>this);
+        let instructions = <string | Expression | VariableName | undefined> pageFields.instructions_field()?.accept(<FormGeneratorParserVisitor<Node>>this);
+        let displayQuestions: boolean | undefined;
+        let questionArray: Question_Array = <Question_Array> pageFields.questions_field()?.question_array().accept(<FormGeneratorParserVisitor<Node>>this);
+        let varsObject: VariablesArray | undefined;
+        if (pageFields.displayQuestions_field()?.boolean()) {
+            displayQuestions = (Number(pageFields.displayQuestions_field()?.boolean().text) == 1);
+        } else {
+            displayQuestions = undefined;
+        }
+        if (pageFields.variables()?.variables_object()) {
+            varsObject = <VariablesArray> pageFields.variables()?.variables_object().accept(<FormGeneratorParserVisitor<Node>> this);
+        } else {
+            varsObject = undefined;
+        }
+        return new Page(id, goTo, header, instructions, displayQuestions, questionArray, varsObject);
     }
 
-    visitId_field(ctx: Id_fieldContext): Id_Field {
-        return new Id_Field(ctx.STRING().text)
+    visitHeader_field(ctx: Header_fieldContext): string | Expression | VariableName | undefined {
+        const headerString = ctx.STRING()?.text;
+        const headerExpression = <Expression>ctx.expression()?.accept(<FormGeneratorParserVisitor<Node>>this);
+        const headerVarName = ctx.variable_name()?.STRING().text;
+        if (headerString) {
+            return headerString;
+        } else if (headerExpression) {
+            return headerExpression;
+        } else if (headerVarName) {
+            return new VariableName(headerVarName);
+        } else {
+            return undefined;
+        }
     }
 
-    //TODO: Figure out Header
-    visitHeader_field(ctx: Header_fieldContext): Header_Field {
-        return new Header_Field(ctx.STRING()?.text)
-    }
-
-    //TODO: Figure out Instructions
-    visitInstructions_field(ctx: Instructions_fieldContext): Instructions_Field {
-        return new Instructions_Field(ctx.STRING()?.text);
+    visitInstructions_field(ctx: Instructions_fieldContext): string | Expression | VariableName | undefined {
+        const instructionString = ctx.STRING()?.text;
+        const instructionExpression = <Expression>ctx.expression()?.accept(<FormGeneratorParserVisitor<Node>>this);
+        const instructionVarName = ctx.variable_name()?.STRING().text;
+        if (instructionString) {
+            return instructionString;
+        } else if (instructionExpression) {
+            return instructionExpression;
+        } else if (instructionVarName) {
+            return new VariableName(instructionVarName);
+        } else {
+            return undefined;
+        }
     }
 
     visitQuestion_array(ctx: Question_arrayContext): Question_Array {
         const questionList: Question[] = [];
         for (const q:QuestionContext in ctx.question()) {
-            questionList.push(q.accept(this));
+            questionList.push(<Question> q.accept(<FormGeneratorParserVisitor<Node>> this));
         }
         return new Question_Array(questionList);
     }
 
+    //TODO: Adjust field once Boolean problem is fixed
     visitQuestion(ctx: QuestionContext): Question {
-        //TODO: No header field in question! Add dependsOn field, displayIf field, loop field, correctAnswer field and variables
-        let questionFields = ctx.question_fields()
-        let id = questionFields.id_field().accept(this);
-        let type = questionFields.type_field()?.accept(this);
-        let label = questionFields.label_field()?.accept(this);
-        let options = questionFields.options_field()?.accept(this);
-        let isRequired = questionFields.isRequired_field()?.accept(this);
-        //let header = questionFields.()?.accept(this);
-        return new Question(id, type, label, options, isRequired);
-    }
-
-    visitType_field(ctx: Type_fieldContext): QuestionType_Field {
-        return new QuestionType_Field(ctx.question_type().text);
-    }
-
-    visitLabel_field(ctx: Label_fieldContext): Label_Field {
-        return new Label_Field(ctx.STRING()?.text);
-    }
-
-    //TODO: Figure out Options
-    visitOptions_field(ctx: Options_fieldContext): Options_Field {
-        return new Options_Field()
-    }
-
-    visitArray(ctx: ArrayContext): ArrayCustom {
-        const arrayList: Array_Value[] = [];
-        for (const a:Array_valueContext in ctx.array_value()) {
-            arrayList.push(<Array_Value>a.accept(<FormGeneratorParserVisitor<Node>>this));
-        }
-        return new ArrayCustom(arrayList);
-    }
-
-    visitArray_value(ctx: Array_valueContext): Array_Value {
-        if (ctx.STRING()?.text != undefined) {
-            return new Array_Value(ctx.STRING()?.text);
-        } else if (ctx.NUM()?.text != undefined) {
-            return new Array_Value(Number(ctx.NUM()?.text));
+        let questionFields = ctx.question_fields();
+        let id = questionFields.id_field().STRING().text;
+        let type = questionFields.type_field()?.text;
+        let label= <string | Expression | VariableName | undefined> questionFields.label_field()?.accept(<FormGeneratorParserVisitor<Node>> this);
+        let options: Options = <Options> questionFields.options_field()?.accept(<FormGeneratorParserVisitor<Node>> this);
+        let dependsOn = questionFields.dependsOn_field()?.text;
+        let displayIf = <string | Regex | Expression | undefined> questionFields.displayIf_field()?.accept(<FormGeneratorParserVisitor<Node>> this);
+        let loop = Number(questionFields.loop_field()?.NUM().text);
+        let isRequired: boolean | undefined;
+        let correctAnswer = <string | number | Regex | Expression | undefined> questionFields.correctAnswer_field()?.accept(<FormGeneratorParserVisitor<Node>> this);
+        let varsObject: VariablesArray | undefined;
+        if (questionFields.isRequired_field()?.boolean()) {
+            isRequired = (Number(questionFields.isRequired_field()?.boolean().text) == 1);
         } else {
-            //TODO: Return error
-            return;
+            isRequired = undefined;
+        }
+        if (questionFields.variables()?.variables_object()) {
+            varsObject = <VariablesArray> questionFields.variables()?.variables_object().accept(<FormGeneratorParserVisitor<Node>> this);
+        } else {
+            varsObject = undefined;
+        }
+        return new Question(id, type, label, options, dependsOn, displayIf, loop, isRequired, correctAnswer, varsObject);
+    }
+
+    visitLabel_field(ctx: Label_fieldContext): string | Expression | VariableName | undefined {
+        const labelString = ctx.STRING()?.text;
+        const labelExpression = <Expression>ctx.expression()?.accept(<FormGeneratorParserVisitor<Node>>this);
+        const labelVarName = ctx.variable_name()?.STRING().text;
+        if (labelString) {
+            return labelString;
+        } else if (labelExpression) {
+            return labelExpression;
+        } else if (labelVarName) {
+            return new VariableName(labelVarName);
+        } else {
+            return undefined;
         }
     }
 
-    visitObject_value(ctx: Object_valueContext): Object_Value {
+    visitOptions_field(ctx: Options_fieldContext): Options {
+        return new Options(<Option[]> ctx.array().accept(<FormGeneratorParserVisitor<Node>> this));
+    }
 
-        //TODO: Check that index 1 is the correct string!
-        if (ctx.STRING()[1].text != undefined) {
-            return new Object_Value(ctx.STRING()[1].text);
 
-        } else if (ctx.NUM()?.text != undefined) {
-            return new Object_Value(Number(ctx.NUM()?.text));
+    visitArray(ctx: ArrayContext): Option[] {
+        const arrayList: Option[] = [];
+        for (const a:Array_valueContext in ctx.array_value()) {
+            const currNumValue = a.NUM()?.text;
+            const currStringValue = a.STRING()?.text;
+
+            if (currNumValue) {
+                arrayList.push(new Option(Number(currNumValue)));
+            } else if (currStringValue) {
+                arrayList.push(new Option(currStringValue));
+            } else {
+                arrayList.push(new Option(undefined));
+            }
+        }
+        return arrayList;
+    }
+
+    visitDisplayIf_field(ctx: DisplayIf_fieldContext): string | Regex | Expression | undefined {
+        const displayIfString = ctx.STRING()?.text;
+        const displayIfRegex = ctx.REGEX()?.text;
+        const displayIfExpression = <Expression>ctx.expression()?.accept(<FormGeneratorParserVisitor<Node>>this);
+        if (displayIfString) {
+            return displayIfString;
+        } else if (displayIfRegex) {
+            return new Regex(displayIfRegex);
+        } else if (displayIfExpression) {
+            return displayIfExpression;
+        } else {
+            return undefined;
         }
     }
 
-    visitIsRequired_field(ctx: IsRequired_fieldContext): IsRequired_Field {
-        return new IsRequired_Field(Number(ctx.boolean().text) == 1);
+    visitCorrectAnswer_field(ctx: CorrectAnswer_fieldContext): string | number | Regex | Expression | undefined {
+        const correctAnswerString = ctx.STRING()?.text;
+        const correctAnswerNumber = ctx.NUM()?.text;
+        const correctAnswerRegex = ctx.REGEX()?.text;
+        const correctAnswerExpression = <Expression>ctx.expression()?.accept(<FormGeneratorParserVisitor<Node>>this);
+        if (correctAnswerString) {
+            return correctAnswerString;
+        } else if (correctAnswerNumber) {
+            return Number(correctAnswerNumber);
+        } else if (correctAnswerRegex) {
+            return correctAnswerRegex;
+        } else if (correctAnswerExpression) {
+            return correctAnswerExpression;
+        } else {
+            return undefined;
+        }
+    }
+
+    visitExpression(ctx: ExpressionContext): Expression {
+        const stringExpression = ctx.string_expression();
+        const mathExpression = ctx.math_expression();
+        if (stringExpression) {
+            return new Expression(new StringExpression(<string> stringExpression.accept(<FormGeneratorParserVisitor<Node>>this)));
+        } else if (mathExpression) {
+            return new Expression(new MathExpression(<string> mathExpression.accept(<FormGeneratorParserVisitor<Node>>this)));
+        }
+    }
+
+    visitString_expression(ctx: String_expressionContext): string {
+        const finalExpression = ctx.string_expression_with_num();
+        const extendedExpression = ctx.string_expression_extended();
+        if (finalExpression) {
+            const strValue = finalExpression.string_expression_val1().STRING().text + finalExpression.PLUS().text;
+            if (finalExpression.string_expression_val2()) {
+                return strValue + finalExpression.string_expression_val2()?.STRING().text;
+            } else if (finalExpression.string_expression_num()) {
+                return strValue + finalExpression.string_expression_num()?.NUM().text;
+            }
+        } else if (extendedExpression) {
+            return extendedExpression.STRING()?.text + extendedExpression.PLUS()?.text +
+                extendedExpression.string_expression()?.accept(<FormGeneratorParserVisitor<Node>> this);
+        }
+    }
+
+    visitMath_expression(ctx: Math_expressionContext): string {
+        const finalExpression = ctx.math_expression_with_op();
+        const extendedExpression = ctx.math_expression_extended();
+        if (finalExpression) {
+            return finalExpression.math_expression_val1()?.NUM().text + finalExpression.math_op()?.text +
+            finalExpression.math_expression_val2()?.NUM().text;
+        } else if (extendedExpression) {
+            return extendedExpression.NUM()?.text + extendedExpression.math_op()?.text +
+                extendedExpression.math_expression()?.accept(<FormGeneratorParserVisitor<Node>> this);
+        }
     }
 
     visitGoTo_object(ctx: GoTo_objectContext): GoTo_Object {
-        const goObjectList: Go_Object[] = [];
-        for (const g:Go_objectContext in ctx.go_object()) {
-            goObjectList.push(<Go_Object>g.accept(<FormGeneratorParserVisitor<Node>>this));
-        }
-        return new GoTo_Object(ctx.STRING()?.text, goObjectList);
+        return new GoTo_Object(ctx.STRING()?.text,
+            <{[key: string]: string}> ctx.go_object()?.accept(<FormGeneratorParserVisitor<Node>>this));
     }
 
-    visitGo_object(ctx: Go_objectContext): Go_Object {
-        const nodeStringList = ctx.STRING()
-        const pageDirectURLList: String[] = [];
-        for(const s:TerminalNode in nodeStringList) {
-            pageDirectURLList.push(s.text);
+    visitGo_object(ctx: Go_objectContext): {[key: string]: string} {
+        let goToDictionary: {[key: string]: string} = {}
+        for (let i: number = 0; i < ctx.go_object_key().length; i++) {
+            goToDictionary[ctx.go_object_key()[i].STRING().text] = ctx.go_object_value()[i].STRING().text;
         }
-        return new Go_Object(pageDirectURLList);
-
+        return goToDictionary;
     }
 
     //Abstract Tree method
     protected defaultResult(): any {
-        return null;
     }
 
 

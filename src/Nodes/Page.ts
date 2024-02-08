@@ -1,21 +1,30 @@
 import {Header_Field, Id_Field, Instructions_Field, Node, Visitor} from "../export";
 import {GoTo_Object} from "./GoTo_Object";
 import {Question_Array} from "./Question_Array";
+import {Expression} from "./Expression";
+import {VariablesArray} from "./VariablesArray";
+import {VariableName} from "./VariableName";
 
 export class Page extends Node {
-    private id: Id_Field
-    private goTo: GoTo_Object
-    private header: Header_Field
-    private instructions: Instructions_Field
-    private questions: Question_Array
+    private id: string;
+    private goTo: GoTo_Object;
+    private header: string | Expression | VariableName | undefined;
+    private instructions: string | Expression | VariableName | undefined;
+    private displayQuestions: boolean | undefined;
+    private questions: Question_Array;
+    private pageVariables: VariablesArray | undefined;
 
-    constructor(id: Id_Field, goTo: GoTo_Object, header: Header_Field, instructions: Instructions_Field, questions: Question_Array) {
+    constructor(id: string, goTo: GoTo_Object, header: string | Expression | VariableName | undefined,
+                instructions: string | Expression | VariableName | undefined, displayQuestions: boolean | undefined,
+                questions: Question_Array, pageVariables: VariablesArray | undefined) {
         super();
         this.id = id;
         this.goTo = goTo;
         this.header = header;
         this.instructions = instructions;
+        this.displayQuestions = displayQuestions;
         this.questions = questions;
+        this.pageVariables = pageVariables;
     }
 
     getId() {
@@ -34,8 +43,16 @@ export class Page extends Node {
         return this.instructions;
     }
 
+    shouldDisplayQuestions() {
+        return this.displayQuestions;
+    }
+
     getQuestionArray() {
         return this.questions;
+    }
+
+    getPageVariables() {
+        return this.pageVariables;
     }
 
     accept<C, T>(context: C, v: Visitor<C, T>): T {

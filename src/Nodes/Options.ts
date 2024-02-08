@@ -1,16 +1,17 @@
 import {Node} from "../Abstract/Node";
 import {Visitor} from "../Interfaces/Visitor";
+import {Option} from "./Option";
 
-export class IsRequired_Field extends Node {
-    private isRequired: Boolean
+export class Options extends Node {
+    private options: Option[];
 
-    constructor(isRequired: Boolean) {
+    constructor(options: Option[]) {
         super();
-        this.isRequired = isRequired
+        this.options = options
     }
 
-    isRequired() {
-        return this.isRequired;
+    getOptions() {
+        return this.options;
     }
     accept<C, T>(context: C, v: Visitor<C, T>): T {
         return v.visit(context, this);
