@@ -9,17 +9,17 @@ import {
     Array_valueContext,
     ArrayContext,
     CorrectAnswer_fieldContext,
-    DisplayIf_fieldContext,
+    DisplayIf_fieldContext, ExpressionContext,
     Go_objectContext,
     GoTo_objectContext,
     Header_fieldContext,
     Instructions_fieldContext,
-    Label_fieldContext,
+    Label_fieldContext, Math_expressionContext,
     Options_fieldContext,
     PageContext,
     PagesContext,
     Question_arrayContext,
-    QuestionContext,
+    QuestionContext, String_expressionContext,
     VariableContext,
     Variables_objectContext,
 } from "../../generated/FormGeneratorParser";
@@ -35,6 +35,8 @@ import {Expression} from "../Nodes/Expression";
 import {Option} from "../Nodes/Option";
 import {Regex} from "../Nodes/Regex";
 import {VariableName} from "../Nodes/VariableName";
+import {StringExpression} from "../Nodes/StringExpression";
+import {MathExpression} from "../Nodes/MathExpression";
 
 export class ParseTreeToAST extends AbstractParseTreeVisitor<Node> implements FormGeneratorParserVisitor<Node>{
 
@@ -230,6 +232,44 @@ export class ParseTreeToAST extends AbstractParseTreeVisitor<Node> implements Fo
             return correctAnswerExpression;
         } else {
             return undefined;
+        }
+    }
+
+    visitExpression(ctx: ExpressionContext): Expression {
+        const stringExpression = ctx.string_expression();
+        const mathExpression = ctx.math_expression();
+        if (stringExpression) {
+            return new Expression(new StringExpression(<string> stringExpression.accept(<FormGeneratorParserVisitor<Node>>this)));
+        } else if (mathExpression) {
+            return new Expression(new MathExpression(<string> mathExpression.accept(<FormGeneratorParserVisitor<Node>>this)));
+        }
+    }
+
+    visitString_expression(ctx: String_expressionContext): string {
+        const finalExpression = ctx.string_expression_with_num();
+        const extendedExpression = ctx.string_expression_extended();
+        if (finalExpression) {
+            const strValue = finalExpression.string_expression_val1().STRING().text + finalExpression.PLUS().text;
+            if (finalExpression.string_expression_val2()) {
+                return strValue + finalExpression.string_expression_val2()?.STRING().text;
+            } else if (finalExpression.string_expression_num()) {
+                return strValue + finalExpression.string_expression_num()?.NUM().text;
+            }
+        } else if (extendedExpression) {
+            return extendedExpression.STRING()?.text + extendedExpression.PLUS()?.text +
+                extendedExpression.string_expression()?.accept(<FormGeneratorParserVisitor<Node>> this);
+        }
+    }
+
+    visitMath_expression(ctx: Math_expressionContext): string {
+        const finalExpression = ctx.math_expression_with_op();
+        const extendedExpression = ctx.math_expression_extended();
+        if (finalExpression) {
+            return finalExpression.math_expression_val1()?.NUM().text + finalExpression.math_op()?.text +
+            finalExpression.math_expression_val2()?.NUM().text;
+        } else if (extendedExpression) {
+            return extendedExpression.NUM()?.text + extendedExpression.math_op()?.text +
+                extendedExpression.math_expression()?.accept(<FormGeneratorParserVisitor<Node>> this);
         }
     }
 

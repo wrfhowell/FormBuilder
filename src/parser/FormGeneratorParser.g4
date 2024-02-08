@@ -56,8 +56,21 @@ question_type: TEXT_INPUT | RADIO | CHECKBOX | DROPDOWN;
 
 // expressions
 expression: math_expression | string_expression;
-math_expression: (NUM math_op NUM) | (NUM math_op expression);
-string_expression: (STRING PLUS (STRING | NUM)) | (STRING PLUS string_expression); 
+
+//math expression
+math_expression: math_expression_with_op | math_expression_extended;
+math_expression_with_op: (math_expression_val1 math_op math_expression_val2);
+math_expression_extended: (NUM math_op math_expression);
+math_expression_val1: NUM;
+math_expression_val2: NUM;
+
+//string expression
+string_expression: string_expression_with_num | string_expression_extended;
+string_expression_with_num: string_expression_val1 PLUS (string_expression_val2 | string_expression_num);
+string_expression_extended: (STRING PLUS string_expression);
+string_expression_val1: STRING;
+string_expression_val2: STRING;
+string_expression_num: NUM;
 
 
 // Misc
