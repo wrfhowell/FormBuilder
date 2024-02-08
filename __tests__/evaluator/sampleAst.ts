@@ -52,4 +52,4 @@ const page = new Page(
 
 const pages = new Pages([page]);
 
-const program = new Program(pages, globalVariables);
+export const program = new Program(pages, globalVariables);

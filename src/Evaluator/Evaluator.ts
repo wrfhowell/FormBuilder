@@ -16,8 +16,8 @@ import {
 	Visitor,
 } from "../export";
 
-class Evaluator implements Visitor<{}, any> {
-	jumpTable: any;
+export class Evaluator implements Visitor<{}, any> {
+  private jumpTable: any;
 
 	constructor() {
 		this.visitPage = this.visitPage.bind(this);
@@ -36,7 +36,7 @@ class Evaluator implements Visitor<{}, any> {
 		this.visitVariablesArray = this.visitVariablesArray.bind(this);
 		this.visitRegex = this.visitRegex.bind(this);
 
-		const jumpTable = {
+		  this.jumpTable = {
 			Page: this.visitPage,
 			Pages: this.visitPages,
 			Program: this.visitProgram,
@@ -67,12 +67,20 @@ class Evaluator implements Visitor<{}, any> {
 	}
 
 	visitPage(context: {}, page: Page) {
-		// Example implementation
+		let header = page.getHeader();
+		let instructions = page.getInstructions();
+		if (hasAcceptMethod(header)) {
+			header = header.accept(context, this);
+		}
+		if (hasAcceptMethod(instructions)) {
+			instructions = instructions.accept(context, this);
+		}
+
 		return {
 			id: page.getId(),
 			goTo: page.getGoToObject().accept(context, this),
-			header: page.getHeader()?.accept(context, this),
-			instructions: page.getInstructions()?.accept(context, this),
+			header: header,
+			instructions: instructions,
 			questions: page.getQuestionArray().accept(context, this),
 			variables: page.getPageVariables()?.accept(context, this),
 		};
