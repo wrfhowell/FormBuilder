@@ -35,6 +35,7 @@ DISPLAY_IF_KEY: 'displayIf';
 LOOP_KEY: 'loop';
 IS_REQUIRED_KEY: 'isRequired';
 CORRECT_ANSWER_KEY: 'correctAnswer';
+DISPLAY_ALL: 'all';
 
 // Question Types
 TEXT_INPUT: 'textInput';
@@ -56,8 +57,8 @@ FORM_STATE_KEY: 'FormState';
 STATIC_FORM_NAME: 'getRandomInt' | 'getRandom' | 'round' ; // TODO: Define these in docs
 
 // Boolean  
-TRUE: '1';
-FALSE: '0';
+TRUE: 'true';
+FALSE: 'false';
 
 
 // Math Operators
@@ -82,3 +83,4 @@ LOOP_INDEX: 'loopIndex';
 
 
 WS: [ \t\n\r]+ -> skip;
+

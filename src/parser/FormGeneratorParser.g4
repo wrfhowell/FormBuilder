@@ -1,24 +1,24 @@
 parser grammar FormGeneratorParser;
 options { tokenVocab=FormGeneratorLexer; }
 
-program: OBJECT_START pages (SEP functions) (SEP variables)  OBJECT_END;
+program: OBJECT_START pages (SEP functions) (SEP variables)  OBJECT_END EOF;
 
 // Pages Array
 pages: PAGES_KEY COLON page_array;
 page_array: LIST_START page (SEP page)* LIST_END;
 page: OBJECT_START page_fields OBJECT_END (SEP OBJECT_START page_fields OBJECT_END)*;
-page_fields: id_field (SEP header_field)? (SEP instructions_field)? (SEP goTo_field)? (SEP questions_field)?;
+page_fields: id_field (SEP header_field)? (SEP instructions_field)? (SEP goTo_field)? (SEP questions_field)? (SEP displayQuestions_field)?;
 id_field: ID_KEY COLON STRING;
 header_field: HEADER_KEY COLON (STRING | function_call | expression | VARIABLE_NAME);
 instructions_field: INSTRUCTIONS_KEY COLON (STRING | function_call | expression | VARIABLE_NAME);
 questions_field: QUESTIONS_KEY COLON question_array;
-goTo_field: GOTO_KEY COLON STRING | function_call | expression;
-displayQuestions_field: DISPLAY_QUESTIONS_KEY COLON ('0' | '1');
+goTo_field: GOTO_KEY COLON (STRING | function_call | expression);
+displayQuestions_field: DISPLAY_QUESTIONS_KEY COLON (DISPLAY_ALL | NUM);
 
 // Vars object
 variables: VARIABLES_KEY COLON variables_object;
 variables_object: OBJECT_START (VARIABLE_NAME COLON variable_value (SEP VARIABLE_NAME COLON variable_value)*)? OBJECT_END;
-variable_value: array | NUM | STRING | REGEX;
+variable_value: array | NUM | STRING | REGEX | form_state_access;
 
 // Question Array
 question_array: LIST_START (question (SEP question)*)? LIST_END;
@@ -55,29 +55,29 @@ function: VARIABLE_NAME function_params function_body;
 function_params: PAREN_START (parameter (SEP parameter)*)? PAREN_END;
 parameter: STRING | NUM;
 function_body: OBJECT_START (statement)* RETURN (VARIABLE_NAME | STRING | NUM | expression) OBJECT_END;
-statement: (expression | conditional)*; 
+statement: (expression | conditional | static_function)+;
 function_call: VARIABLE_NAME function_params;
 
 // Conditional Statements
-conditional: IF_KEY condition cond_body (ELSE_KEY IF_KEY cond_body)* (ELSE_KEY cond_body)?;
+conditional: IF_KEY condition cond_body (ELSE_KEY IF_KEY condition function_body)* (ELSE_KEY cond_body)?;
 condition: PAREN_START expression PAREN_END;
-cond_body: OBJECT_START (statement)* OBJECT_END;
+cond_body: OBJECT_START (statement)* (RETURN (VARIABLE_NAME | STRING | NUM | expression))? OBJECT_END;
 
 
 // expressions
 expression: math_expression | string_expression | boolean_expression;
-math_expression: (NUM math_op NUM) | (NUM math_op expression);
-string_expression: (STRING PLUS (STRING | NUM)) | (STRING PLUS string_expression); 
-boolean_expression: (STRING string_equality_op (STRING | expression)) | 
-                    (NUM num_equality_op (NUM | expression));
+math_expression: ((NUM | VARIABLE_NAME) math_op (NUM | VARIABLE_NAME)) | ((NUM | VARIABLE_NAME) math_op expression);
+string_expression: ((STRING | VARIABLE_NAME) PLUS (STRING | NUM | VARIABLE_NAME)) | ((STRING | VARIABLE_NAME) PLUS string_expression);
+boolean_expression: ((STRING | VARIABLE_NAME) string_equality_op ((STRING | VARIABLE_NAME) | expression)) |
+                    ((NUM | VARIABLE_NAME) num_equality_op ((NUM | VARIABLE_NAME) | expression));
 
 // Static Objects
-form_function: FORM_OBJ_KEY DOT STATIC_FORM_NAME function_params; // Form.getRandomInt(3, 19)
+static_function: FORM_OBJ_KEY DOT STATIC_FORM_NAME function_params; // Form.getRandomInt(3, 19)
 form_state_access: FORM_STATE_KEY path_to_key; // FormState['pg-1-id'][q-1-id']
 path_to_key: LIST_START STRING LIST_END LIST_START STRING LIST_END; // ['pg-1-id'][q-1-id']
 
 // Misc
-boolean: TRUE | FALSE;
+boolean: (TRUE | FALSE);
 math_op: PLUS | MINUS | MULTIPLY | DIVIDE | MODULO;
 string_equality_op: EQUAL | NOT_EQUAL;
 num_equality_op: EQUAL | NOT_EQUAL | GREATER | GREATER_EQUAL | LESS | LESS_EQUAL;
