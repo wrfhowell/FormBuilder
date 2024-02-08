@@ -1,23 +1,23 @@
 import { Node, Visitor, Pages } from "../export";
-import {Variable} from "./Variable";
+import {VariablesArray} from "./VariablesArray";
 
 export class Program extends Node {
   private pages: Pages;
-  private variables: Variable[]
+  private globalvariables: VariablesArray | undefined;
 
 
-  constructor(pages: Pages, variables: Variable[]) {
+  constructor(pages: Pages, globalvariables: VariablesArray | undefined) {
     super();
     this.pages = pages;
-    this.variables = variables;
+    this.globalvariables = globalvariables;
   }
 
   getPages(): Pages {
     return this.pages;
   }
 
-  getVariables(): Variable[] {
-    return this.variables;
+  getGlobalVariables(): VariablesArray | undefined {
+    return this.globalvariables;
   }
 
   accept<C, T>(context: C, v: Visitor<C, T>): T {

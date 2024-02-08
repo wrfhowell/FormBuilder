@@ -1,16 +1,15 @@
-import { Node, Visitor } from "../export";
-import {Page_Array} from "./Page_Array";
+import {Node, Page, Visitor} from "../export";
 
 export class Pages extends Node {
-  private page_Array: Page_Array;
+  private pageArray: Page[];
 
-  constructor(page_Array: Page_Array) {
+  constructor(pageArray: Page[]) {
     super();
-    this.page_Array = page_Array;
+    this.pageArray = pageArray;
   }
 
   getPageArray() {
-    return this.page_Array;
+    return this.pageArray;
   }
 
   accept<C, T>(context: C, v: Visitor<C, T>): T {

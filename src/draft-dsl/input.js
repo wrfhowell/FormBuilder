@@ -8,9 +8,9 @@
             goTo: {
                 if: "what-are-you",
                 go: {
-                    Metal: "metal-pg",
-                    Nonmetal: "nonmetal-pg",
-                    Metalloid: "metalloid-pg"
+                    "Metal": "metal-pg",
+                    "Nonmetal": "nonmetal-pg",
+                    "Metalloid": "metalloid-pg"
                 }
             },
             questions: [
@@ -30,11 +30,11 @@
             goTo: {
                 if: "metal",
                 go: {
-                    Alkali_Metal: "alkali-metal-pg",
-                    Alkaline_Earth_Metal: "alkaline-earth-metal-pg",
-                    Transition_Metal: "transition-metal-pg",
-                    Post_Transition_Metal: "post-transition-metal-pg",
-                    Actinide: "actinide-pg"
+                    "Alkali_Metal": "alkali-metal-pg",
+                    "Alkaline_Earth_Metal": "alkaline-earth-metal-pg",
+                    "Transition_Metal": "transition-metal-pg",
+                    "Post_Transition_Metal": "post-transition-metal-pg",
+                    "Actinide": "actinide-pg"
                 }
             },
             questions: [
@@ -61,8 +61,8 @@
             goTo: {
                 if: "nonmetal",
                 go: {
-                    Reactive_Nonmetal: "reactive-nonmetal-pg",
-                    Noble_Gas: "noble-gas-pg"
+                    "Reactive_Nonmetal": "reactive-nonmetal-pg",
+                    "Noble_Gas": "noble-gas-pg"
                 }
             },
             questions: [

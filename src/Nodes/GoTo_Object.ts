@@ -1,22 +1,21 @@
-import {Go_Object} from "./Go_Object";
 import {Visitor} from "../Interfaces/Visitor";
 
 export class GoTo_Object extends Node {
     ifStatementValue: string | undefined;
-    goObjectList: Go_Object[]
+    goOptions: {[key: string]: string}
 
-    constructor(str: string | undefined, goObjectList: Go_Object[]) {
+    constructor(str: string | undefined, goOptions: { [p: string]: string }) {
         super();
         this.ifStatementValue = str;
-        this.goObjectList = goObjectList;
+        this.goOptions = goOptions;
     }
 
     getIfStatementValue(): string | undefined {
         return this.ifStatementValue;
     }
 
-    getGo_Object(): Go_Object[] {
-        return this.goObjectList;
+    getGoOptions(): {[key: string]: string} {
+        return this.goOptions;
     }
 
     accept<C, T>(context: C, v: Visitor<C, T>): T {
