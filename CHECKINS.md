@@ -508,7 +508,7 @@ We can use the existing JSON format generated lexer/parser to test that the pars
 
 # Check-In 4 - February 9, 2024
 
-## Status of implementation.Component-wise progress. Which tests are passing, and which not? Which extra tests still need to be written/made?
+## Status of implementation. Component-wise progress. Which tests are passing, and which not? Which extra tests still need to be written/made?
 
 **Tokenizer / Lexer**
 
