@@ -1,5 +1,5 @@
 import { Node } from "./Abstract/Node";
-import { Evaluator } from "./Evaluator/Evaluator";
+import { Evaluator } from "./evaluator/Evaluator";
 import { Visitor } from "./Interfaces/Visitor";
 import { Option } from "./Nodes/Option";
 import { Page } from "./Nodes/Page";

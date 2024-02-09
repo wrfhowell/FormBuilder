@@ -1,11 +1,11 @@
 import { Evaluator } from "../../src/export";
-import { program } from "./sampleAst";
+import { baseProgram } from "./sampleAST";
 
 describe("Evaluator Tests", () => {
 	it("should correctly evaluate the sample AST", () => {
 		const evaluator = new Evaluator();
 
-		const result = evaluator.visit({}, program);
+		const result = evaluator.visit({}, baseProgram);
 		const expectedResult = {};
 
 		expect(result).toEqual(expectedResult);
