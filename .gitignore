@@ -25,4 +25,8 @@ hs_err_pid*
 node_modules/
 dist/
 out/
+
+#Gen files
 generated/
+gen/
+.antr/

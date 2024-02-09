@@ -1,24 +1,35 @@
 /**
+ *
+ *
+ *
+ * OUTDATED!! Look at the input files or the grammar rules for more up to date information
+ *
+ *
+ *
+ *
+ */
+
+/**
 Types:
     - page:
         *id: string
-        header: string | expression | var
+        header: string | function | expression | var
         instructions: string | expression | var
-        goTo: {}
+        goTo: function | string
         vars: {}
         displayQuestions: all | int
         questions: []
     - question
         *id: string 
         *type: "textInput" | "radio" | "checkbox" | "dropdown" 
-        *label: string | expression 
-        options: expression | [] | null
+        *label: string | function | expression 
+        options: function | expression | [] | null
         dependsOn: string
-        displayIf: expression | regex | string
+        displayIf: function | expression | regex | string
         // Can use the loop field to repeat the question a number of times with different input. For example, if we want to ask a math question with different inputs, the question is only written once and displayed multiple times with different inputs. 
         loop: int
         isRequired: 0 | 1 # (default: 0)
-        correctAnswer: string | expression | null
+        correctAnswer: string | function | expression | null
         vars: {}
     
     - goTo: 
@@ -29,6 +40,20 @@ Types:
     
     // Expressions are simple lines that use our own language tokens. For now, we will only implement basic math expressions or string concat.
     - expressions: () => {num [+,-,/,%,*] num | string + string | expression}
+
+    // Functions are functions that can be used in the vars field of a question or page. They are used to generate dynamic content for the form.
+    - functions: {
+      myFun(param1) {
+        var myInt = Form.getRandomInt(1, 100)
+        return param1 + myInt
+      },
+
+      myOtherFun(param1, param2) {
+        var result1 = myFun(param1)
+        var result2 = myFun(param2)
+        return result1 + result2
+      }
+    }
 
     // The formState is the state of the form as the user is filling it out. It's used to keep track of the user's answers and is globally accesible to all expressions.
     - FormState:{
