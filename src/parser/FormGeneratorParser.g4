@@ -47,8 +47,7 @@ object_value: VARIABLE_NAME COLON (NUM | STRING);
 
 
 // Question Types
-question_type: TEXT_INPUT | select_question_type;
-select_question_type: RADIO | CHECKBOX | DROPDOWN;
+question_type: TEXT_INPUT | RADIO | CHECKBOX | DROPDOWN;
 
 // Functions
 functions: FUNCTIONS_KEY COLON function_array;

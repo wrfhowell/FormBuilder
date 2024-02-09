@@ -3,10 +3,9 @@ import {
   Page,
   Pages,
   Program,
-  Header,
-  Instructions,
-  PageId,
-  Questions,
+  Header_Field,
+  Instructions_Field,
+  Id_Field,
   Question,
 } from "./export";
 
@@ -14,23 +13,24 @@ function main() {
   let e: Evaluator = new Evaluator();
   let s: string = "";
 
-  let parsedProgram: Program = new Program();
+  //let parsedProgram: Program = new Program();
 
-  parsedProgram.addNode(new Pages());
+  //TODO: Fix main?
+ /* parsedProgram.addNode(new Pages());
 
   parsedProgram.addNode(new Page());
-  parsedProgram.addNode(new PageId("1"));
-  parsedProgram.addNode(new Header("Heading 1"));
-  parsedProgram.addNode(new Instructions("Instructions 1"));
-  parsedProgram.addNode(new Questions());
+  parsedProgram.addNode(new Id_Field("1"));
+  parsedProgram.addNode(new Header_Field("Heading 1"));
+  parsedProgram.addNode(new Instructions_Field("Instructions_Field 1"));
+  parsedProgram.addNode(new Questions_Field());
   parsedProgram.addNode(new Question());
 
   parsedProgram.addNode(new Page());
-  parsedProgram.addNode(new PageId("2"));
-  parsedProgram.addNode(new Header("Heading 2"));
-  parsedProgram.addNode(new Instructions("Instructions 2"));
+  parsedProgram.addNode(new Id_Field("2"));
+  parsedProgram.addNode(new Header_Field("Heading 2"));
+  parsedProgram.addNode(new Instructions_Field("Instructions_Field 2"));*/
 
-  parsedProgram.accept(s, e);
+  //parsedProgram.accept(s, e);
 
   e.createHTML();
 }
