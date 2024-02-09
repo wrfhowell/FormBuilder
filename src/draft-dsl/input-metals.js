@@ -9,10 +9,10 @@
             questions: [
                 {
                     id: "what-are-you",
-                    type: 'radio',
+                    type: radio,
                     label: "What are you?",
                     options: ["Metal", "Nonmetal", "Metalloid"],
-                    isRequired: 1
+                    isRequired: true
                 }
             ]
         },
@@ -25,7 +25,7 @@
             questions: [
                 {
                     id: "metal",
-                    type: 'radio',
+                    type: radio,
                     label: "What type of metal are you?",
                     options: [
                         "Alkali Metal",
@@ -35,7 +35,7 @@
                         "Lanthanide",
                         "Actinide"
                     ],
-                    isRequired: 1
+                    isRequired: true
                 }
             ]
         },
@@ -48,10 +48,10 @@
             questions: [
                 {
                     id: "nonmetal",
-                    type: 'radio',
+                    type: radio,
                     label: "What type of nonmetal are you?",
                     options: ["Reactive Nonmetal", "Noble Gas"],
-                    isRequired: 1
+                    isRequired: true
                 }
             ]
         }
@@ -65,26 +65,25 @@
                 return "nonmetal-pg"
             } else if(whatAreYouAns == "Metalloid") {
                 return "metalloid-pg"
-            } else {
-                return 0
             }
+
+                return 0
         },
 
         metalNext() {
             if(whatMetalAreYou == "Alkali Metal") {
                 return "alkali-metal-pg"
-                } else if(whatMetalAreYou == "Alkaline Earth Metal") {
-                    return "alkaline-earth-metal-pg"
-                } else if(whatMetalAreYou == "Transition Metal") {
-                    return "transition-metal-pg"
-                } else if(whatMetalAreYou == "Post-Transition Metal") {
-                    return "post-transition-metal-pg"
-                } else if(whatMetalAreYou == "Actinide") {
-                    return "actinide-pg"
-                } else {
-                    return 0
-                }
+            } else if(whatMetalAreYou == "Alkaline Earth Metal") {
+                return "alkaline-earth-metal-pg"
+            } else if(whatMetalAreYou == "Transition Metal") {
+                return "transition-metal-pg"
+            } else if(whatMetalAreYou == "Post-Transition Metal") {
+                return "post-transition-metal-pg"
+            } else if(whatMetalAreYou == "Actinide") {
+                return "actinide-pg"
             }
+
+            return 0
         },
 
         nonMetalNext() {
@@ -92,15 +91,15 @@
                 return "reactive-nonmetal-pg"
             } else if(whatNonMetalAreYou == "Noble Gas") {
                 return "noble-gas-pg"
-            } else {
-                return 0
             }
+
+            return 0
         }
     ],
-    
+
     vars: {
         whatAreYouAns: FormState["classification-pg"]["what-are-you"],
         whatMetalAreYouAns: FormState["metal-pg"]["what-are-you"],
-        whatNonMetalAreYou: FormState["nonmetal-pg"]["what-are-you"],
-    },
+        whatNonMetalAreYou: FormState["nonmetal-pg"]["what-are-you"]
+    }
 }
