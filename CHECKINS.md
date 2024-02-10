@@ -528,17 +528,19 @@ Only major change is the addition of function nodes which should be completed ov
 
 The implementation of the Evaluator has been split into two parts - the first will traverse the AST to put together a JavaScript object that contains all of the information required to generate the quizzes. The second portion uses the React JavaScript library to render the JavaScript object into a usable web form.
 Both portions of the Evaluator have been started.
-Currently, the first portion of the evaluator can gather all static properties involved in generating the quizzes by traversing the AST.
+Currently, the first portion of the evaluator can gather all static properties involved in generating the quizzes by traversing the AST. This has been minimally tested and appears to be working.
 The second portion of the AST is able to generate static quizzes in its current form.
 Function handling still needs to be completed.
 
 **Tests Currently Passing**
 
-The lexer is properly tokenizing the valid test inputs
+The lexer is properly tokenizing the valid test inputs.
+
+Evaluator has simple tests passing.
 
 **Extra Tests That Need to Be Made**
 
-Tests for the parser and the evaluator still need to be made, for both valid inputs and invalid inputs. The team focused first on completing the language implementation, and will complete testing afterwards.
+Tests for the parser and more for the evaluator still need to be made, for both valid inputs and invalid inputs. The team focused first on completing the language implementation, and will complete testing afterwards.
 
 ## Plans for final user study. Are there any major differences from the previous one? If so, what are the reasons? Make sure to find suitable users (different from the first study!)
 

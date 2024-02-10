@@ -1,4 +1,5 @@
 import { Evaluator } from "../../src/export";
+import { quizData } from "../testObjects/object";
 import { baseProgram } from "./sampleAST";
 
 describe("Evaluator Tests", () => {
@@ -6,7 +7,7 @@ describe("Evaluator Tests", () => {
 		const evaluator = new Evaluator();
 
 		const result = evaluator.visit({}, baseProgram);
-		const expectedResult = {};
+		const expectedResult = quizData;
 
 		expect(result).toEqual(expectedResult);
 	});
