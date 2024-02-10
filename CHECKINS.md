@@ -505,3 +505,52 @@ There is one definite change that must be made to the project timeline, with one
 ## Are there new tests you can write now, based on your current project status? How can your snippets be made into unit tests, and for which component(s)? What about planned error handling in your components? Tests for these?
 
 We can use the existing JSON format generated lexer/parser to test that the parse tree converts to our desired AST. We can also begin working on AST and evaluation tests, as those require a visualisation of the parse tree and the AST tree, which we have diagrams completed for. If our grammar rules are changing however, that might mean a change in the types and numbers of tests we are doing, which should be simple enough to refactor.
+
+# Check-In 4 - February 9, 2024
+
+## Status of implementation. Component-wise progress. Which tests are passing, and which not? Which extra tests still need to be written/made?
+
+**Tokenizer / Lexer**
+
+The lexer and parser rules have been debugged and are ready to be tested with the AST.
+There are three different valid test inputs that can be used to test the rest of the program.
+No major changes are expected to the grammar rules going forward.
+
+**AST Conversion**
+
+Converts the parse tree into simple AST nodes
+The nodes have been completed. The only nodes that are missing are the function nodes that will be added soon
+Ready to be tested and debugged
+Static checks are still left to be added.
+Only major change is the addition of function nodes which should be completed over this weekend for the Evaluator to use and test.
+
+**Evaluator**
+
+The implementation of the Evaluator has been split into two parts - the first will traverse the AST to put together a JavaScript object that contains all of the information required to generate the quizzes. The second portion uses the React JavaScript library to render the JavaScript object into a usable web form.
+Both portions of the Evaluator have been started.
+Currently, the first portion of the evaluator can gather all static properties involved in generating the quizzes by traversing the AST.
+The second portion of the AST is able to generate static quizzes in its current form.
+Function handling still needs to be completed.
+
+**Tests Currently Passing**
+
+The lexer is properly tokenizing the valid test inputs
+
+**Extra Tests That Need to Be Made**
+
+Tests for the parser and the evaluator still need to be made, for both valid inputs and invalid inputs. The team focused first on completing the language implementation, and will complete testing afterwards.
+
+## Plans for final user study. Are there any major differences from the previous one? If so, what are the reasons? Make sure to find suitable users (different from the first study!)
+
+The final user study will be conducted in a similar fashion to the previous one. The only major difference is that users involved with the study will be able to use the code they write in the study to generate a quiz they or their friends can use in a web browser.
+
+## Planned timeline for the remaining days. Plans for integration/end-to-end testing. Be sure to test for smooth error-handling (as well as expected results working). Make sure to schedule some time for bug-fixing!
+
+| Item                                                               | Timeline |
+| ------------------------------------------------------------------ | -------- |
+| Complete language implementation                                   | Feb 12   |
+| Perform final user study                                           | Feb 14   |
+| Language design and implementation revisions from final User Study | Feb 16   |
+| Start integration / end-to-end testing and bug fixing              | Feb 17   |
+| Complete integration / end-to-end testin and bug fixing            | Feb 19   |
+| Final project submission                                           | Feb 20   |
