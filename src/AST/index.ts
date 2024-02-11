@@ -1,13 +1,4 @@
-import {
-  Evaluator,
-  Page,
-  Pages,
-  Program,
-  Header_Field,
-  Instructions_Field,
-  Id_Field,
-  Question,
-} from "./export";
+import { Evaluator, Page, Pages, Program, Question } from "./export";
 
 function main() {
   let e: Evaluator = new Evaluator();
@@ -16,7 +7,7 @@ function main() {
   //let parsedProgram: Program = new Program();
 
   //TODO: Fix main?
- /* parsedProgram.addNode(new Pages());
+  /* parsedProgram.addNode(new Pages());
 
   parsedProgram.addNode(new Page());
   parsedProgram.addNode(new Id_Field("1"));
@@ -31,8 +22,6 @@ function main() {
   parsedProgram.addNode(new Instructions_Field("Instructions_Field 2"));*/
 
   //parsedProgram.accept(s, e);
-
-  e.createHTML();
 }
 
 main();

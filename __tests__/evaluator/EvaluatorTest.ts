@@ -1,14 +1,14 @@
-import { Evaluator } from "../../src/export";
+import { Evaluator } from "../../src/AST/export";
 import { quizData } from "../testObjects/object";
 import { baseProgram } from "./sampleAST";
 
 describe("Evaluator Tests", () => {
-	it("should correctly evaluate the sample AST", () => {
-		const evaluator = new Evaluator();
+  it("should correctly evaluate the sample AST", () => {
+    const evaluator = new Evaluator();
 
-		const result = evaluator.visit({}, baseProgram);
-		const expectedResult = quizData;
+    const result = evaluator.visit({}, baseProgram);
+    const expectedResult = quizData;
 
-		expect(result).toEqual(expectedResult);
-	});
+    expect(result).toEqual(expectedResult);
+  });
 });
