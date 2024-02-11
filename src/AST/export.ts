@@ -1,5 +1,5 @@
 import { Node } from "./Abstract/Node";
-import { Evaluator } from "./evaluator/Evaluator";
+import { Evaluator } from "./Evaluator/Evaluator";
 import { Visitor } from "./Interfaces/Visitor";
 import { Option } from "./Nodes/Option";
 import { Page } from "./Nodes/Page";
@@ -23,26 +23,27 @@ import { VariableName } from "./Nodes/VariableName";
 import { VariablesArray } from "./Nodes/VariablesArray";
 
 export {
-	Evaluator,
-	Expression,
-	GoTo_Object,
-	MathExpression,
-	Node,
-	Option,
-	Options,
-	Page,
-	PageObj,
-	Pages,
-	PagesObj,
-	Program,
-	Question,
-	QuestionObj,
-	Question_Array,
-	QuestionsObj,
-	Regex,
-	StringExpression,
-	Variable,
-	VariableName,
-	VariablesArray,
-	Visitor,
+  Evaluator,
+  Expression,
+  GoTo_Object,
+  MathExpression,
+  Node,
+  Option,
+  Options,
+  Page,
+  PageObj,
+  Pages,
+  PagesObj,
+  Program,
+  Question,
+  QuestionObj,
+  Question_Array,
+  QuestionsObj,
+  Regex,
+  StringExpression,
+  Variable,
+  VariableName,
+  VariablesArray,
 };
+
+export type { Visitor };
