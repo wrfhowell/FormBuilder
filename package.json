@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx tsc --outDir ./dist && node ./dist/index.js",
     "antlr": "antlr4ts -visitor -o ./generated ./src/AST/parser/FormGeneratorLexer.g4 && antlr4ts -visitor -o ./generated -lib ./generated/src/AST/parser ./src/AST/parser/FormGeneratorParser.g4",
-    "antlr2": "antlr4ts -visitor -o ./generated ./src/AST/parser/FormGeneratorLexer.g4 && antlr4ts -visitor -o ./generated -lib ./generated ./src/parser/FormGeneratorParser.g4",
+    "antlr2": "antlr4ts -visitor -o ./generated ./src/AST/parser/FormGeneratorLexer.g4 && antlr4ts -visitor -o ./generated -lib ./generated ./src/AST/parser/FormGeneratorParser.g4",
     "react-start": "react-scripts start",
     "react-build": "react-scripts build",
     "react-test": "react-scripts test",
