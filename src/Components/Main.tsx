@@ -9,9 +9,10 @@ interface MainProps {
 export const Main = ({ setPagesObj }: MainProps) => {
   const navigate = useNavigate();
   const startQuiz = () => {
+    // Combination of user defined functions and "library" functions
     const functions = {
       mathRound: () => Math.round(1 + 99 * Math.random()),
-      getValue: (item: any) => {
+      getVarValue: (item: any) => {
         return item;
       },
       getAdditionQuestion: (num1: any, num2: any) =>
@@ -21,6 +22,7 @@ export const Main = ({ setPagesObj }: MainProps) => {
       },
     };
 
+    // All variables for the quiz
     const vars: Vars = {
       "addition-q-num1": { value: functions.mathRound },
       "addition-q-num2": { value: functions.mathRound },
@@ -30,6 +32,7 @@ export const Main = ({ setPagesObj }: MainProps) => {
       },
     };
 
+    // Compiled quiz definition
     const pages: IPage[] = [
       {
         id: "classification-pg",
@@ -110,6 +113,16 @@ export const Main = ({ setPagesObj }: MainProps) => {
         instructions:
           "Please solve the following addition problems to prove you are a reactive non-metal",
         displayQuestions: 5,
+        goTo: (ans, correctAns) => {
+          if (ans.size !== correctAns.size) return "reactive-nonmetal-fail";
+          let pass = true;
+          ans.forEach((val, key) => {
+            if (correctAns.get(key) !== ans.get(key)) {
+              pass = false;
+            }
+          });
+          return pass ? "reactive-nonmetal-pass" : "reactive-nonmetal-fail";
+        },
         questions: [
           {
             id: "addition-q-",
@@ -119,7 +132,7 @@ export const Main = ({ setPagesObj }: MainProps) => {
               args: ["num1", "num2"],
             },
             isRequired: true,
-            correctAnswer: { value: functions.getValue, args: ["ans"] },
+            correctAnswer: { value: functions.getVarValue, args: ["ans"] },
             loop: 5,
             vars: [
               { num1: vars["addition-q-num1"] },
@@ -128,6 +141,14 @@ export const Main = ({ setPagesObj }: MainProps) => {
             ],
           },
         ],
+      },
+      {
+        id: "reactive-nonmetal-pass",
+        header: "You have passed the test. You are a true Reactive Nonmetal.",
+      },
+      {
+        id: "reactive-nonmetal-fail",
+        header: "You have failed. You will never be a true Reactive Nonmetal.",
       },
     ];
 

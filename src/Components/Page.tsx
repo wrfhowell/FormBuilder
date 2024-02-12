@@ -13,7 +13,12 @@ interface PageProps {
 
 export const Page = ({ page }: PageProps) => {
   const navigate = useNavigate();
-  const [answers, setAnswers] = useState<Map<string, IAnswer>>(new Map());
+  const [userAnswers, setUserAnswers] = useState<Map<string, IAnswer>>(
+    new Map()
+  );
+  const [questionCorrectAnswers, setQuestionCorrectAnswers] = useState<
+    Map<string, string>
+  >(new Map());
   const [pageQuestions, setPageQuestions] = useState<IQuestion[]>([]);
 
   const convertIAnswerToAnswer = (
@@ -64,22 +69,29 @@ export const Page = ({ page }: PageProps) => {
   const handleSubmit = () => {
     if (page.questions) {
       let converted_answers = new Map<string, string>();
-      converted_answers = convertIAnswerToAnswer(page?.questions, answers);
+      converted_answers = convertIAnswerToAnswer(pageQuestions, userAnswers);
       const validationPassed = validateRequiredQuestions(
-        page?.questions,
+        pageQuestions,
         converted_answers
       );
       if (validationPassed && page.goTo) {
-        const nextPage = page.goTo(converted_answers);
+        const nextPage = page.goTo(converted_answers, questionCorrectAnswers);
         navigate(`/${nextPage}`);
       }
     }
   };
 
+  const updateCorrectAnswers = (questionId: string, ans: string) => {
+    const currentQuestionCorrectAnswers = questionCorrectAnswers;
+    currentQuestionCorrectAnswers.set(questionId, ans);
+    setQuestionCorrectAnswers(currentQuestionCorrectAnswers);
+    console.log("page correct answers: ", currentQuestionCorrectAnswers);
+  };
+
   const updateAnswers = (questionId: string, ans: IAnswer) => {
-    const currentAnswers = answers;
+    const currentAnswers = userAnswers;
     currentAnswers.set(questionId, ans);
-    setAnswers(currentAnswers);
+    setUserAnswers(currentAnswers);
   };
 
   const unravelQuestions = () => {
@@ -88,9 +100,13 @@ export const Page = ({ page }: PageProps) => {
     page.questions?.forEach((question) => {
       if (question.loop) {
         let loopVar = question.loop;
+        let loopIndex = 0;
         while (loopVar > 0) {
-          questions.push(question);
+          questions.push(Object.assign({}, question));
+          questions[questions.length - 1].id = question.id + loopIndex;
+          console.log(questions);
           loopVar--;
+          loopIndex++;
         }
       } else {
         questions.push(question);
@@ -101,7 +117,6 @@ export const Page = ({ page }: PageProps) => {
   };
 
   useEffect(() => {
-    console.log("page rendered");
     unravelQuestions();
   }, [page]);
 
@@ -116,13 +131,14 @@ export const Page = ({ page }: PageProps) => {
             <>
               <Divider />
               <Question
-                setAnswer={updateAnswers}
+                setQuestionUserAnswer={updateAnswers}
+                setQuestionCorrectAnswer={updateCorrectAnswers}
                 key={question.id}
                 question={question}
               />
             </>
           ))}
-          {page?.questions && (
+          {pageQuestions.length > 0 && (
             <>
               <Divider />
               <Button variant="contained" onClick={handleSubmit}>

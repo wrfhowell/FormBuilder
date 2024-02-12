@@ -13,7 +13,6 @@ export const QuestionDropdown = ({
   setAnswer,
   options,
 }: QuestionDropdownProps) => {
-  console.log("options from dropdown: ", options);
   const [selection, setSelection] = useState(options ? options[0] : "");
   const handleChange = (e: any) => {
     setSelection(e.target.value);

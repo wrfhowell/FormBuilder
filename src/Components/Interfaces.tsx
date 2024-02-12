@@ -3,7 +3,7 @@ export interface IPage {
   header?: string;
   displayQuestions?: number;
   instructions?: string;
-  goTo?: (ans: Map<string, string>) => string;
+  goTo?: (ans: Map<string, string>, correctAns: Map<string, string>) => string;
   questions?: IQuestion[];
 }
 
@@ -16,7 +16,7 @@ export interface IQuestion {
   isRequired: boolean;
   options?: string[];
   loop?: number;
-  correctAnswer?: string | number | FunctionBinding;
+  correctAnswer?: FunctionBinding;
   vars?: Vars[];
 }
 

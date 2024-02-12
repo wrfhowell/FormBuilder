@@ -7,20 +7,25 @@ import { useEffect, useState } from "react";
 
 interface QuestionProps {
   question: IQuestion;
-  setAnswer: (questionId: string, ans: IAnswer) => void;
+  setQuestionUserAnswer: (questionId: string, ans: IAnswer) => void;
+  setQuestionCorrectAnswer: (questionId: string, ans: string) => void;
 }
 
-export const Question = ({ question, setAnswer }: QuestionProps) => {
+export const Question = ({
+  question,
+  setQuestionUserAnswer,
+  setQuestionCorrectAnswer,
+}: QuestionProps) => {
   const [evaluatedVars, setEvaluatedVars] = useState<{
     [key: string]: string | number;
   }>({});
   const [questionsRendered, setQuestionsRendered] = useState(false);
   const questionObj = {
-    text: <QuestionText id={question.id} setAnswer={setAnswer} />,
+    text: <QuestionText id={question.id} setAnswer={setQuestionUserAnswer} />,
     dropdown: (
       <QuestionDropdown
         id={question.id}
-        setAnswer={setAnswer}
+        setAnswer={setQuestionUserAnswer}
         options={question.options}
       />
     ),
@@ -28,18 +33,19 @@ export const Question = ({ question, setAnswer }: QuestionProps) => {
       <QuestionCheckbox
         id={question.id}
         options={question.options}
-        setAnswer={setAnswer}
+        setAnswer={setQuestionUserAnswer}
       />
     ),
     radio: (
       <QuestionRadio
         options={question.options}
         id={question.id}
-        setAnswer={setAnswer}
+        setAnswer={setQuestionUserAnswer}
       />
     ),
   };
 
+  // Get values for each of the variables for the Question
   const evaluateVars = () => {
     let currentEvaluatedVars = evaluatedVars;
     if (question.vars) {
@@ -61,6 +67,7 @@ export const Question = ({ question, setAnswer }: QuestionProps) => {
     setEvaluatedVars(currentEvaluatedVars);
   };
 
+  // Get the values of a selection of evaluated variables
   const getEvaluatedVars = (vars: string[]): any[] => {
     let evaluatedVarsLocal = [];
 
@@ -70,6 +77,7 @@ export const Question = ({ question, setAnswer }: QuestionProps) => {
     return evaluatedVarsLocal;
   };
 
+  // Evaluate the label for the question
   const getQuestionLabel = (): string | number => {
     let questionLabel: string | number = "";
 
@@ -86,8 +94,35 @@ export const Question = ({ question, setAnswer }: QuestionProps) => {
     return questionLabel;
   };
 
+  const getCorrectAnswer = () => {
+    if (!question.correctAnswer) return;
+
+    if (
+      typeof question.correctAnswer.value === "string" ||
+      typeof question.correctAnswer.value === "number"
+    ) {
+      setQuestionCorrectAnswer(question.id, question.correctAnswer.toString());
+      return;
+    }
+
+    if (!question.correctAnswer.args) {
+      setQuestionCorrectAnswer(
+        question.id,
+        question.correctAnswer.value().toString()
+      );
+      question.correctAnswer.value();
+    } else {
+      let args = getEvaluatedVars(question.correctAnswer.args);
+      setQuestionCorrectAnswer(
+        question.id,
+        question.correctAnswer.value(...args).toString()
+      );
+    }
+  };
+
   useEffect(() => {
     evaluateVars();
+    getCorrectAnswer();
     setQuestionsRendered(true);
   }, []);
 
