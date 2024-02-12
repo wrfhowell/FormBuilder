@@ -18,8 +18,7 @@ import {Question} from "../Nodes/Question";
 export class instructionChecker implements Visitor<string,string>{
     //Call this from main
     checkProgram(p: Program): string {
-        let someString = "";
-        return p.accept(someString,this);
+        return p.accept("",this);
     }
 
     visit(context: string, expression: Expression | GoTo_Object | MathExpression | Option | Options | Page | Pages | Program | Question | Question_Array | Regex | StringExpression | Variable | VariableName | VariablesArray): string {
