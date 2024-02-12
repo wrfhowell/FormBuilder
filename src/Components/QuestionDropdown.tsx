@@ -13,7 +13,8 @@ export const QuestionDropdown = ({
   setAnswer,
   options,
 }: QuestionDropdownProps) => {
-  const [selection, setSelection] = useState();
+  console.log("options from dropdown: ", options);
+  const [selection, setSelection] = useState(options ? options[0] : "");
   const handleChange = (e: any) => {
     setSelection(e.target.value);
     setAnswer(id, { dropdownSelection: e.target.value });
@@ -29,7 +30,11 @@ export const QuestionDropdown = ({
         onChange={handleChange}
       >
         {options?.map((item) => {
-          return <MenuItem value={item}>{item}</MenuItem>;
+          return (
+            <MenuItem key={item} value={item}>
+              {item}
+            </MenuItem>
+          );
         })}
       </Select>
     </FormControl>

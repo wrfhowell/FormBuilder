@@ -1,7 +1,7 @@
 import { IPage, IAnswer, IQuestion } from "./Interfaces";
 import { Question } from "./Question";
 import { Button } from "@mui/material";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Grid } from "@mui/material";
 import { Stack } from "@mui/material";
@@ -14,6 +14,7 @@ interface PageProps {
 export const Page = ({ page }: PageProps) => {
   const navigate = useNavigate();
   const [answers, setAnswers] = useState<Map<string, IAnswer>>(new Map());
+  const [pageQuestions, setPageQuestions] = useState<IQuestion[]>([]);
 
   const convertIAnswerToAnswer = (
     questions: IQuestion[],
@@ -81,6 +82,29 @@ export const Page = ({ page }: PageProps) => {
     setAnswers(currentAnswers);
   };
 
+  const unravelQuestions = () => {
+    let questions: any[] = [];
+
+    page.questions?.forEach((question) => {
+      if (question.loop) {
+        let loopVar = question.loop;
+        while (loopVar > 0) {
+          questions.push(question);
+          loopVar--;
+        }
+      } else {
+        questions.push(question);
+      }
+    });
+
+    setPageQuestions(questions);
+  };
+
+  useEffect(() => {
+    console.log("page rendered");
+    unravelQuestions();
+  }, [page]);
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={4}></Grid>
@@ -88,7 +112,7 @@ export const Page = ({ page }: PageProps) => {
         <Stack spacing={2}>
           <h1>{page.header}</h1>
           <p>{page.instructions}</p>
-          {page.questions?.map((question) => (
+          {pageQuestions?.map((question) => (
             <>
               <Divider />
               <Question

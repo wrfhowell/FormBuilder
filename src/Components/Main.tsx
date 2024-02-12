@@ -1,6 +1,6 @@
 import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
-import { IPage } from "./Interfaces";
+import { IPage, Vars } from "./Interfaces";
 
 interface MainProps {
   setPagesObj: (pagesObj: IPage[]) => void;
@@ -9,6 +9,27 @@ interface MainProps {
 export const Main = ({ setPagesObj }: MainProps) => {
   const navigate = useNavigate();
   const startQuiz = () => {
+    const functions = {
+      mathRound: () => Math.round(1 + 99 * Math.random()),
+      getValue: (item: any) => {
+        return item;
+      },
+      getAdditionQuestion: (num1: any, num2: any) =>
+        "" + num1 + " + " + num2 + " = ?",
+      additionQAns: (num1: any, num2: any) => {
+        return num1 + num2;
+      },
+    };
+
+    const vars: Vars = {
+      "addition-q-num1": { value: functions.mathRound },
+      "addition-q-num2": { value: functions.mathRound },
+      "addition-q-ans": {
+        value: functions.additionQAns,
+        args: ["num1", "num2"],
+      },
+    };
+
     const pages: IPage[] = [
       {
         id: "classification-pg",
@@ -28,7 +49,7 @@ export const Main = ({ setPagesObj }: MainProps) => {
           {
             id: "what-are-you",
             type: "dropdown",
-            label: "What are you?",
+            label: { value: "What are you?" },
             options: ["Metal", "Nonmetal", "Metalloid"],
             isRequired: true,
           },
@@ -45,7 +66,7 @@ export const Main = ({ setPagesObj }: MainProps) => {
           {
             id: "metal",
             type: "dropdown",
-            label: "What type of metal are you?",
+            label: { value: "What type of metal are you?" },
             options: [
               "Alkali Metal",
               "Alkaline Earth Metal",
@@ -73,16 +94,10 @@ export const Main = ({ setPagesObj }: MainProps) => {
           {
             id: "nonmetal",
             type: "checkbox",
-            label: "What type of nonmetal are you?",
+            label: { value: "What type of nonmetal are you?" },
             options: ["Reactive Nonmetal", "Noble Gas"],
             isRequired: true,
           },
-          // {
-          //   id: "test",
-          //   type: "text",
-          //   label: "This is a text field",
-          //   isRequired: false,
-          // },
         ],
       },
       {
@@ -91,7 +106,28 @@ export const Main = ({ setPagesObj }: MainProps) => {
       },
       {
         id: "reactive-nonmetal",
-        header: "Congratulations. You are a Reactive Nonmetal.",
+        header: "Addition",
+        instructions:
+          "Please solve the following addition problems to prove you are a reactive non-metal",
+        displayQuestions: 5,
+        questions: [
+          {
+            id: "addition-q-",
+            type: "text",
+            label: {
+              value: functions.getAdditionQuestion,
+              args: ["num1", "num2"],
+            },
+            isRequired: true,
+            correctAnswer: { value: functions.getValue, args: ["ans"] },
+            loop: 5,
+            vars: [
+              { num1: vars["addition-q-num1"] },
+              { num2: vars["addition-q-num2"] },
+              { ans: vars["addition-q-ans"] },
+            ],
+          },
+        ],
       },
     ];
 

@@ -1,6 +1,7 @@
 export interface IPage {
   id: string;
   header?: string;
+  displayQuestions?: number;
   instructions?: string;
   goTo?: (ans: Map<string, string>) => string;
   questions?: IQuestion[];
@@ -11,9 +12,12 @@ export type QuestionType = "radio" | "checkbox" | "dropdown" | "text";
 export interface IQuestion {
   id: string;
   type: QuestionType;
-  label: string;
-  options?: string[];
+  label: FunctionBinding;
   isRequired: boolean;
+  options?: string[];
+  loop?: number;
+  correctAnswer?: string | number | FunctionBinding;
+  vars?: Vars[];
 }
 
 export interface IAnswer {
@@ -22,3 +26,18 @@ export interface IAnswer {
   dropdownSelection?: boolean;
   checkboxSelection?: string[];
 }
+
+export interface FunctionBinding {
+  value: Function;
+  args?: string[];
+}
+
+export type Function =
+  | string
+  | number
+  | ((...args: any[]) => string)
+  | ((...args: any[]) => number);
+
+export type Vars = {
+  [key: string]: FunctionBinding;
+};
