@@ -1,98 +1,38 @@
-import {FormGeneratorParserVisitor} from "../../gen/parser/src/parser/FormGeneratorParserVisitor";
-import {AbstractParseTreeVisitor, ErrorNode, ParseTree, RuleNode} from "antlr4ts/tree";
-import {Node} from "../Abstract/Node";
 import {Program} from "../Nodes/Program";
-import {
-    Array_valueContext, ArrayContext, Boolean_expressionContext,
-    BooleanContext,
-    Cond_bodyContext, ConditionalContext, ConditionContext,
-    CorrectAnswer_fieldContext,
-    DependsOn_fieldContext,
-    DisplayIf_fieldContext,
-    DisplayQuestions_fieldContext, ExpressionContext,
-    Form_state_accessContext,
-    Function_arrayContext,
-    Function_bodyContext,
-    Function_callContext, Function_paramsContext, FunctionContext, FunctionsContext,
-    GoTo_fieldContext, Header_fieldContext, Id_fieldContext,
-    Instructions_fieldContext, IsRequired_fieldContext, Label_fieldContext, Loop_fieldContext,
-    Math_expressionContext,
-    Math_opContext, Num_equality_opContext,
-    Object_valueContext, ObjectContext,
-    Options_fieldContext, Page_arrayContext, Page_fieldContext, Page_fieldsContext,
-    PageContext,
-    PagesContext,
-    ParameterContext, Path_to_keyContext,
-    ProgramContext,
-    Question_arrayContext,
-    Question_fieldContext, Question_fieldsContext,
-    Question_typeContext,
-    QuestionContext, Questions_fieldContext,
-    Scoped_expressionContext,
-    StatementContext, Static_functionContext,
-    String_equality_opContext,
-    String_expressionContext, Type_fieldContext, Unscoped_expressionContext,
-    Variable_valueContext,
-    Variables_objectContext, VariablesContext
-} from "../../gen/parser/src/parser/FormGeneratorParser";
-import {TerminalNode} from "antlr4ts/tree/TerminalNode";
-import {Override} from "antlr4ts/Decorators";
+import {Visitor} from "../Interfaces/Visitor";
+import {Options} from "../Nodes/Options";
+import {Variable} from "../Nodes/Variable";
+import {VariableName} from "../Nodes/VariableName";
+import {GoTo_Object} from "../Nodes/GoTo_Object";
+import {Page} from "../Nodes/Page";
+import {Question_Array} from "../Nodes/Question_Array";
+import {MathExpression} from "../Nodes/MathExpression";
+import {Pages} from "../Nodes/Pages";
+import {VariablesArray} from "../Nodes/VariablesArray";
+import {Regex} from "../Nodes/Regex";
+import {Expression} from "../Nodes/Expression";
+import {StringExpression} from "../Nodes/StringExpression";
+import {Option} from "../Nodes/Option";
+import {Question} from "../Nodes/Question";
 
-export class instructionChecker implements FormGeneratorParserVisitor<String>{
+export class instructionChecker implements Visitor<string,string>{
     //Call this from main
-    checkProgram(p: Program): String {
+    checkProgram(p: Program): string {
         let someString = "";
-        //Not sure why this is complaining, should be a string
-        return p.accept(someString, this);
+        return p.accept(someString,this);
     }
 
-    // @Override
-    // visitProgram(ctx: ProgramContext): String {
-    //     ctx.pages().accept()
-    //     return "";
-    // }
-    //
-    @Override
-    visitPage(ctx: PageContext): String {
-        if (ctx.getInstructions()) {
-            // ???? Shouldn't I be able to access instructions
+    visit(context: string, expression: Expression | GoTo_Object | MathExpression | Option | Options | Page | Pages | Program | Question | Question_Array | Regex | StringExpression | Variable | VariableName | VariablesArray): string {
+        let error = "";
+        if (expression instanceof Program) {
+            let pageArray = expression.getPages().getPageArray();
+            pageArray.forEach((page)=>{
+                console.log(page.getInstructions());
+                if (page.getInstructions() == "" || page.getInstructions() == undefined) {
+                    error = "Missing instructions on " + page.getId() + " page!"
+                }
+            })
         }
-        return "error";
-    }
-    //
-    // visitPage_array(ctx: Page_arrayContext): Node {
-    //     return undefined;
-    // }
-    //
-    // visitPage_field(ctx: Page_fieldContext): Node {
-    //     return undefined;
-    // }
-    //
-    // visitPage_fields(ctx: Page_fieldsContext): Node {
-    //     return undefined;
-    // }
-    //
-    // visitPages(ctx: PagesContext): Node {
-    //     return undefined;
-    // }
-    //
-    // visitPath_to_key(ctx: Path_to_keyContext): Node {
-    //     return undefined;
-    // }
-    //
-    visit(tree: ParseTree): Node {
-        return undefined;
-    }
-
-    visitChildren(node: RuleNode): Node {
-        return undefined;
-    }
-
-    visitErrorNode(node: ErrorNode): Node {
-        return undefined;
-    }
-
-    visitTerminal(node: TerminalNode): Node {
-        return undefined;
+        return error;
     }
 }
