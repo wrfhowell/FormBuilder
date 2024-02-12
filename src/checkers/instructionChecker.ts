@@ -26,7 +26,6 @@ export class instructionChecker implements Visitor<string,string>{
         if (expression instanceof Program) {
             let pageArray = expression.getPages().getPageArray();
             pageArray.forEach((page)=>{
-                console.log(page.getInstructions());
                 if (page.getInstructions() == "" || page.getInstructions() == undefined) {
                     error = "Missing instructions on " + page.getId() + " page!"
                 }
