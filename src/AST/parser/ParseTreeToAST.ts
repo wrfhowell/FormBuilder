@@ -169,9 +169,10 @@ export class ParseTreeToAST
   }
 
   visitFunction(ctx: FunctionContext): FunctionCustom {
+    const variableName = new VariableName(ctx.VARIABLE_NAME().text);
     const parameters: (string | number | Expression | VariableName | StaticFunction |
         Function_Call | FormStateAccess | undefined)[] = ctx.function_params().accept(this);
-    return new FunctionCustom(parameters, ctx.function_body().accept(this));
+    return new FunctionCustom(variableName, parameters, ctx.function_body().accept(this));
   }
 
   visitFunction_params(ctx: Function_paramsContext): (string | number | Expression | VariableName | StaticFunction |
