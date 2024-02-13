@@ -133,6 +133,7 @@ export const Main = ({ setPagesObj }: MainProps) => {
             },
             isRequired: true,
             correctAnswer: { value: functions.getVarValue, args: ["ans"] },
+            // correctAnswer: { value: 25 },
             loop: 5,
             vars: [
               { num1: vars["addition-q-num1"] },

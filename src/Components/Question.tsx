@@ -101,7 +101,10 @@ export const Question = ({
       typeof question.correctAnswer.value === "string" ||
       typeof question.correctAnswer.value === "number"
     ) {
-      setQuestionCorrectAnswer(question.id, question.correctAnswer.toString());
+      setQuestionCorrectAnswer(
+        question.id,
+        question.correctAnswer.value.toString()
+      );
       return;
     }
 
