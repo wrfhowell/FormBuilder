@@ -1,8 +1,10 @@
 import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
-import { IPage, Vars } from "./Interfaces";
+import { IPage } from "./Interfaces";
 import { styled } from "@mui/material/styles";
 import { useFileUpload } from "./Hooks";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import Quiz from "@mui/icons-material/Quiz";
 
 import { pages } from "./Compiled_Quiz_Example";
 
@@ -21,6 +23,8 @@ export const Main = ({ setPagesObj }: MainProps) => {
     }
   };
 
+  // Reference: Material UI Documentation
+  // https://mui.com/material-ui/react-button/
   const VisuallyHiddenInput = styled("input")({
     clip: "rect(0 0 0 0)",
     clipPath: "inset(50%)",
@@ -35,14 +39,19 @@ export const Main = ({ setPagesObj }: MainProps) => {
 
   return (
     <>
-      <h1>Upload Quiz DSL File</h1>
-      <Button variant="contained" component="label">
+      <h1>Quiz Creator DSL</h1>
+      <h3>Upload Quiz DSL File</h3>
+      <Button
+        variant="contained"
+        component="label"
+        startIcon={<CloudUploadIcon />}
+      >
         Upload
         <VisuallyHiddenInput onChange={uploadFile} type="file" />
       </Button>
 
-      <h1>Start the Quiz</h1>
-      <Button variant="contained" onClick={startQuiz}>
+      <h3>Start the Quiz</h3>
+      <Button variant="contained" onClick={startQuiz} startIcon={<Quiz />}>
         Start Quiz
       </Button>
     </>
