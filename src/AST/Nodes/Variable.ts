@@ -1,15 +1,21 @@
-import { Node, Visitor } from "../export";
+import {ArrayCustom, Expression, Node, Visitor} from "../export";
 import {Regex} from "./Regex";
 import {VariableName} from "./VariableName";
+import {FormStateAccess} from "./FormStateAccess";
+import {StaticFunction} from "./StaticFunction";
+import {Function_Call} from "./Function_Call";
 
 export class Variable extends Node {
-    private variable: { [id: string]:  (string | number | undefined)[] | number | string | Regex | undefined }
+    private variable: { [id: string]:  ArrayCustom | number | string | Regex |
+            FormStateAccess | StaticFunction | Expression | Function_Call | undefined }
     private variableName: string;
     private variableNameObject: VariableName;
-    private variableValue: (string | number | undefined)[] | number | string | Regex | undefined;
+    private variableValue: ArrayCustom | number | string | Regex |
+        FormStateAccess | StaticFunction | Expression | Function_Call | undefined;
 
     constructor(variableName: string,
-                variableValue: (string | number | undefined)[] | number | string | Regex | undefined) {
+                variableValue: ArrayCustom | number | string | Regex |
+                    FormStateAccess | StaticFunction | Expression | Function_Call | undefined) {
         super();
         this.variableName = variableName;
         this.variableValue = variableValue;

@@ -1,27 +1,24 @@
 import { Node, Visitor } from "../export";
 import { Expression } from "./Expression";
-import { GoTo_Object } from "./GoTo_Object";
 import { Question_Array } from "./Question_Array";
 import { VariableName } from "./VariableName";
-import { VariablesArray } from "./VariablesArray";
+import {Function_Call} from "./Function_Call";
 
 export class Page extends Node {
-	private id: string;
-	private goTo: GoTo_Object;
-	private header: string | Expression | VariableName | undefined;
-	private instructions: string | Expression | VariableName | undefined;
-	private displayQuestions: boolean | undefined;
-	private questions: Question_Array;
-	private pageVariables: VariablesArray | undefined;
+	private id: string | undefined;
+	private goTo: string | Function_Call | Expression | undefined;
+	private header: string | Expression | VariableName | Function_Call |  undefined;
+	private instructions: string | Expression | VariableName | Function_Call | undefined;
+	private displayQuestions: string | number | undefined;
+	private questions: Question_Array | undefined;
 
 	constructor(
-		id: string,
-		goTo: GoTo_Object,
-		header: string | Expression | VariableName | undefined,
-		instructions: string | Expression | VariableName | undefined,
-		displayQuestions: boolean | undefined,
-		questions: Question_Array,
-		pageVariables: VariablesArray | undefined
+		id: string | undefined,
+		goTo: string | Function_Call | Expression | undefined,
+		header: string | Expression | VariableName | Function_Call | undefined,
+		instructions: string | Expression | VariableName | Function_Call | undefined,
+		displayQuestions: string | number | undefined,
+		questions: Question_Array | undefined
 	) {
 		super();
 		this.id = id;
@@ -30,7 +27,6 @@ export class Page extends Node {
 		this.instructions = instructions;
 		this.displayQuestions = displayQuestions;
 		this.questions = questions;
-		this.pageVariables = pageVariables;
 	}
 
 	getId() {
@@ -55,10 +51,6 @@ export class Page extends Node {
 
 	getQuestionArray() {
 		return this.questions;
-	}
-
-	getPageVariables() {
-		return this.pageVariables;
 	}
 
 	accept<C, T>(context: C, v: Visitor<C, T>): T {

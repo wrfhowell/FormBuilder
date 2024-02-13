@@ -1,17 +1,17 @@
 import { Node } from "../Abstract/Node";
 import { Visitor } from "../Interfaces/Visitor";
-import { Option } from "./Option";
+import { ArrayValue } from "./ArrayValue";
 
-export class Options extends Node {
-  private options: Option[];
+export class ArrayCustom extends Node {
+  private arrayCustom: ArrayValue[];
 
-  constructor(options: Option[]) {
+  constructor(options: ArrayValue[]) {
     super();
-    this.options = options;
+    this.arrayCustom = options;
   }
 
   getOptions() {
-    return this.options;
+    return this.arrayCustom;
   }
   accept<C, T>(context: C, v: Visitor<C, T>): T {
     return v.visit(context, this);

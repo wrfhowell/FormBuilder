@@ -1,28 +1,29 @@
 import {Node, Visitor} from "../export";
 
-import {Options} from "./Options";
+import {ArrayCustom} from "./ArrayCustom";
 import {Expression} from "./Expression";
 import {Regex} from "./Regex";
 import {VariablesArray} from "./VariablesArray";
 import {VariableName} from "./VariableName";
+import {Function_Call} from "./Function_Call";
 
 export class Question extends Node {
-  private id: string;
+  private id: string | undefined;
   private type: string | undefined;
-  private label:  string | Expression | VariableName | undefined;
-  private options: Options;
+  private label:  string | Expression | VariableName | Function_Call | undefined;
+  private options: VariableName | Function_Call | ArrayCustom;
   private dependsOn: string | undefined;
-  private displayIf: string | Regex | Expression | undefined;
+  private displayIf: string | Regex | Expression | Function_Call | undefined;
   private loop: number | undefined;
   private isRequired: boolean | undefined;
-  private correctAnswer: string | number | Regex | Expression | undefined;
+  private correctAnswer: string | number | Regex | Expression | Function_Call | undefined;
   private questionVariables: VariablesArray | undefined
 
-  constructor(id: string, type: string | undefined, label: string | Expression | VariableName | undefined,
-              options: Options, dependsOn: string | undefined,
-              displayIf: string | Regex | Expression | undefined,
+  constructor(id: string | undefined, type: string | undefined, label: string | Expression | VariableName | Function_Call  | undefined,
+              options: VariableName | Function_Call | ArrayCustom, dependsOn: string | undefined,
+              displayIf: string | Regex | Expression | Function_Call | undefined,
               loop: number | undefined, isRequired: boolean | undefined,
-              correctAnswer: string | number | Regex | Expression | undefined, questionVariables: VariablesArray | undefined) {
+              correctAnswer: string | number | Regex | Expression | Function_Call | undefined, questionVariables: VariablesArray | undefined) {
     super();
     this.id = id;
     this.type = type;
