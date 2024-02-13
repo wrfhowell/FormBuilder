@@ -12,7 +12,7 @@ export class ScopedExpression extends Node {
     constructor(firstScopedExpression: ScopedExpression | UnscopedExpression,
                 extendedScopedExpression: { [operator: string]: Expression}) {
         super();
-        this.firstScopedExpression = firstScopedExpression
+        this.firstScopedExpression = firstScopedExpression;
         this.extendedScopedExpression = extendedScopedExpression;
     }
 

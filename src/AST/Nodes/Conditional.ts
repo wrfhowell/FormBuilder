@@ -2,6 +2,7 @@ import {Visitor} from "../Interfaces/Visitor";
 import {Cond_Body} from "./Cond_Body";
 import {If_Cond} from "./If_Cond";
 import {Else_If_Cond} from "./Else_If_Cond";
+import {Node} from "../export";
 export class Conditional extends Node {
     private ifCond: If_Cond;
     private elseIfCond: Else_If_Cond[];

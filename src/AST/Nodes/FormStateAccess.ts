@@ -8,7 +8,7 @@ export class FormStateAccess extends Node {
     constructor(pageId: string, questionId: string) {
         super();
         this.pageId = pageId;
-        this.questionId = questionId
+        this.questionId = questionId;
     }
 
     getPageId() {

@@ -50,7 +50,7 @@ export class Question extends Node {
   }
 
   getOptions() {
-    return this.options
+    return this.options;
   }
 
   getDisplayIf() {

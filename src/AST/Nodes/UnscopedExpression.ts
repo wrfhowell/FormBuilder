@@ -11,7 +11,7 @@ export class UnscopedExpression extends Node {
                 unscopedExpressionString: string) {
         super();
         this.unscopedExpression = unscopedExpression;
-        this.unscopedExpressionString = unscopedExpressionString
+        this.unscopedExpressionString = unscopedExpressionString;
     }
 
     getExpression() {

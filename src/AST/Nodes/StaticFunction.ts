@@ -14,7 +14,7 @@ export class StaticFunction extends Node {
         Function_Call | FormStateAccess | undefined)[]) {
         super();
         this.staticFormName = staticFormName;
-        this.functionParams = functionParams
+        this.functionParams = functionParams;
     }
 
     getStaticFormName(): string {
