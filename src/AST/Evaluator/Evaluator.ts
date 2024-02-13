@@ -1,9 +1,8 @@
 import {
 	Expression,
-	GoTo_Object,
 	MathExpression,
-	Option,
-	Options,
+	ArrayValue,
+	ArrayCustom,
 	Page,
 	Pages,
 	Program,
@@ -133,11 +132,11 @@ export class Evaluator implements Visitor<{}, any> {
 	}
 
 	// Example for visitOption
-	visitOption(context: {}, option: Option) {
+	visitOption(context: {}, option: ArrayValue) {
 		return option.getOption();
 	}
 
-	visitOptions(context: {}, options: Options) {
+	visitOptions(context: {}, options: ArrayCustom) {
 		return options.getOptions().map((option) => option.accept(context, this));
 	}
 
