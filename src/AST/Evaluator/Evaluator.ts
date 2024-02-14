@@ -8,6 +8,9 @@ import { Function_Body } from "../Nodes/Function_Body";
 import { Function_Call } from "../Nodes/Function_Call";
 import { Functions_Array } from "../Nodes/Functions_Array";
 import { If_Cond } from "../Nodes/If_Cond";
+import { ScopedExpression } from "../Nodes/ScopedExpression";
+import { StaticFunction } from "../Nodes/StaticFunction";
+import { UnscopedExpression } from "../Nodes/UnscopedExpression";
 import {
 	ArrayCustom,
 	ArrayValue,
@@ -29,37 +32,62 @@ export class Evaluator implements Visitor<{}, any> {
 	private jumpTable: any;
 
 	constructor() {
+		this.visitArrayCustom = this.visitArrayCustom.bind(this);
+		this.visitArrayValue = this.visitArrayValue.bind(this);
+		this.visitBooleanExpression = this.visitBooleanExpression.bind(this);
+		this.visitCondBody = this.visitCondBody.bind(this);
+		this.visitConditional = this.visitConditional.bind(this);
+		this.visitElseIfCond = this.visitElseIfCond.bind(this);
+		this.visitExpression = this.visitExpression.bind(this);
+		this.visitFormStateAccess = this.visitFormStateAccess.bind(this);
+		this.visitFunctionBody = this.visitFunctionBody.bind(this);
+		this.visitFunctionCall = this.visitFunctionCall.bind(this);
+		this.visitFunctionCustom = this.visitFunctionCustom.bind(this);
+		this.visitFunctionsArray = this.visitFunctionsArray.bind(this);
+		this.visitIfCond = this.visitIfCond.bind(this);
+		this.visitMathExpression = this.visitMathExpression.bind(this);
 		this.visitPage = this.visitPage.bind(this);
 		this.visitPages = this.visitPages.bind(this);
 		this.visitProgram = this.visitProgram.bind(this);
+		this.visitQuestionArray = this.visitQuestionArray.bind(this);
 		this.visitQuestion = this.visitQuestion.bind(this);
-		this.visitQuestions = this.visitQuestions.bind(this);
-		this.visitArrayValue = this.visitArrayValue.bind(this);
-		this.visitArrayCustom = this.visitArrayCustom.bind(this);
-		this.visitExpression = this.visitExpression.bind(this);
-		this.visitMathExpression = this.visitMathExpression.bind(this);
+		this.visitRegex = this.visitRegex.bind(this);
+		this.visitScopedExpression = this.visitScopedExpression.bind(this);
+		this.visitStaticFunction = this.visitStaticFunction.bind(this);
 		this.visitStringExpression = this.visitStringExpression.bind(this);
-		this.visitGoToObject = this.visitGoToObject.bind(this);
+		this.visitUnscopedExpression = this.visitUnscopedExpression.bind(this);
 		this.visitVariable = this.visitVariable.bind(this);
 		this.visitVariableName = this.visitVariableName.bind(this);
 		this.visitVariablesArray = this.visitVariablesArray.bind(this);
-		this.visitRegex = this.visitRegex.bind(this);
 
 		this.jumpTable = {
+			ArrayCustom: this.visitArrayCustom,
+			ArrayValue: this.visitArrayValue,
+			BooleanExpression: this.visitBooleanExpression,
+			Cond_Body: this.visitCondBody,
+			Conditional: this.visitConditional,
+			Else_If_Cond: this.visitElseIfCond,
+			Expression: this.visitExpression,
+			FormStateAccess: this.visitFormStateAccess,
+			Function_Body: this.visitFunctionBody,
+			Function_Call: this.visitFunctionCall,
+			FunctionCustom: this.visitFunctionCustom,
+			Functions_Array: this.visitFunctionsArray,
+			If_Cond: this.visitIfCond,
+			MathExpression: this.visitMathExpression,
 			Page: this.visitPage,
 			Pages: this.visitPages,
 			Program: this.visitProgram,
+			Question_Array: this.visitQuestionArray,
 			Question: this.visitQuestion,
-			Question_Array: this.visitQuestions,
-			Option: this.visitArrayValue,
-			Options: this.visitArrayCustom,
-			Expression: this.visitExpression,
-			MathExpression: this.visitMathExpression,
+			Regex: this.visitRegex,
+			ScopedExpression: this.visitScopedExpression,
+			StaticFunction: this.visitStaticFunction,
 			StringExpression: this.visitStringExpression,
+			UnscopedExpression: this.visitUnscopedExpression,
 			Variable: this.visitVariable,
 			VariableName: this.visitVariableName,
 			VariablesArray: this.visitVariablesArray,
-			Regex: this.visitRegex,
 		};
 	}
 
@@ -178,11 +206,13 @@ export class Evaluator implements Visitor<{}, any> {
 	}
 
 	visitExpression(context: {}, expression: Expression) {
-		let expressionType = expression.getExpression;
+		let expressionType = expression.getExpression();
+
 		if (hasAcceptMethod(expressionType)) {
+			console.log("LOOKATMEEEEEEEEE");
 			expressionType = expressionType.accept(context, this);
 		}
-		return expressionType;
+		return { expression: expressionType };
 	}
 
 	visitFormStateAccess(context: {}, formStateAccess: FormStateAccess) {
@@ -194,16 +224,23 @@ export class Evaluator implements Visitor<{}, any> {
 
 	visitFunctionBody(context: {}, functionBody: Function_Body) {
 		let statements = functionBody.getStatements();
-		let returnValue = functionBody.getFunctionReturnValue();
-		if (hasAcceptMethod(statements)) {
-			statements = statements.accept(context, this);
-		}
-		if (hasAcceptMethod(returnValue)) {
-			returnValue = returnValue.accept(context, this);
+		let returnValueFunction = functionBody.getFunctionReturnValue();
+		console.log("YOOOOOOO");
+		statements = statements.map((statement) => {
+			console.log("YOOOOOOO1");
+			if (hasAcceptMethod(statement)) {
+				console.log("YOOOOOOO2");
+				return statement.accept(context, this);
+			}
+			return statement;
+		});
+
+		if (hasAcceptMethod(returnValueFunction)) {
+			returnValueFunction = returnValueFunction.accept(context, this);
 		}
 		return {
 			statements: statements,
-			returnValue: returnValue,
+			returnValueFunction: returnValueFunction,
 		};
 	}
 
@@ -225,17 +262,17 @@ export class Evaluator implements Visitor<{}, any> {
 	}
 
 	visitFunctionCustom(context: {}, functionCustom: FunctionCustom) {
+		let functionName = functionCustom.getFunctionName().accept(context, this);
 		let functionParameters = functionCustom.getFunctionParams();
 		let functionBody = functionCustom.getFunctionBody().accept(context, this);
-		if (hasAcceptMethod(functionParameters)) {
-			functionParameters = functionParameters.map((param) => {
-				if (hasAcceptMethod(param)) {
-					return param.accept(context, this);
-				}
-				return param;
-			});
-		}
+		functionParameters = functionParameters.map((param) => {
+			if (hasAcceptMethod(param)) {
+				return param.accept(context, this);
+			}
+			return param;
+		});
 		return {
+			functionName: functionName,
 			functionParameters: functionParameters,
 			functionBody: functionBody,
 		};
@@ -305,9 +342,14 @@ export class Evaluator implements Visitor<{}, any> {
 	}
 
 	visitVariable(context: {}, variable: Variable) {
+		let variableName = variable.getVariableName();
+		let variableValue = variable.getVariableValue();
+		if (hasAcceptMethod(variableValue)) {
+			variableValue = variableValue.accept(context, this);
+		}
 		return {
-			name: variable.getVariableName(),
-			value: variable.getVariableValue(),
+			variableName: variableName,
+			variableValue: variableValue,
 		};
 	}
 
@@ -321,8 +363,51 @@ export class Evaluator implements Visitor<{}, any> {
 			.map((variable) => variable.accept(context, this));
 	}
 
+	visitScopedExpression(context: {}, scopedExpression: ScopedExpression) {
+		const firstScopedExpressionResult = scopedExpression
+			.getFirstScopedExpression()
+			.accept(context, this);
+
+		const extendedScopedExpressionResult = Object.entries(
+			scopedExpression.getExtendedScopedExpression()
+		).reduce((acc, [operator, expression]) => {
+			acc[operator] = expression.accept(context, this);
+			return acc;
+		}, {} as { [operator: string]: any });
+
+		return {
+			firstScopedExpression: firstScopedExpressionResult,
+			extendedScopedExpression: extendedScopedExpressionResult,
+		};
+	}
+
+	visitStaticFunction(context: {}, staticFunction: StaticFunction) {
+		let functionParams = staticFunction.getFunctionParams();
+
+		functionParams = functionParams.map((param) => {
+			if (hasAcceptMethod(param)) {
+				return param.accept(context, this);
+			}
+			return param;
+		});
+
+		return {
+			staticFormName: staticFunction.getStaticFormName(),
+			functionParams: functionParams,
+		};
+	}
+
 	visitRegex(context: {}, regex: any) {
 		return regex.getRegex();
+	}
+
+	visitUnscopedExpression(context: {}, unscopedExpression: UnscopedExpression) {
+		return {
+			unscopedExpression: unscopedExpression
+				.getExpression()
+				.accept(context, this),
+			unscopedExpressionString: unscopedExpression.getExpressionString(),
+		};
 	}
 }
 

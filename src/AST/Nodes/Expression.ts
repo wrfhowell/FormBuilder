@@ -13,7 +13,7 @@ export class Expression extends Node {
 		this.expression = expression;
 	}
 
-	get getExpression() {
+	getExpression() {
 		return this.expression;
 	}
 

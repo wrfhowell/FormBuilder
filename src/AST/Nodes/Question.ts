@@ -91,11 +91,10 @@ export class Question extends Node {
 	getQuestionVariables() {
 		return this.questionVariables;
 	}
-  
-  getDependsOn() {
-    return this.dependsOn;
-  
-  }
+
+	getDependsOn() {
+		return this.dependsOn;
+	}
 
 	accept<C, T>(context: C, v: Visitor<C, T>): T {
 		return v.visit(context, this);
