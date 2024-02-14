@@ -1,14 +1,24 @@
 import { Node, Visitor } from "../export";
 import { Expression } from "./Expression";
+import { Function_Call } from "./Function_Call";
 import { Question_Array } from "./Question_Array";
 import { VariableName } from "./VariableName";
-import {Function_Call} from "./Function_Call";
 
 export class Page extends Node {
 	private id: string | undefined;
 	private goTo: string | Function_Call | Expression | undefined;
-	private header: string | Expression | VariableName | Function_Call |  undefined;
-	private instructions: string | Expression | VariableName | Function_Call | undefined;
+	private header:
+		| string
+		| Expression
+		| VariableName
+		| Function_Call
+		| undefined;
+	private instructions:
+		| string
+		| Expression
+		| VariableName
+		| Function_Call
+		| undefined;
 	private displayQuestions: string | number | undefined;
 	private questions: Question_Array | undefined;
 
@@ -16,7 +26,12 @@ export class Page extends Node {
 		id: string | undefined,
 		goTo: string | Function_Call | Expression | undefined,
 		header: string | Expression | VariableName | Function_Call | undefined,
-		instructions: string | Expression | VariableName | Function_Call | undefined,
+		instructions:
+			| string
+			| Expression
+			| VariableName
+			| Function_Call
+			| undefined,
 		displayQuestions: string | number | undefined,
 		questions: Question_Array | undefined
 	) {
