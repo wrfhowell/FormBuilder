@@ -81,7 +81,7 @@
 
         algebraQuestionAns(num1, num2) {
             algResult = (((num4 - num3) / (num1 * num2) * 100) / 100)
-            return round(algResult)
+            return roundToInt(algResult)
         },
 
         getAdditionQuestionLabel(num1, num2) {
