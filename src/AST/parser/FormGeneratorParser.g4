@@ -9,18 +9,19 @@ page_array: LIST_START page (SEP page)* LIST_END;
 page: OBJECT_START page_fields OBJECT_END;
 page_fields: page_field (SEP page_field)*;
 page_field: (id_field | header_field | instructions_field | goTo_field | questions_field | displayQuestions_field);
-id_field: ID_KEY COLON (STRING | expression);
-header_field: HEADER_KEY COLON (STRING | function_call | expression | VARIABLE_NAME);
-instructions_field: INSTRUCTIONS_KEY COLON (STRING | function_call | expression | VARIABLE_NAME);
+id_field: ID_KEY COLON text_field_value;
+header_field: HEADER_KEY COLON text_field_value;
+instructions_field: INSTRUCTIONS_KEY COLON text_field_value;
 questions_field: QUESTIONS_KEY COLON question_array;
-goTo_field: GOTO_KEY COLON (STRING | function_call | expression);
+goTo_field: GOTO_KEY COLON text_field_value;
 displayQuestions_field: DISPLAY_QUESTIONS_KEY COLON (DISPLAY_ALL | NUM);
+text_field_value: STRING | VARIABLE_NAME | function_call;
 
 // Vars object
 variables: VARIABLES_KEY COLON variables_object;
 variables_object: OBJECT_START (variable (SEP variable)*)? OBJECT_END;
 variable: VARIABLE_NAME COLON variable_value;
-variable_value: array | NUM | STRING | REGEX | form_state_access | static_function | expression | function_call;
+variable_value: NUM | STRING | boolean | array | form_state_access | function_call;
 
 // Question Array
 question_array: LIST_START (question (SEP question)*)? LIST_END;
@@ -28,13 +29,13 @@ question: OBJECT_START question_fields OBJECT_END;
 question_fields: question_field (SEP question_field)*;
 question_field: id_field | type_field | label_field | options_field | dependsOn_field | displayIf_field | loop_field | isRequired_field | correctAnswer_field | variables;
 type_field: TYPE_KEY COLON question_type;
-label_field: LABEL_KEY COLON (STRING | function_call | expression | VARIABLE_NAME);
+label_field: LABEL_KEY COLON text_field_value;
 options_field: OPTIONS_KEY COLON (VARIABLE_NAME | function_call | array);
 dependsOn_field: DEPENDS_ON_KEY COLON STRING;
-displayIf_field: DISPLAY_IF_KEY COLON (STRING | REGEX | function_call | expression);
+displayIf_field: DISPLAY_IF_KEY COLON STRING;
 loop_field: LOOP_KEY COLON NUM;
 isRequired_field: IS_REQUIRED_KEY COLON boolean;
-correctAnswer_field: CORRECT_ANSWER_KEY COLON (STRING | NUM | REGEX | function_call | expression | VARIABLE_NAME);
+correctAnswer_field: CORRECT_ANSWER_KEY COLON (STRING | NUM | VARIABLE_NAME | function_call);
 
 
 // Array & object definition
@@ -52,10 +53,11 @@ functions: FUNCTIONS_KEY COLON function_array;
 function_array: LIST_START (function (SEP function)*)? LIST_END;
 function: VARIABLE_NAME function_params function_body;
 function_params: PAREN_START (parameter (SEP parameter)*)? PAREN_END;
-parameter: expression | STRING | NUM | VARIABLE_NAME | static_function | function_call | form_state_access;
-function_body: OBJECT_START (statement)* RETURN returnValueFunction OBJECT_END;
-statement: expression | conditional | static_function;
-returnValueFunction: (VARIABLE_NAME | STRING | NUM | expression | static_function | function_call | form_state_access | array);
+parameter: STRING | NUM | VARIABLE_NAME | function_call | form_state_access;
+function_body: OBJECT_START (statement)* RETURN returnValue OBJECT_END;
+statement: expression | conditional | var_assignment;
+var_assignment: VARIABLE_NAME ASSIGN returnValue;
+returnValue: ( STRING | NUM | VARIABLE_NAME | array | expression | function_call);
 function_call: VARIABLE_NAME function_params;
 
 // Conditional Statements
@@ -63,53 +65,32 @@ conditional: (if_cond) (else_if_cond)* (else_cond)?;
 if_cond: IF_KEY condition cond_body;
 else_if_cond: ELSE_KEY IF_KEY condition function_body;
 else_cond: ELSE_KEY cond_body;
-condition: PAREN_START expression PAREN_END;
+condition: PAREN_START (VARIABLE_NAME | function_call) PAREN_END;
 cond_body: OBJECT_START (statement)* (RETURN returnValueIf)? OBJECT_END;
-returnValueIf: (VARIABLE_NAME | STRING | NUM | expression);
+returnValueIf: returnValue;
 
 
-// expressions
-expression:  NUM | STRING | unscoped_expression |  scoped_expression;
+// math expressions
+/** START Code inspired by Robert Jasobson - Feb 13
+    https://www.robertjacobson.dev/the-grammar-of-mathematical-expressions */
+expression
+	:	(NUM | VARIABLE_NAME)
+	|	PAREN_START math_expression PAREN_END;	//parentheses
 
-//scoped expression
-scoped_expression: (PAREN_START (first_scoped_expression) (extended_scoped_expression)* PAREN_END);
-first_scoped_expression: scoped_expression | unscoped_expression;
-extended_scoped_expression: scoped_operator expression;
-scoped_operator: math_op | num_equality_op;
+math_expression
+	:	expression
+	|	math_expression DIVIDE math_expression	//division
+	|	math_expression MULTIPLY math_expression	//explicit multiplication
+	|	math_expression (PLUS | MINUS) math_expression;	//addition/subtraction
+/** END Code inspired by Robert Jasobson - Feb 13
+    https://www.robertjacobson.dev/the-grammar-of-mathematical-expressions */
 
-//unscoped expression
-unscoped_expression:  math_expression  |  string_expression  |  boolean_expression ;
 
-//math expression
-math_expression: (math_expression_with_op) | (math_expression_extended);
-math_expression_with_op: (math_expression_val1 math_op math_expression_val2);
-math_expression_extended: (math_expression_val1 math_op math_expression);
-math_expression_val1: NUM | VARIABLE_NAME;
-math_expression_val2: NUM | VARIABLE_NAME;
-
-//string expression
-string_expression: (string_expression_with_num) | (string_expression_extended);
-string_expression_with_num: string_expression_val1 PLUS (string_expression_val2 | string_expression_num);
-string_expression_extended: (string_expression_val1 PLUS string_expression);
-string_expression_val1: STRING | VARIABLE_NAME;
-string_expression_val2: STRING | VARIABLE_NAME;
-string_expression_num: NUM;
-
-//boolean expression
-boolean_expression: string_boolean_expression | num_boolean_expression;
-string_boolean_expression: string_expression_val1 string_equality_op ((string_expression_val2) | string_boolean_expression_extended);
-string_boolean_expression_extended: string_equality_op string_boolean_expression;
-num_boolean_expression: math_expression_val1 num_equality_op ((math_expression_val2) | num_boolean_expression_extended);
-num_boolean_expression_extended: num_equality_op num_boolean_expression;
-
-// Static Objects
-static_function: FORM_OBJ_KEY DOT STATIC_FORM_NAME function_params; // Form.getRandomInt(3, 19)
+// Form State
 form_state_access: FORM_STATE_KEY path_to_key; // FormState['pg-1-id'][q-1-id']
 path_to_key: LIST_START path_to_page_key LIST_END LIST_START path_to_question_key LIST_END; // ['pg-1-id'][q-1-id']
 path_to_page_key: STRING;
 path_to_question_key: STRING;
+
 // Misc
 boolean: (TRUE | FALSE);
-math_op: PLUS | MINUS | MULTIPLY | DIVIDE | MODULO;
-string_equality_op: EQUAL | NOT_EQUAL;
-num_equality_op: EQUAL | NOT_EQUAL | GREATER | GREATER_EQUAL | LESS | LESS_EQUAL;
