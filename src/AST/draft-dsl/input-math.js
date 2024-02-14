@@ -46,14 +46,14 @@
 
         {
             id: "algebra-pg",
-            header: "Albebra",
+            header: "Algebra",
             instructions: "Please solve the following algebra problems. Round to two decimal places.",
             displayQuestions: 5,
             questions: [
                 {
                     id: "algebra-q-" + loopIndex,
                     type: textInput,
-                    label: "" + num1 + "x * " + num2 + " + " + num3 + " = " + num4,
+                    label: "" + num1 + " * " + num2 + " + " + num3 + " = " + num4,
                     isRequired: true,
                     correctAnswer: ans,
                     loop: 5,
@@ -74,7 +74,7 @@
             return num1 * num2
         },
 
-        algebraQuestionAns(num1, num2) {
+        algebraQuestionAns(num1, num2, num3, num4) {
             return Form.round( (((num4 - num3) / (num1 * num2) * 100) / 100) )
         },
 
