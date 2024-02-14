@@ -347,10 +347,7 @@ export class Evaluator implements Visitor<{}, any> {
 		if (hasAcceptMethod(variableValue)) {
 			variableValue = variableValue.accept(context, this);
 		}
-		return {
-			variableName: variableName,
-			variableValue: variableValue,
-		};
+		return { [variableName]: { value: variableValue } };
 	}
 
 	visitVariableName(context: {}, variableName: VariableName) {
