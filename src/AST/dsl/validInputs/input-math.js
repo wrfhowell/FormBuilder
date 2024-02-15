@@ -7,16 +7,16 @@
             displayQuestions: 5,
             questions: [
                 {
-                    id: "addition-q-" + loopIndex,
+                    id: stringConcat("addition-q-", loopIndex),
                     type: textInput,
                     label: getAdditionQuestionLabel(num1, num2),
                     isRequired: true,
                     correctAnswer: ans,
                     loop: 5,
                     vars: {
-                        num1: Form.getRandomInt(1, 100),
-                        num2: Form.getRandomInt(1, 100),
-                        ans: num1 + num2
+                        num1: getRandomInt(1, 100),
+                        num2: getRandomInt(1, 100),
+                        ans: addNums(num1, num2)
                     }
                 }
             ]
@@ -29,15 +29,15 @@
             displayQuestions: 5,
             questions: [
                 {
-                    id: "multiplication-q-" + loopIndex,
+                    id: stringConcat("multiplication-q-", loopIndex),
                     type: textInput,
-                    label: "" + num1 + " * " + num2 + " = ",
+                    label: stringConcat(num1, " * ", num2, " = "),
                     isRequired: true,
                     correctAnswer: ans,
                     loop: 5,
                     vars: {
-                        num1: Form.getRandomInt(1, 100),
-                        num2: Form.getRandomInt(1, 100),
+                        num1: getRandomInt(1, 100),
+                        num2: getRandomInt(1, 100),
                         ans: multQuestionAns(num1, num2)
                     }
                 }
@@ -51,17 +51,17 @@
             displayQuestions: 5,
             questions: [
                 {
-                    id: "algebra-q-" + loopIndex,
+                    id: stringConcat("algebra-q-", loopIndex),
                     type: textInput,
-                    label: "" + num1 + " * " + num2 + " + " + num3 + " = " + num4,
+                    label: stringConcat(num1, "x * ", num2, " + ", num3, " = ", num4),
                     isRequired: true,
                     correctAnswer: ans,
                     loop: 5,
                     vars: {
-                        num1: Form.getRandomInt(1, 100),
-                        num2: Form.getRandomInt(1, 100),
-                        num3: Form.getRandomInt(1, 100),
-                        num4: Form.getRandomInt(1, 100),
+                        num1: getRandomInt(1, 100),
+                        num2: getRandomInt(1, 100),
+                        num3: getRandomInt(1, 100),
+                        num4: getRandomInt(1, 100),
                         ans: algebraQuestionAns(num1, num2, num3, num4)
                     }
                 }
@@ -70,16 +70,27 @@
     ],
 
     functions: [
-        multQuestionAns(num1, num2) {
-            return num1 * num2
+        addNums(num1, num2) {
+            additionAns = (num1 + num2)
+            return additionAns
         },
 
-        algebraQuestionAns(num1, num2, num3, num4) {
-            return Form.round( (((num4 - num3) / (num1 * num2) * 100) / 100) )
+        multQuestionAns(num1, num2) {
+            return (num1 * num2)
+        },
+
+        algebraQuestionAns(num1, num2) {
+            algResult = (((num4 - num3) / (num1 * num2) * 100) / 100)
+            return roundToInt(algResult)
         },
 
         getAdditionQuestionLabel(num1, num2) {
-            return "" + num1 + " + " + num2 + " = "
+            return stringConcat("", num1, " + ", num2, " = ")
         }
-    ]
+    ],
+
+    vars: {
+        additionAns: 0,
+        algResult: 0
+    }
 }

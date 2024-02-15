@@ -96,29 +96,29 @@
   ],
 
   functions: [
-    getCityOptions(prov) {
-      if(prov == "Ontario") {
-        return ontarioCities
-      } else if(prov == "Quebec") {
-        return quebecCities
-      } else if(prov == "Nova Scotia") {
-        return novaScotiaCities
-      } else if(prov == "New Brunswick") {
-        return newBrunswickCities
-      } else if(prov == "Manitoba") {
-        return manitobaCities
-      } else if(prov == "British Columbia") {
-        return britishColumbiaCities
-      } else if(prov == "Prince Edward Island") {
-        return princeEdwardIslandCities
-      } else if(prov == "Saskatchewan") {
-        return saskatchewanCities
-      } else if(prov == "Alberta") {
-        return albertaCities
-      } else if(prov == "Newfoundland and Labrador") {
-        return newfoundlandAndLabradorCities
-      }
-        return []
+      getCityOptions(prov) {
+        if(isStringEqual(prov, "Ontario")) {
+      return ontarioCities
+    } else if(isStringEqual(prov, "Quebec")) {
+      return quebecCities
+    } else if(isStringEqual(prov, "Nova Scotia")) {
+      return novaScotiaCities
+    } else if(isStringEqual(prov, "New Brunswick")) {
+      return newBrunswickCities
+    } else if(isStringEqual(prov, "Manitoba")) {
+      return manitobaCities
+    } else if(isStringEqual(prov, "British Columbia")) {
+      return britishColumbiaCities
+    } else if(isStringEqual(prov, "Prince Edward Island")) {
+      return princeEdwardIslandCities
+    } else if(isStringEqual(prov, "Saskatchewan")) {
+      return saskatchewanCities
+    } else if(isStringEqual(prov, "Alberta")) {
+      return albertaCities
+    } else if(isStringEqual(prov, "Newfoundland and Labrador")) {
+      return newfoundlandAndLabradorCities
+    }
+      return []
     }
   ],
 
@@ -135,7 +135,7 @@
       "Alberta",
       "Newfoundland and Labrador"
     ],
-    ontarioCities: [
+        ontarioCities: [
       "Toronto",
       "Ottawa",
       "Mississauga",
@@ -147,7 +147,7 @@
       "Kitchener",
       "Windsor"
     ],
-    quebecCities: [
+        quebecCities: [
       "Montreal",
       "Quebec City",
       "Laval",
@@ -159,7 +159,7 @@
       "Trois-Rivieres",
       "Terrebonne"
     ],
-    novaScotiaCities: [
+        novaScotiaCities: [
       "Halifax",
       "Dartmouth",
       "Sydney",
@@ -171,7 +171,7 @@
       "Wolfville",
       "Windsor"
     ],
-    newBrunswickCities: [
+        newBrunswickCities: [
       "Moncton",
       "Saint John",
       "Fredericton",
@@ -183,7 +183,7 @@
       "Oromocto",
       "Grand Falls"
     ],
-    manitobaCities: [
+        manitobaCities: [
       "Winnipeg",
       "Brandon",
       "Steinbach",
@@ -195,7 +195,7 @@
       "Morden",
       "The Pas"
     ],
-    britishColumbiaCities: [
+        britishColumbiaCities: [
       "Vancouver",
       "Victoria",
       "Kelowna",
@@ -207,7 +207,7 @@
       "Vernon",
       "Courtenay"
     ],
-    princeEdwardIslandCities: [
+        princeEdwardIslandCities: [
       "Charlottetown",
       "Summerside",
       "Cornwall",
@@ -219,7 +219,7 @@
       "Georgetown",
       "Stratford"
     ],
-    saskatchewanCities: [
+        saskatchewanCities: [
       "Saskatoon",
       "Regina",
       "Prince Albert",
@@ -231,7 +231,7 @@
       "Weyburn",
       "Corman Park"
     ],
-    albertaCities: [
+        albertaCities: [
       "Calgary",
       "Edmonton",
       "Red Deer",
@@ -243,7 +243,7 @@
       "Leduc",
       "Fort Saskatchewan"
     ],
-    newfoundlandAndLabradorCities: [
+        newfoundlandAndLabradorCities: [
       "St. John's",
       "Mount Pearl",
       "Corner Brook",
