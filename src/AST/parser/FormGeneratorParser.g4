@@ -73,15 +73,10 @@ returnValueIf: returnValue;
 // math expressions
 /** START Code inspired by Robert Jasobson - Feb 13
     https://www.robertjacobson.dev/the-grammar-of-mathematical-expressions */
-expression
-	:	(NUM | VARIABLE_NAME)
-	|	PAREN_START math_expression PAREN_END;	//parentheses
-
-math_expression
-	:	expression
-	|	math_expression DIVIDE math_expression	//division
-	|	math_expression MULTIPLY math_expression	//explicit multiplication
-	|	math_expression (PLUS | MINUS) math_expression;	//addition/subtraction
+expression:	(NUM | VARIABLE_NAME) |	(PAREN_START math_expression PAREN_END);	//parentheses
+math_expression: expression (extended_math_expression)+;
+extended_math_expression: math_op expression;
+math_op: DIVIDE | MULTIPLY | PLUS | MINUS;
 /** END Code inspired by Robert Jasobson - Feb 13
     https://www.robertjacobson.dev/the-grammar-of-mathematical-expressions */
 

@@ -1,7 +1,6 @@
 import { Visitor } from "../Interfaces/Visitor";
 import { Expression, Node, VariableName } from "../export";
 import { FormStateAccess } from "./FormStateAccess";
-import { StaticFunction } from "./StaticFunction";
 export class Function_Call extends Node {
 	private variableName: VariableName;
 	private functionParameters: (

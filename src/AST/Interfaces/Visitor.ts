@@ -1,6 +1,5 @@
 import { ArrayCustom } from "../Nodes/ArrayCustom";
 import { ArrayValue } from "../Nodes/ArrayValue";
-import { BooleanExpression } from "../Nodes/BooleanExpression";
 import { Cond_Body } from "../Nodes/Cond_Body";
 import { Conditional } from "../Nodes/Conditional";
 import { Else_If_Cond } from "../Nodes/Else_If_Cond";
@@ -13,20 +12,15 @@ import { Functions_Array } from "../Nodes/Functions_Array";
 import { If_Cond } from "../Nodes/If_Cond";
 import { MathExpression } from "../Nodes/MathExpression";
 import { Question_Array } from "../Nodes/Question_Array";
-import { Regex } from "../Nodes/Regex";
-import { ScopedExpression } from "../Nodes/ScopedExpression";
-import { StaticFunction } from "../Nodes/StaticFunction";
-import { StringExpression } from "../Nodes/StringExpression";
-import { UnscopedExpression } from "../Nodes/UnscopedExpression";
 import { Variable } from "../Nodes/Variable";
 import { VariableName } from "../Nodes/VariableName";
 import { VariablesArray } from "../Nodes/VariablesArray";
 import { Page, Pages, Program, Question } from "../export";
+import {VariableAssignment} from "../Nodes/VariableAssignment";
 
 export interface Visitor<C, T> {
 	visit(context: C, options: ArrayCustom): T;
 	visit(context: C, option: ArrayValue): T;
-	visit(context: C, boolExpression: BooleanExpression): T;
 	visit(context: C, condBody: Cond_Body): T;
 	visit(context: C, conditional: Conditional): T;
 	visit(context: C, elseIfCond: Else_If_Cond): T;
@@ -43,12 +37,8 @@ export interface Visitor<C, T> {
 	visit(context: C, program: Program): T;
 	visit(context: C, question: Question): T;
 	visit(context: C, questionsArray: Question_Array): T;
-	visit(context: C, regex: Regex): T;
-	visit(context: C, scopedExpression: ScopedExpression): T;
-	visit(context: C, staticFunc: StaticFunction): T;
-	visit(context: C, stringExpression: StringExpression): T;
-	visit(context: C, unscopedExpression: UnscopedExpression): T;
 	visit(context: C, variable: Variable): T;
+	visit(context: C, variableAssignment: VariableAssignment): T;
 	visit(context: C, id: VariableName): T;
 	visit(context: C, variable: VariablesArray): T;
 }

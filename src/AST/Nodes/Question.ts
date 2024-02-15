@@ -1,44 +1,40 @@
 import { Node, Visitor } from "../export";
 
 import { ArrayCustom } from "./ArrayCustom";
-import { Expression } from "./Expression";
 import { Function_Call } from "./Function_Call";
-import { Regex } from "./Regex";
 import { VariableName } from "./VariableName";
 import { VariablesArray } from "./VariablesArray";
 
 export class Question extends Node {
-	private id: string | undefined;
+	private id: string | VariableName | Function_Call | undefined;
 	private type: string | undefined;
-	private label: string | Expression | VariableName | Function_Call | undefined;
+	private label: string | VariableName | Function_Call | undefined;
 	private options: VariableName | Function_Call | ArrayCustom;
 	private dependsOn: string | undefined;
-	private displayIf: string | Regex | Expression | Function_Call | undefined;
+	private displayIf: string | undefined;
 	private loop: number | undefined;
 	private isRequired: boolean | undefined;
 	private correctAnswer:
 		| string
 		| number
-		| Regex
-		| Expression
+		| VariableName
 		| Function_Call
 		| undefined;
 	private questionVariables: VariablesArray | undefined;
 
 	constructor(
-		id: string | undefined,
+		id: string | VariableName | Function_Call | undefined,
 		type: string | undefined,
-		label: string | Expression | VariableName | Function_Call | undefined,
+		label:string | VariableName | Function_Call | undefined,
 		options: VariableName | Function_Call | ArrayCustom,
 		dependsOn: string | undefined,
-		displayIf: string | Regex | Expression | Function_Call | undefined,
+		displayIf: string | undefined,
 		loop: number | undefined,
 		isRequired: boolean | undefined,
 		correctAnswer:
 			| string
 			| number
-			| Regex
-			| Expression
+			| VariableName
 			| Function_Call
 			| undefined,
 		questionVariables: VariablesArray | undefined

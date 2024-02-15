@@ -1,8 +1,6 @@
-import { ArrayCustom, Expression, Node, Visitor } from "../export";
+import { ArrayCustom, Node, Visitor } from "../export";
 import { FormStateAccess } from "./FormStateAccess";
 import { Function_Call } from "./Function_Call";
-import { Regex } from "./Regex";
-import { StaticFunction } from "./StaticFunction";
 import { VariableName } from "./VariableName";
 
 export class Variable extends Node {
@@ -11,10 +9,8 @@ export class Variable extends Node {
 			| ArrayCustom
 			| number
 			| string
-			| Regex
+			| boolean
 			| FormStateAccess
-			| StaticFunction
-			| Expression
 			| Function_Call
 			| undefined;
 	};
@@ -24,10 +20,8 @@ export class Variable extends Node {
 		| ArrayCustom
 		| number
 		| string
-		| Regex
+		| boolean
 		| FormStateAccess
-		| StaticFunction
-		| Expression
 		| Function_Call
 		| undefined;
 
@@ -37,10 +31,8 @@ export class Variable extends Node {
 			| ArrayCustom
 			| number
 			| string
-			| Regex
+			| boolean
 			| FormStateAccess
-			| StaticFunction
-			| Expression
 			| Function_Call
 			| undefined
 	) {

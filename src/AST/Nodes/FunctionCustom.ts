@@ -3,15 +3,12 @@ import { Expression, Node, VariableName } from "../export";
 import { FormStateAccess } from "./FormStateAccess";
 import { Function_Body } from "./Function_Body";
 import { Function_Call } from "./Function_Call";
-import { StaticFunction } from "./StaticFunction";
 export class FunctionCustom extends Node {
 	private functionName: VariableName;
 	private functionParameters: (
 		| string
 		| number
-		| Expression
 		| VariableName
-		| StaticFunction
 		| Function_Call
 		| FormStateAccess
 		| undefined
@@ -22,9 +19,7 @@ export class FunctionCustom extends Node {
 		functionParameters: (
 			| string
 			| number
-			| Expression
 			| VariableName
-			| StaticFunction
 			| Function_Call
 			| FormStateAccess
 			| undefined
@@ -41,16 +36,7 @@ export class FunctionCustom extends Node {
 		return this.functionName;
 	}
 
-	getFunctionParams(): (
-		| string
-		| number
-		| Expression
-		| VariableName
-		| StaticFunction
-		| Function_Call
-		| FormStateAccess
-		| undefined
-	)[] {
+	getFunctionParams() {
 		return this.functionParameters;
 	}
 
