@@ -14,7 +14,7 @@ import {
 	Pages,
 	Program,
 	Question,
-	Question_Array,
+	Question_Array, StringExpression,
 	Variable,
 	VariableName,
 	VariablesArray,
@@ -91,8 +91,6 @@ const expressionFunction = new FunctionCustom(
 	expressionFunctionBody
 );
 
-//TODO: Decided to add this but unsure what the point of it is after building the AST? Ask Rodrigo, as
-// I just converted what he wrote.
 const expressionFunctionCall = new Function_Call(expressionFunctionName, []);
 
 const functions = new Functions_Array([
@@ -109,11 +107,6 @@ const questionOptions = new ArrayCustom([
 	new ArrayValue("40"),
 ]);
 
-//TODO: Function call is weirdly grammared in the rules. I followed
-// what Rodrigo wrote, but I'm not entirely sure what the point of it is?
-// If you want you can replace correctAnswerField value
-// with the mathematicsFunctionCall variable I made, but
-// again I'm unsure what the point of it is.
 const question = new Question(
 	"q1",
 	"radio",
