@@ -46,7 +46,7 @@
 
         {
             id: "algebra-pg",
-            header: "Albebra",
+            header: "Algebra",
             instructions: "Please solve the following algebra problems. Round to two decimal places.",
             displayQuestions: 5,
             questions: [
