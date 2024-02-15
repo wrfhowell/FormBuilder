@@ -53,7 +53,7 @@
                 {
                     id: stringConcat("algebra-q-", loopIndex),
                     type: textInput,
-                    label: stringConcat(num1, "x * ", num2, " + ", num3, " = ", num4),
+                    label: stringConcat(num1, " * ", num2, " + ", num3, " = ", num4),
                     isRequired: true,
                     correctAnswer: ans,
                     loop: 5,
@@ -79,7 +79,7 @@
             return (num1 * num2)
         },
 
-        algebraQuestionAns(num1, num2) {
+        algebraQuestionAns(num1, num2, num3, num4) {
             algResult = (((num4 - num3) / (num1 * num2) * 100) / 100)
             return roundToInt(algResult)
         },

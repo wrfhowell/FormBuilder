@@ -1,21 +1,22 @@
 import { Visitor } from "../Interfaces/Visitor";
-import { Expression, Node } from "../export";
+import {Node, VariableName} from "../export";
 import { Cond_Body } from "./Cond_Body";
+import {Function_Call} from "./Function_Call";
 export class If_Cond extends Node {
-	private condition: Expression;
+	private condition: VariableName | Function_Call;
 	private cond_Body: Cond_Body;
 
-	constructor(condition: Expression, cond_Body: Cond_Body) {
+	constructor(condition: VariableName | Function_Call, cond_Body: Cond_Body) {
 		super();
 		this.condition = condition;
 		this.cond_Body = cond_Body;
 	}
 
-	getCondition(): Expression {
+	getCondition() {
 		return this.condition;
 	}
 
-	getCondBody(): Cond_Body {
+	getCondBody() {
 		return this.cond_Body;
 	}
 

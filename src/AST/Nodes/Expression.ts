@@ -1,13 +1,11 @@
 import { Visitor } from "../Interfaces/Visitor";
-import { Node } from "../export";
-import { ScopedExpression } from "./ScopedExpression";
-import { UnscopedExpression } from "./UnscopedExpression";
+import {MathExpression, Node, VariableName} from "../export";
 
 export class Expression extends Node {
-	private expression: number | string | ScopedExpression | UnscopedExpression;
+	private expression: number | VariableName | MathExpression;
 
 	constructor(
-		expression: number | string | ScopedExpression | UnscopedExpression
+		expression: number | VariableName | MathExpression
 	) {
 		super();
 		this.expression = expression;

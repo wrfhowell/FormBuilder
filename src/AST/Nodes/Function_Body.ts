@@ -1,32 +1,28 @@
 import { Visitor } from "../Interfaces/Visitor";
 import { ArrayCustom, Expression, Node, VariableName } from "../export";
 import { Conditional } from "./Conditional";
-import { FormStateAccess } from "./FormStateAccess";
 import { Function_Call } from "./Function_Call";
-import { StaticFunction } from "./StaticFunction";
+import {VariableAssignment} from "./VariableAssignment";
 export class Function_Body extends Node {
-	private statements: (Conditional | Expression | StaticFunction | undefined)[];
+	//TODO: Adjust statements
+	private statements: (Conditional | Expression | VariableAssignment | undefined)[];
 	private returnValueFunction:
-		| string
+		string
 		| number
 		| VariableName
 		| Expression
-		| StaticFunction
 		| Function_Call
-		| FormStateAccess
 		| ArrayCustom
 		| undefined;
 
 	constructor(
-		statements: (Conditional | Expression | StaticFunction | undefined)[],
+		statements: (Conditional | Expression | VariableAssignment | undefined)[],
 		returnValueFunction:
 			| string
 			| number
 			| VariableName
 			| Expression
-			| StaticFunction
 			| Function_Call
-			| FormStateAccess
 			| ArrayCustom
 			| undefined
 	) {
@@ -35,20 +31,11 @@ export class Function_Body extends Node {
 		this.returnValueFunction = returnValueFunction;
 	}
 
-	getStatements(): (Conditional | Expression | StaticFunction | undefined)[] {
+	getStatements() {
 		return this.statements;
 	}
 
-	getFunctionReturnValue():
-		| string
-		| number
-		| VariableName
-		| Expression
-		| StaticFunction
-		| Function_Call
-		| FormStateAccess
-		| ArrayCustom
-		| undefined {
+	getFunctionReturnValue() {
 		return this.returnValueFunction;
 	}
 

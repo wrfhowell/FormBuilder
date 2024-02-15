@@ -1,25 +1,34 @@
 import { Visitor } from "../Interfaces/Visitor";
-import { Expression, Node, VariableName } from "../export";
+import {ArrayCustom, Expression, Node, VariableName} from "../export";
 import { Conditional } from "./Conditional";
-import { StaticFunction } from "./StaticFunction";
+import {VariableAssignment} from "./VariableAssignment";
+import {Function_Call} from "./Function_Call";
 export class Cond_Body extends Node {
-	private statements: (Conditional | Expression | StaticFunction | undefined)[];
+	private statements: (Conditional | Expression | VariableAssignment | undefined)[];
 	private returnValueIf:
-		| VariableName
-		| string
+		string
 		| number
+		| VariableName
 		| Expression
-		| undefined;
+		| Function_Call
+		| ArrayCustom
+		| undefined
 	constructor(
-		statements: (Conditional | Expression | StaticFunction | undefined)[],
-		returnValueIf: VariableName | string | number | Expression | undefined
-	) {
+		statements: (Conditional | Expression | VariableAssignment | undefined)[],
+		returnValueIf:
+			string
+			| number
+			| VariableName
+			| Expression
+			| Function_Call
+			| ArrayCustom
+			| undefined) {
 		super();
 		this.statements = statements;
 		this.returnValueIf = returnValueIf;
 	}
 
-	getStatements(): (Conditional | Expression | StaticFunction | undefined)[] {
+	getStatements() {
 		return this.statements;
 	}
 
