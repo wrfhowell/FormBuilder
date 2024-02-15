@@ -276,7 +276,8 @@ export class Evaluator implements Visitor<{}, any> {
   }
 
   visitMathExpression(context: {}, mathExpression: MathExpression) {
-    return mathExpression.getMathExpression();
+    console.log(mathExpression);
+    return mathExpression.getExpression();
   }
 
   visitCondBody(context: {}, condBody: Cond_Body) {

@@ -14,6 +14,7 @@ describe("Evaluator Tests", () => {
     const fileStream = CharStreams.fromString(file);
 
     const lexer = new FormGeneratorLexer(fileStream);
+    console.log("here");
 
     const tokens = new CommonTokenStream(lexer);
 

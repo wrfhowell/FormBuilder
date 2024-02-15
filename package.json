@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx jest -i ./__tests__/evaluator-alex",
+    "test": "npx jest -i ./__tests__/evaluator-alex --silent=false",
     "start": "npx tsc --outDir ./dist && node ./dist/index.js",
     "antlr": "antlr4ts -visitor -o ./generated ./src/AST/parser/FormGeneratorLexer.g4 && antlr4ts -visitor -o ./generated -lib ./generated/src/AST/parser ./src/AST/parser/FormGeneratorParser.g4",
     "antlr2": "antlr4ts -visitor -o ./generated ./src/AST/parser/FormGeneratorLexer.g4 && antlr4ts -visitor -o ./generated -lib ./generated ./src/AST/parser/FormGeneratorParser.g4",
