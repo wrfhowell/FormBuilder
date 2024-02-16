@@ -14,7 +14,6 @@ describe("Evaluator Tests", () => {
     const fileStream = CharStreams.fromString(file);
 
     const lexer = new FormGeneratorLexer(fileStream);
-    console.log("here");
 
     const tokens = new CommonTokenStream(lexer);
 
@@ -22,7 +21,14 @@ describe("Evaluator Tests", () => {
 
     const visitor = new ParseTreeToAST();
     const parsedProgram = parser.program().accept(visitor);
-    console.log(parsedProgram);
+
+    const evaluator = new Evaluator();
+
+    let obj = {};
+
+    parsedProgram.accept(obj, evaluator);
+
+    console.log(obj);
 
     expect(1).toEqual(1);
   });

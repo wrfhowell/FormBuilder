@@ -123,7 +123,7 @@ export class Evaluator implements Visitor<{}, any> {
     return pages.getPageArray().map((page) => page.accept(context, this));
   }
 
-  visitProgram(context: {}, program: Program) {
+  visitProgram(context: any, program: Program) {
     return {
       pages: program.getPages().accept(context, this),
       globalVariables: program.getGlobalVariables()?.accept(context, this),
@@ -256,7 +256,7 @@ export class Evaluator implements Visitor<{}, any> {
     let functionName = functionCustom.getFunctionName().accept(context, this);
     let functionParameters = functionCustom.getFunctionParams();
     let functionBody = functionCustom.getFunctionBody().accept(context, this);
-    functionParameters = functionParameters.map((param) => {
+    functionParameters = functionParameters?.map((param) => {
       if (hasAcceptMethod(param)) {
         return param.accept(context, this);
       }

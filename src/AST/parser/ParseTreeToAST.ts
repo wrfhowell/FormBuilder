@@ -490,11 +490,6 @@ export class ParseTreeToAST
   }
 
   visitExpression(ctx: ExpressionContext): Expression {
-    console.log(
-      "Visiting expression: ",
-      ctx.NUM()?.text,
-      ctx.VARIABLE_NAME()?.text
-    );
     let expressionValue = undefined;
     let numVal = ctx.NUM()?.text;
     let varName = ctx.VARIABLE_NAME()?.text;
@@ -509,7 +504,6 @@ export class ParseTreeToAST
   }
 
   visitMath_expression(ctx: Math_expressionContext) {
-    console.log("Visiting math expression");
     let expression: Expression = new Expression(ctx.expression().accept(this));
     let extended_math_expressions: ExtendedMathExpression[] = [];
 
@@ -521,9 +515,6 @@ export class ParseTreeToAST
         );
       extended_math_expressions.push(extended_math_expression);
     }
-
-    console.log("Expression: ", expression);
-    console.log("ExtendedMathExpression: ", extended_math_expressions);
 
     return {
       expression,
