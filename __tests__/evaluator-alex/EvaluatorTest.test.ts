@@ -24,11 +24,9 @@ describe("Evaluator Tests", () => {
 
     const evaluator = new Evaluator();
 
-    let obj = {};
+    let other_obj = parsedProgram.accept({}, evaluator);
 
-    parsedProgram.accept(obj, evaluator);
-
-    console.log(obj);
+    console.log(other_obj);
 
     expect(1).toEqual(1);
   });

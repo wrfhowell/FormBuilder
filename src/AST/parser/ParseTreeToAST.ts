@@ -129,27 +129,26 @@ export class ParseTreeToAST
 
     for (let pageFields of ctx.page_fields().page_field()) {
       if (pageFields.id_field()) {
-        let id = pageFields.id_field()?.text_field_value().accept(this);
+        id = pageFields.id_field()?.text_field_value().accept(this);
       } else if (pageFields.header_field()) {
-        let header = pageFields.header_field()?.text_field_value().accept(this);
+        header = pageFields.header_field()?.text_field_value().accept(this);
       } else if (pageFields.instructions_field()) {
-        let instructions = pageFields
+        instructions = pageFields
           .instructions_field()
           ?.text_field_value()
           .accept(this);
       } else if (pageFields.goTo_field()) {
-        let goTo = pageFields.goTo_field()?.text_field_value().accept(this);
+        goTo = pageFields.goTo_field()?.text_field_value().accept(this);
       } else if (pageFields.displayQuestions_field()) {
-        let displayQuestions = pageFields
-          .displayQuestions_field()
-          ?.accept(this);
+        displayQuestions = pageFields.displayQuestions_field()?.accept(this);
       } else if (pageFields.questions_field()) {
-        questions = <Question_Array>(
-          pageFields.questions_field()?.question_array().accept(this)
-        );
+        questions = pageFields
+          .questions_field()
+          ?.question_array()
+          .accept(this) as Question_Array;
       }
     }
-    return new Page(
+    let page = new Page(
       id,
       goTo,
       header,
@@ -157,6 +156,8 @@ export class ParseTreeToAST
       displayQuestions,
       questions
     );
+
+    return page;
   }
 
   visitText_field_value(
@@ -500,7 +501,8 @@ export class ParseTreeToAST
     } else {
       expressionValue = new MathExpression(ctx.math_expression()?.accept(this));
     }
-    return new Expression(expressionValue);
+    const newExpression = new Expression(expressionValue);
+    return newExpression;
   }
 
   visitMath_expression(ctx: Math_expressionContext) {

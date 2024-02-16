@@ -197,7 +197,7 @@ export class Evaluator implements Visitor<{}, any> {
     let expressionType = expression.getExpression();
 
     if (hasAcceptMethod(expressionType)) {
-      console.log("LOOKATMEEEEEEEEE");
+      //   console.log("LOOKATMEEEEEEEEE");
       expressionType = expressionType.accept(context, this);
     }
     return { expression: expressionType };
@@ -214,11 +214,10 @@ export class Evaluator implements Visitor<{}, any> {
   visitFunctionBody(context: {}, functionBody: Function_Body) {
     let statements = functionBody.getStatements();
     let returnValueFunction = functionBody.getFunctionReturnValue();
-    console.log("YOOOOOOO");
     statements = statements.map((statement) => {
-      console.log("YOOOOOOO1");
+      //   console.log("YOOOOOOO1");
       if (hasAcceptMethod(statement)) {
-        console.log("YOOOOOOO2");
+        // console.log("YOOOOOOO2");
         return statement.accept(context, this);
       }
       return statement;
@@ -276,7 +275,6 @@ export class Evaluator implements Visitor<{}, any> {
   }
 
   visitMathExpression(context: {}, mathExpression: MathExpression) {
-    console.log(mathExpression);
     return mathExpression.getExpression();
   }
 
