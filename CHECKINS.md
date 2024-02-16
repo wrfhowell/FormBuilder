@@ -556,3 +556,31 @@ The final user study will be conducted in a similar fashion to the previous one.
 | Start integration / end-to-end testing and bug fixing              | Feb 17   |
 | Complete integration / end-to-end testin and bug fixing            | Feb 19   |
 | Final project submission                                           | Feb 20   |
+
+# Check-In 5 - February 16, 2024
+
+## Status of user study (should be completed this week at the latest). If you've done it, what were the findings? Did it go smoothly? What are the key elements of feedback you've learned from it?
+
+The final user study has not been completed yet. We have found the implementation of functions in the Evaluator to be challenging, and are still working through it. Once this portion of the evaluator is complete, the DSL will be functional and the team will be ready to perform the final user study.
+
+## Are there any last changes to your design, implementation or tests? What will these improvements enable?
+
+Currently, there are no last minute changes to the design. Additional tests are being created to validate the functionality of the Parser and the Evaluator. These are being created to ensure that the DSL is able to handle all the use cases and encompass all the functionality that the group originally planned for.
+
+## Plans for final video (possible draft version). Who is responsible for the rest? Make sure to check it for length, working sound etc.
+
+The final video will showcase the successes, and challenges encountered during the project, will review the user studies, their outcomes, and impact on the language design. The end of the video will feature some comments on the overall usefulness of the DSL, and any other improvements that the group would make given additional time.
+
+## Planned timeline for the remaining days. What is there left to do? If you want to, you can feel free to submit early (before the break)!
+
+The plan for the remaining days is the same as submitted in checkpoint 4a, given that there have been additional challenges encountered and the project was effectively delayed a week. The implementation should be completed in the next several days, allowing the group to progress on the remainder of the items.
+
+| Item                                                               | Timeline |
+| ------------------------------------------------------------------ | -------- |
+| Complete language implementation                                   | Feb 18   |
+| Perform final user study                                           | Feb 19   |
+| Language design and implementation revisions from final User Study | Feb 22   |
+| Start integration / end-to-end testing and bug fixing              | Feb 15   |
+| Complete integration / end-to-end testin and bug fixing            | Feb 24   |
+| Record Video                                                       | Feb 24   |
+| Final project submission                                           | Feb 25   |
