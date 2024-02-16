@@ -557,7 +557,7 @@ The final user study will be conducted in a similar fashion to the previous one.
 | Complete integration / end-to-end testin and bug fixing            | Feb 19   |
 | Final project submission                                           | Feb 20   |
 
-# Check-In 4 - February 16, 2024
+# Check-In 5 - February 16, 2024
 
 ## Status of user study (should be completed this week at the latest). If you've done it, what were the findings? Did it go smoothly? What are the key elements of feedback you've learned from it?
 
