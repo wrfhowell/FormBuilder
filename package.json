@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
+  "browser": {
+    "assert": false
+  },
   "scripts": {
     "test": "npx jest -i ./__tests__/evaluator-alex --silent=false",
-    "start": "npx tsc --outDir ./dist && node ./dist/index.js",
+    "start": "npx tsc && node ./out/src/AST/index.js",
     "antlr": "antlr4ts -visitor -o ./generated ./src/AST/parser/FormGeneratorLexer.g4 && antlr4ts -visitor -o ./generated -lib ./generated/src/AST/parser ./src/AST/parser/FormGeneratorParser.g4",
     "antlr2": "antlr4ts -visitor -o ./generated ./src/AST/parser/FormGeneratorLexer.g4 && antlr4ts -visitor -o ./generated -lib ./generated ./src/AST/parser/FormGeneratorParser.g4",
     "react-start": "react-scripts start",
@@ -36,11 +40,13 @@
     "@types/react": "^18.2.52",
     "@types/react-dom": "^18.2.18",
     "antlr4ts": "^0.5.0-alpha.4",
+    "assert": "^2.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.0",
     "react-scripts": "5.0.1",
     "typescript": "^4.9.5",
+    "util": "^0.12.5",
     "web-vitals": "^2.1.4"
   },
   "eslintConfig": {

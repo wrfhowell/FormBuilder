@@ -127,7 +127,7 @@ export class Evaluator implements Visitor<{}, any> {
     return {
       pages: program.getPages().accept(context, this),
       globalVariables: program.getGlobalVariables()?.accept(context, this),
-      Functions_Array: program.getFunctionsArray()?.accept(context, this),
+      FunctionsMap: program.getFunctionsArray()?.accept(context, this),
     };
   }
 
@@ -253,25 +253,29 @@ export class Evaluator implements Visitor<{}, any> {
   // TODO:
   visitFunctionCustom(context: {}, functionCustom: FunctionCustom) {
     let functionName = functionCustom.getFunctionName().accept(context, this);
-    let functionParameters = functionCustom.getFunctionParams();
-    let functionBody = functionCustom.getFunctionBody().accept(context, this);
-    functionParameters = functionParameters?.map((param) => {
-      if (hasAcceptMethod(param)) {
-        return param.accept(context, this);
-      }
-      return param;
-    });
+    // let functionParameters = functionCustom.getFunctionParams();
+    // let functionBody = functionCustom.getFunctionBody().accept(context, this);
+    // functionParameters = functionParameters?.map((param) => {
+    //   if (hasAcceptMethod(param)) {
+    //     return param.accept(context, this);
+    //   }
+    //   return param;
+    // });
     return {
       functionName: functionName,
-      functionParameters: functionParameters,
-      functionBody: functionBody,
+      fnNode: functionCustom,
+      // functionParameters: functionParameters,
+      // functionBody: functionBody,
     };
   }
 
   visitFunctionsArray(context: {}, functionsArray: Functions_Array) {
-    return functionsArray
-      .getQuestionList()
-      .map((functionCustom) => functionCustom.accept(context, this));
+    const functionsMap: { [key: string]: FunctionCustom } = {};
+    functionsArray.getFunctionList().forEach((fn) => {
+      const res = fn.accept(context, this);
+      functionsMap[res.functionName] = res;
+    });
+    return functionsMap;
   }
 
   visitMathExpression(context: {}, mathExpression: MathExpression) {

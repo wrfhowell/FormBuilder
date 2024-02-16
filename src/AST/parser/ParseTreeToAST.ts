@@ -26,6 +26,7 @@ import {
   Text_field_valueContext,
   Variables_objectContext,
   Extended_math_expressionContext,
+  Function_paramsContext,
 } from "../../../generated/FormGeneratorParser";
 import { FormGeneratorParserVisitor } from "../../../generated/FormGeneratorParserVisitor";
 import { ArrayCustom } from "../Nodes/ArrayCustom";
@@ -54,13 +55,15 @@ export class ParseTreeToAST
   implements FormGeneratorParserVisitor<any>
 {
   visitProgram(ctx: ProgramContext): Program {
-    const pages = <Pages>ctx.pages().accept(this);
-    const functionsObject = <Functions_Array>(
-      ctx.functions()?.function_array().accept(this)
-    );
-    const variablesObject = <VariablesArray>(
-      ctx.variables()?.variables_object().accept(this)
-    );
+    const functionsObject = ctx
+      .functions()
+      ?.function_array()
+      .accept(this) as Functions_Array;
+    const variablesObject = ctx
+      .variables()
+      ?.variables_object()
+      .accept(this) as VariablesArray;
+    const pages = ctx.pages().accept(this) as Pages;
     if (functionsObject && variablesObject) {
       return new Program(pages, functionsObject, variablesObject);
     } else if (variablesObject) {
@@ -75,7 +78,7 @@ export class ParseTreeToAST
   visitPages(ctx: PagesContext): Pages {
     let pagesList: Page[] = [];
     for (const p of ctx.page_array().page()) {
-      pagesList.push(<Page>p.accept(this));
+      pagesList.push(p.accept(this) as Page);
     }
     return new Pages(pagesList);
   }
@@ -83,7 +86,7 @@ export class ParseTreeToAST
   visitFunction_array(ctx: Function_arrayContext): Functions_Array {
     let functionList: FunctionCustom[] = [];
     for (const f of ctx.function()) {
-      functionList.push(<FunctionCustom>f.accept(this));
+      functionList.push(f.accept(this) as FunctionCustom);
     }
     return new Functions_Array(functionList);
   }
@@ -104,7 +107,7 @@ export class ParseTreeToAST
         variableList.push(new Variable(varName, varBoolean));
       } else if (varValue.array()) {
         variableList.push(
-          new Variable(varName, <ArrayCustom>varValue.array()?.accept(this))
+          new Variable(varName, varValue.array()?.accept(this) as ArrayCustom)
         );
       } else if (varFormStateAccess) {
         variableList.push(new Variable(varName, varFormStateAccess));
@@ -164,14 +167,15 @@ export class ParseTreeToAST
     ctx: Text_field_valueContext
   ): string | VariableName | Function_Call {
     return (
-      ctx?.text ||
-      <Function_Call>ctx?.function_call()?.accept(this) ||
-      <VariableName>new VariableName(<string>ctx?.VARIABLE_NAME()?.text)
+      ctx?.STRING()?.text ||
+      (ctx?.function_call()?.accept(this) as Function_Call) ||
+      (new VariableName(ctx?.VARIABLE_NAME()?.text as string) as VariableName)
     );
   }
 
   visitFunction(ctx: FunctionContext): FunctionCustom {
     const variableName = new VariableName(ctx.VARIABLE_NAME().text);
+    const res = ctx.function_params().accept(this);
     const parameters: (
       | string
       | number
@@ -179,7 +183,7 @@ export class ParseTreeToAST
       | Function_Call
       | FormStateAccess
       | undefined
-    )[] = ctx.function_params().accept(this);
+    )[] = res;
     return new FunctionCustom(
       variableName,
       parameters,
@@ -187,35 +191,23 @@ export class ParseTreeToAST
     );
   }
 
-  visitParameter(
-    ctx: ParameterContext
-  ):
-    | string
-    | number
-    | VariableName
-    | Function_Call
-    | FormStateAccess
-    | undefined {
-    const funcString = ctx.STRING()?.text;
-    const funcNum = ctx.NUM()?.text;
-    const funcVarName = ctx.VARIABLE_NAME()?.text;
-    const functionCall = <Function_Call>ctx.function_call()?.accept(this);
-    const formStateAccess = <FormStateAccess>(
-      ctx.form_state_access()?.accept(this)
-    );
-    if (funcString) {
-      return funcString;
-    } else if (funcNum) {
-      return Number(funcNum);
-    } else if (funcVarName) {
-      return new VariableName(funcVarName);
-    } else if (functionCall) {
-      return functionCall;
-    } else if (formStateAccess) {
-      return formStateAccess;
-    } else {
-      return undefined;
-    }
+  visitFunction_params(ctx: Function_paramsContext) {
+    const functionParams: any[] = [];
+    ctx.parameter()?.forEach((sub_ctx) => {
+      if (sub_ctx.NUM() || sub_ctx.STRING() || sub_ctx.VARIABLE_NAME()) {
+        const ans = sub_ctx.NUM()
+          ? sub_ctx.NUM()?.text
+          : sub_ctx.STRING()
+          ? sub_ctx.STRING()?.text
+          : sub_ctx.VARIABLE_NAME()?.text;
+        functionParams.push(ans);
+      } else if (sub_ctx.form_state_access !== undefined) {
+        functionParams.push(sub_ctx.form_state_access()?.accept(this));
+      } else {
+        functionParams.push(sub_ctx.function_call()?.accept(this));
+      }
+    });
+    return functionParams;
   }
 
   visitForm_state_access(ctx: Form_state_accessContext): FormStateAccess {
@@ -247,8 +239,8 @@ export class ParseTreeToAST
   visitStatement(
     ctx: StatementContext
   ): Conditional | Expression | VariableAssignment | undefined {
-    const statementConditional = <Conditional>ctx.conditional()?.accept(this);
-    const statementExpression = <Expression>ctx.expression()?.accept(this);
+    const statementConditional = ctx.conditional()?.accept(this) as Conditional;
+    const statementExpression = ctx.expression()?.accept(this) as Expression;
     const statementVariableAssignment = ctx.var_assignment();
 
     if (statementConditional) {
@@ -280,9 +272,11 @@ export class ParseTreeToAST
     const returnValString = ctx.STRING()?.text;
     const returnValNumString = ctx.NUM()?.text;
     let returnValNum;
-    const returnValExpression = <Expression>ctx.expression()?.accept(this);
-    const returnValFuncCall = <Function_Call>ctx.function_call()?.accept(this);
-    const returnValArray = <ArrayCustom>ctx.array()?.accept(this);
+    const returnValExpression = ctx.expression()?.accept(this) as Expression;
+    const returnValFuncCall = ctx
+      .function_call()
+      ?.accept(this) as Function_Call;
+    const returnValArray = ctx.array()?.accept(this) as ArrayCustom;
     if (returnValVarNameString) {
       returnValVarName = new VariableName(returnValVarNameString);
     } else if (returnValNumString) {
@@ -299,22 +293,23 @@ export class ParseTreeToAST
   }
 
   visitFunction_call(ctx: Function_callContext): Function_Call {
+    const functionParams = ctx.function_params().accept(this);
     return new Function_Call(
       new VariableName(ctx.VARIABLE_NAME().text),
-      ctx.function_params().accept(this)
+      functionParams
     );
   }
 
   visitConditional(ctx: ConditionalContext): Conditional {
     let ifCond = new If_Cond(
-      <Function_Call | VariableName>ctx.if_cond()?.condition().accept(this),
+      ctx.if_cond()?.condition().accept(this) as Function_Call | VariableName,
       ctx.if_cond()?.cond_body().accept(this)
     );
     let elseIfList: Else_If_Cond[] = [];
     for (const e of ctx.else_if_cond()) {
       elseIfList.push(
         new Else_If_Cond(
-          <Function_Call | VariableName>e.condition().accept(this),
+          e.condition().accept(this) as Function_Call | VariableName,
           e.function_body().accept(this)
         )
       );
@@ -326,7 +321,7 @@ export class ParseTreeToAST
   visitCondition(ctx: ConditionContext): Function_Call | VariableName {
     return (
       ctx.function_call()?.accept(this) ||
-      new VariableName(<string>ctx.VARIABLE_NAME()?.text)
+      new VariableName(ctx.VARIABLE_NAME()?.text as string)
     );
   }
 
@@ -365,7 +360,7 @@ export class ParseTreeToAST
   visitQuestion_array(ctx: Question_arrayContext): Question_Array {
     const questionList: Question[] = [];
     for (const q of ctx.question()) {
-      questionList.push(<Question>q.accept(this));
+      questionList.push(q.accept(this) as Question);
     }
     return new Question_Array(questionList);
   }
@@ -385,15 +380,12 @@ export class ParseTreeToAST
     let varsObject = undefined;
     for (let questionFields of ctx.question_fields().question_field()) {
       if (questionFields.id_field()) {
-        let id = questionFields.id_field()?.text_field_value().accept(this);
+        id = questionFields.id_field()?.text_field_value().accept(this);
       } else if (questionFields.type_field()) {
       } else if (questionFields.type_field()) {
-        let type = questionFields.type_field()?.text;
+        type = questionFields.type_field()?.text;
       } else if (questionFields.label_field()) {
-        let label = questionFields
-          .label_field()
-          ?.text_field_value()
-          .accept(this);
+        label = questionFields.label_field()?.text_field_value().accept(this);
       } else if (questionFields.options_field()) {
         options = questionFields.options_field()?.accept(this);
       } else if (questionFields.dependsOn_field()) {
@@ -405,13 +397,17 @@ export class ParseTreeToAST
       } else if (questionFields.isRequired_field()) {
         isRequired = questionFields.isRequired_field()?.boolean().accept(this);
       } else if (questionFields.correctAnswer_field()) {
-        correctAnswer = <
-          string | number | VariableName | Function_Call | undefined
-        >questionFields.correctAnswer_field()?.accept(this);
+        correctAnswer = questionFields.correctAnswer_field()?.accept(this) as
+          | string
+          | number
+          | VariableName
+          | Function_Call
+          | undefined;
       } else if (questionFields.variables()?.variables_object()) {
-        varsObject = <VariablesArray>(
-          questionFields.variables()?.variables_object().accept(this)
-        );
+        varsObject = questionFields
+          .variables()
+          ?.variables_object()
+          .accept(this) as VariablesArray;
       }
     }
 
@@ -525,7 +521,7 @@ export class ParseTreeToAST
   }
 
   visitExtended_math_expression(ctx: Extended_math_expressionContext) {
-    console.log("Visiting extended math expression");
+    // console.log("Visiting extended math expression");
   }
 
   //Abstract Tree method

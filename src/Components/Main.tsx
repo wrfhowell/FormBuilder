@@ -5,8 +5,13 @@ import { styled } from "@mui/material/styles";
 import { useFileUpload } from "./Hooks";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Quiz from "@mui/icons-material/Quiz";
+import { Evaluator } from "../AST/export";
+import { FormGeneratorLexer } from "../AST/generated/FormGeneratorLexer";
+import { FormGeneratorParser } from "../AST/generated/FormGeneratorParser";
+import { CharStreams, CommonTokenStream } from "antlr4ts";
+import { ParseTreeToAST } from "../AST/parser/ParseTreeToAST";
 
-import { pages } from "./Compiled_Quiz_Example";
+// import { pages } from "./Compiled_Quiz_Example";
 
 interface MainProps {
   setPagesObj: (pagesObj: IPage[]) => void;
@@ -17,6 +22,18 @@ export const Main = ({ setPagesObj }: MainProps) => {
 
   const navigate = useNavigate();
   const startQuiz = () => {
+    const fileStream = CharStreams.fromString(fileContents);
+    const lexer = new FormGeneratorLexer(fileStream);
+    const tokens = new CommonTokenStream(lexer);
+    const parser = new FormGeneratorParser(tokens);
+    const visitor = new ParseTreeToAST();
+    // @ts-ignore
+    const parsedProgram = parser.program().accept(visitor);
+    const evaluator = new Evaluator();
+    let other_obj: any = parsedProgram.accept({}, evaluator);
+    let pages = other_obj.pages;
+    console.log("pages: ", pages);
+
     if (pages) {
       setPagesObj(pages);
       navigate(pages[0].id);
