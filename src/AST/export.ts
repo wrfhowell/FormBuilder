@@ -17,6 +17,7 @@ import { Question_Array } from "./Nodes/Question_Array";
 import { Variable } from "./Nodes/Variable";
 import { VariableName } from "./Nodes/VariableName";
 import { VariablesArray } from "./Nodes/VariablesArray";
+import { VariableAssignment } from "./Nodes/VariableAssignment";
 
 export {
   Evaluator,
@@ -37,6 +38,7 @@ export {
   Variable,
   VariableName,
   VariablesArray,
+  VariableAssignment,
 };
 
 export type { Visitor };
