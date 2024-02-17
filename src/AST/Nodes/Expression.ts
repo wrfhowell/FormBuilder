@@ -1,24 +1,21 @@
-import {Node} from "../export";
-import {Visitor} from "../Interfaces/Visitor";
-import {StringExpression} from "./StringExpression";
-import {MathExpression} from "./MathExpression";
-import {ScopedExpression} from "./ScopedExpression";
-import {UnscopedExpression} from "./UnscopedExpression";
+import { Visitor } from "../Interfaces/Visitor";
+import {MathExpression, Node, VariableName} from "../export";
 
 export class Expression extends Node {
-    private expression: Number | String | ScopedExpression | UnscopedExpression;
+	private expression: number | VariableName | MathExpression;
 
-    constructor(expression: Number | String | ScopedExpression | UnscopedExpression) {
-        super();
-        this.expression = expression;
-    }
+	constructor(
+		expression: number | VariableName | MathExpression
+	) {
+		super();
+		this.expression = expression;
+	}
 
-    get getExpression() {
-        return this.expression;
-    }
+	getExpression() {
+		return this.expression;
+	}
 
-    accept <C, T>(context: C, v: Visitor<C, T>): T {
-        return v.visit(context, this);
-    }
-
+	accept<C, T>(context: C, v: Visitor<C, T>): T {
+		return v.visit(context, this);
+	}
 }

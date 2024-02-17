@@ -1,21 +1,22 @@
 import {Visitor} from "../Interfaces/Visitor";
-import {Expression, Node} from "../export";
+import {Node, VariableName} from "../export";
 import {Function_Body} from "./Function_Body";
+import {Function_Call} from "./Function_Call";
 export class Else_If_Cond extends Node {
-    private condition: Expression;
+    private condition: Function_Call | VariableName;
     private functionBody: Function_Body;
 
-    constructor(condition: Expression, functionBody: Function_Body) {
+    constructor(condition: Function_Call | VariableName, functionBody: Function_Body) {
         super();
         this.condition = condition;
         this.functionBody = functionBody;
     }
 
-    getCondition(): Expression {
+    getCondition() {
         return this.condition;
     }
 
-    getCondBody(): Function_Body {
+    getCondBody() {
         return this.functionBody;
     }
 

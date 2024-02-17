@@ -59,37 +59,37 @@
 
     functions: [
         classificationNext() {
-            if(whatAreYouAns == "Metal") {
-                return "metal-pg"
-            } else if(whatAreYouAns == "Nonmetal") {
-                return "nonmetal-pg"
-            } else if(whatAreYouAns == "Metalloid") {
-                return "metalloid-pg"
-            }
+            if(isStringEqual(whatAreYouAns, "Metal")) {
+            return "metal-pg"
+        } else if(isStringEqual(whatAreYouAns, "Nonmetal")) {
+            return "nonmetal-pg"
+        } else if(isStringEqual(whatAreYouAns, "Metalloid")) {
+            return "metalloid-pg"
+        }
 
-                return 0
+            return 0
         },
 
-        metalNext() {
-            if(whatMetalAreYou == "Alkali Metal") {
+            metalNext() {
+            if(isStringEqual(whatMetalAreYou, "Alkali Metal")) {
                 return "alkali-metal-pg"
-            } else if(whatMetalAreYou == "Alkaline Earth Metal") {
+            } else if(isStringEqual(whatMetalAreYou, "Alkaline Earth Metal")) {
                 return "alkaline-earth-metal-pg"
-            } else if(whatMetalAreYou == "Transition Metal") {
+            } else if(isStringEqual(whatMetalAreYou, "Transition Metal")) {
                 return "transition-metal-pg"
-            } else if(whatMetalAreYou == "Post-Transition Metal") {
+            } else if(isStringEqual(whatMetalAreYou, "Post-Transition Metal")) {
                 return "post-transition-metal-pg"
-            } else if(whatMetalAreYou == "Actinide") {
+            } else if(isStringEqual(whatMetalAreYou, "Actinide")) {
                 return "actinide-pg"
             }
 
             return 0
         },
 
-        nonMetalNext() {
-            if(whatNonMetalAreYou == "Reactive Nonmetal") {
+            nonMetalNext() {
+            if(isStringEqual(whatNonMetalAreYou, "Reactive Nonmetal")) {
                 return "reactive-nonmetal-pg"
-            } else if(whatNonMetalAreYou == "Noble Gas") {
+            } else if(isStringEqual(whatNonMetalAreYou, "Noble Gas")) {
                 return "noble-gas-pg"
             }
 

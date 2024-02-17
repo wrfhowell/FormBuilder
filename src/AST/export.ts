@@ -6,7 +6,6 @@ import { Page } from "./Nodes/Page";
 import { Pages } from "./Nodes/Pages";
 import { Program } from "./Nodes/Program";
 import { Question } from "./Nodes/Question";
-
 import { PageObj } from "./Helpers/PageObj";
 import { PagesObj } from "./Helpers/PagesObj";
 import { QuestionObj } from "./Helpers/QuestionObj";
@@ -15,11 +14,10 @@ import { Expression } from "./Nodes/Expression";
 import { MathExpression } from "./Nodes/MathExpression";
 import { ArrayCustom } from "./Nodes/ArrayCustom";
 import { Question_Array } from "./Nodes/Question_Array";
-import { Regex } from "./Nodes/Regex";
-import { StringExpression } from "./Nodes/StringExpression";
 import { Variable } from "./Nodes/Variable";
 import { VariableName } from "./Nodes/VariableName";
 import { VariablesArray } from "./Nodes/VariablesArray";
+import { VariableAssignment } from "./Nodes/VariableAssignment";
 
 export {
   Evaluator,
@@ -37,11 +35,10 @@ export {
   QuestionObj,
   Question_Array,
   QuestionsObj,
-  Regex,
-  StringExpression,
   Variable,
   VariableName,
   VariablesArray,
+  VariableAssignment,
 };
 
 export type { Visitor };
