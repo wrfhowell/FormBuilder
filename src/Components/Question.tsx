@@ -1,4 +1,4 @@
-import { IQuestion, IAnswer } from "./Interfaces";
+import { IQuestion, IAnswer, FunctionBinding } from "./Interfaces";
 import { QuestionRadio } from "./QuestionRadio";
 import { QuestionCheckbox } from "./QuestionCheckbox";
 import { QuestionText } from "./QuestionText";
@@ -125,81 +125,63 @@ export const Question = ({
 
   // Evaluate the label for the question
   const getQuestionLabel = (): string | number => {
-    let questionLabel: string | number = "";
+    let questionLabel: string | number = evaluateProperty(question.label);
+    return questionLabel;
+  };
 
-    if (typeof question.label === "string") {
-      return question.label;
-    } else if (question.label instanceof VariableName) {
+  const evaluateProperty = (
+    property: string | FunctionBinding | VariableName
+  ) => {
+    let propertyValue: string | number = "";
+
+    if (typeof property === "string") {
+      return property;
+    } else if (property instanceof VariableName) {
       const functionEvaluator = new FunctionEvaluator();
       const context: FunctionEvaluatorContext = {
-        vars: { ...evaluatedVars },
-        functions: {},
-        returnValue: 0,
-      };
-      functionEvaluator.visit(context, question.label);
-      return context.returnValue;
-    }
-
-    if (typeof question.label.value === "function") {
-      if (!question.label.args) {
-        questionLabel = question.label.value();
-      } else {
-        let args = question.label.args;
-        questionLabel = question.label.value(args);
-      }
-    } else if (
-      typeof question.label.value === "number" ||
-      typeof question.label.value === "string"
-    ) {
-      questionLabel = question.label.value.toString();
-    } else {
-      const functionEvaluator = new FunctionEvaluator();
-      let context: FunctionEvaluatorContext = {
-        passedArguments: question.label.args,
         vars: { ...evaluatedVars },
         functions: functionMap,
         returnValue: 0,
       };
-      functionEvaluator.visit(context, question.label.value);
-      questionLabel = context.returnValue;
+      functionEvaluator.visit(context, property);
+      return context.returnValue;
     }
-    return questionLabel;
+
+    if (typeof property.value === "function") {
+      if (!property.args) {
+        propertyValue = property.value();
+      } else {
+        let args = property.args;
+        propertyValue = property.value(args);
+      }
+    } else if (
+      typeof property.value === "number" ||
+      typeof property.value === "string"
+    ) {
+      propertyValue = property.value.toString();
+    } else {
+      const functionEvaluator = new FunctionEvaluator();
+      let context: FunctionEvaluatorContext = {
+        passedArguments: property.args,
+        vars: { ...evaluatedVars },
+        functions: functionMap,
+        returnValue: 0,
+      };
+      functionEvaluator.visit(context, property.value);
+      propertyValue = context.returnValue;
+    }
+    return propertyValue;
   };
 
-  // const getCorrectAnswer = () => {
-  //   console.log("question correct answer: ", question.correctAnswer);
-
-  //   if (!question.correctAnswer) return;
-
-  //   if (
-  //     typeof question.correctAnswer.value === "string" ||
-  //     typeof question.correctAnswer.value === "number"
-  //   ) {
-  //     setQuestionCorrectAnswer(
-  //       question.id,
-  //       question.correctAnswer.value.toString()
-  //     );
-  //     return;
-  //   }
-
-  //   if (!question.correctAnswer.args) {
-  //     setQuestionCorrectAnswer(
-  //       question.id,
-  //       question.correctAnswer.value().toString()
-  //     );
-  //     question.correctAnswer.value();
-  //   } else {
-  //     let args = getEvaluatedVars(question.correctAnswer.args);
-  //     setQuestionCorrectAnswer(
-  //       question.id,
-  //       question.correctAnswer.value(...args).toString()
-  //     );
-  //   }
-  // };
+  const getCorrectAnswer = () => {
+    if (!question.correctAnswer) return;
+    const questionCorrectAnswer = evaluateProperty(question.correctAnswer);
+    setQuestionCorrectAnswer(question.id, questionCorrectAnswer);
+  };
 
   useEffect(() => {
     evaluateVars();
-    // getCorrectAnswer();
+    getCorrectAnswer();
     setQuestionsRendered(true);
   }, []);
 
