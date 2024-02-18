@@ -33,3 +33,5 @@ gen/
 
 # Auto-generated antlr garbage
 src/AST/parser/.antlr
+
+!src/AST/generated/

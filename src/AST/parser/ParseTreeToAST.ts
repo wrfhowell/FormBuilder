@@ -26,8 +26,8 @@ import {
   Variables_objectContext,
   Extended_math_expressionContext,
   Function_paramsContext,
-} from "../../../generated/FormGeneratorParser";
-import { FormGeneratorParserVisitor } from "../../../generated/FormGeneratorParserVisitor";
+} from "../generated/FormGeneratorParser";
+import { FormGeneratorParserVisitor } from "../generated/FormGeneratorParserVisitor";
 import { ArrayCustom } from "../Nodes/ArrayCustom";
 import { ArrayValue } from "../Nodes/ArrayValue";
 import { Cond_Body } from "../Nodes/Cond_Body";
