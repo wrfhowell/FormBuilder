@@ -165,13 +165,17 @@ export class ParseTreeToAST
   visitText_field_value(
     ctx: Text_field_valueContext
   ): string | VariableName | Function_Call {
-    return (
-      ctx?.STRING()?.text.replace(/["]/g, "") ||
-      (ctx?.function_call()?.accept(this) as Function_Call) ||
-      (new VariableName(
-        ctx?.VARIABLE_NAME()?.text.replace(/["]/g, "") as string
-      ) as VariableName)
-    );
+    let textFieldString = ctx?.STRING()?.text;
+    let textFieldFunctionCall = ctx?.function_call()?.accept(this);
+    let textFieldVariableName = ctx?.VARIABLE_NAME()?.text;
+
+    if (textFieldVariableName) {
+      return new VariableName(textFieldVariableName);
+    } else if (textFieldFunctionCall) {
+      return textFieldFunctionCall as Function_Call;
+    } else {
+      return (textFieldString as string).replace(/["]/g, "");
+    }
   }
 
   visitFunction(ctx: FunctionContext): FunctionCustom {
@@ -205,7 +209,7 @@ export class ParseTreeToAST
               sub_ctx.VARIABLE_NAME()?.text.replace(/["]/g, "") || ""
             );
         functionParams.push(ans);
-      } else if (sub_ctx.form_state_access !== undefined) {
+      } else if (sub_ctx.form_state_access() !== undefined) {
         functionParams.push(sub_ctx.form_state_access()?.accept(this));
       } else {
         functionParams.push(sub_ctx.function_call()?.accept(this));
@@ -414,6 +418,8 @@ export class ParseTreeToAST
           .accept(this) as VariablesArray;
       }
     }
+
+    console.log("visitQuestion question label: ", label);
 
     return new Question(
       id,

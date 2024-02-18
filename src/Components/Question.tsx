@@ -11,6 +11,7 @@ import {
 import React from "react";
 import { Function_Call } from "../AST/Nodes/Function_Call";
 import { useGlobalQuizContext } from "./Context";
+import { VariableName } from "../AST/Nodes/VariableName";
 
 interface QuestionProps {
   question: IQuestion;
@@ -129,6 +130,19 @@ export const Question = ({
     let questionLabel: string | number = "";
 
     console.log("question label: ", question.label);
+
+    if (typeof question.label === "string") {
+      return question.label;
+    } else if (question.label instanceof VariableName) {
+      const functionEvaluator = new FunctionEvaluator();
+      const context: FunctionEvaluatorContext = {
+        vars: { ...evaluatedVars },
+        functions: {},
+        returnValue: 0,
+      };
+      functionEvaluator.visit(context, question.label);
+      return context.returnValue;
+    }
 
     if (typeof question.label.value === "function") {
       if (!question.label.args) {

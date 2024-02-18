@@ -253,16 +253,8 @@ export class Evaluator implements Visitor<{}, any> {
 
   // TODO:
   visitFunctionCall(context: {}, functionCall: Function_Call) {
-    let variableName = functionCall.getVariableName().accept(context, this);
+    let variableName = functionCall.getVariableName().getName();
     let functionParameters = functionCall.getFunctionParams();
-    // if (hasAcceptMethod(functionParameters)) {
-    //   functionParameters = functionParameters.map((param) => {
-    //     if (hasAcceptMethod(param)) {
-    //       return param.accept(context, this);
-    //     }
-    //     return param;
-    //   });
-    // }
 
     let return_obj = {
       args: functionParameters,
@@ -273,22 +265,11 @@ export class Evaluator implements Visitor<{}, any> {
 
   // TODO:
   visitFunctionCustom(context: {}, functionCustom: FunctionCustom) {
-    let functionName = functionCustom.getFunctionName().accept(context, this);
-    // console.log("visiting functioncustom for: ", functionName);
+    let functionName = functionCustom.getFunctionName().getName();
     this.programFunctions[functionName] = functionCustom;
-    // let functionParameters = functionCustom.getFunctionParams();
-    // let functionBody = functionCustom.getFunctionBody().accept(context, this);
-    // functionParameters = functionParameters?.map((param) => {
-    //   if (hasAcceptMethod(param)) {
-    //     return param.accept(context, this);
-    //   }
-    //   return param;
-    // });
     return {
       functionName: functionName,
       fnNode: functionCustom,
-      // functionParameters: functionParameters,
-      // functionBody: functionBody,
     };
   }
 
@@ -361,7 +342,7 @@ export class Evaluator implements Visitor<{}, any> {
   }
 
   visitVariableName(context: {}, variableName: VariableName) {
-    return variableName.getName();
+    return variableName;
   }
 
   visitVariablesArray(context: {}, variablesArray: VariablesArray) {

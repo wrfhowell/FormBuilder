@@ -1,5 +1,6 @@
 import { FunctionCustom } from "../AST/Nodes/FunctionCustom";
 import { Function_Call } from "../AST/Nodes/Function_Call";
+import { VariableName } from "../AST/Nodes/VariableName";
 
 export interface IPage {
   id: string;
@@ -15,7 +16,7 @@ export type QuestionType = "radio" | "checkbox" | "dropdown" | "text";
 export interface IQuestion {
   id: string;
   type: QuestionType;
-  label: FunctionBinding;
+  label: FunctionBinding | string | VariableName;
   isRequired: boolean;
   options?: string[];
   loop?: number;
