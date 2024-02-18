@@ -17,7 +17,6 @@ import {
   Options_fieldContext,
   PageContext,
   PagesContext,
-  ParameterContext,
   ProgramContext,
   Question_arrayContext,
   QuestionContext,
@@ -26,8 +25,9 @@ import {
   Text_field_valueContext,
   Variables_objectContext,
   Extended_math_expressionContext,
-} from "../../../generated/FormGeneratorParser";
-import { FormGeneratorParserVisitor } from "../../../generated/FormGeneratorParserVisitor";
+  Function_paramsContext,
+} from "../generated/FormGeneratorParser";
+import { FormGeneratorParserVisitor } from "../generated/FormGeneratorParserVisitor";
 import { ArrayCustom } from "../Nodes/ArrayCustom";
 import { ArrayValue } from "../Nodes/ArrayValue";
 import { Cond_Body } from "../Nodes/Cond_Body";
@@ -54,13 +54,15 @@ export class ParseTreeToAST
   implements FormGeneratorParserVisitor<any>
 {
   visitProgram(ctx: ProgramContext): Program {
-    const pages = <Pages>ctx.pages().accept(this);
-    const functionsObject = <Functions_Array>(
-      ctx.functions()?.function_array().accept(this)
-    );
-    const variablesObject = <VariablesArray>(
-      ctx.variables()?.variables_object().accept(this)
-    );
+    const functionsObject = ctx
+      .functions()
+      ?.function_array()
+      .accept(this) as Functions_Array;
+    const variablesObject = ctx
+      .variables()
+      ?.variables_object()
+      .accept(this) as VariablesArray;
+    const pages = ctx.pages().accept(this) as Pages;
     if (functionsObject && variablesObject) {
       return new Program(pages, functionsObject, variablesObject);
     } else if (variablesObject) {
@@ -75,7 +77,7 @@ export class ParseTreeToAST
   visitPages(ctx: PagesContext): Pages {
     let pagesList: Page[] = [];
     for (const p of ctx.page_array().page()) {
-      pagesList.push(<Page>p.accept(this));
+      pagesList.push(p.accept(this) as Page);
     }
     return new Pages(pagesList);
   }
@@ -83,7 +85,7 @@ export class ParseTreeToAST
   visitFunction_array(ctx: Function_arrayContext): Functions_Array {
     let functionList: FunctionCustom[] = [];
     for (const f of ctx.function()) {
-      functionList.push(<FunctionCustom>f.accept(this));
+      functionList.push(f.accept(this) as FunctionCustom);
     }
     return new Functions_Array(functionList);
   }
@@ -104,7 +106,7 @@ export class ParseTreeToAST
         variableList.push(new Variable(varName, varBoolean));
       } else if (varValue.array()) {
         variableList.push(
-          new Variable(varName, <ArrayCustom>varValue.array()?.accept(this))
+          new Variable(varName, varValue.array()?.accept(this) as ArrayCustom)
         );
       } else if (varFormStateAccess) {
         variableList.push(new Variable(varName, varFormStateAccess));
@@ -124,7 +126,7 @@ export class ParseTreeToAST
     let header = undefined;
     let instructions = undefined;
     let goTo = undefined;
-    let questions = undefined;
+    let questions;
     let displayQuestions = undefined;
 
     for (let pageFields of ctx.page_fields().page_field()) {
@@ -163,23 +165,31 @@ export class ParseTreeToAST
   visitText_field_value(
     ctx: Text_field_valueContext
   ): string | VariableName | Function_Call {
-    return (
-      ctx?.text ||
-      <Function_Call>ctx?.function_call()?.accept(this) ||
-      <VariableName>new VariableName(<string>ctx?.VARIABLE_NAME()?.text)
-    );
+    let textFieldString = ctx?.STRING()?.text;
+    let textFieldFunctionCall = ctx?.function_call()?.accept(this);
+    let textFieldVariableName = ctx?.VARIABLE_NAME()?.text;
+
+    if (textFieldVariableName) {
+      return new VariableName(textFieldVariableName);
+    } else if (textFieldFunctionCall) {
+      return textFieldFunctionCall as Function_Call;
+    } else {
+      return (textFieldString as string).replace(/["]/g, "");
+    }
   }
 
   visitFunction(ctx: FunctionContext): FunctionCustom {
-    const variableName = new VariableName(ctx.VARIABLE_NAME().text);
+    const variableName = new VariableName(
+      ctx.VARIABLE_NAME().text.replace(/["]/g, "")
+    );
+    const res = ctx.function_params().accept(this);
     const parameters: (
       | string
       | number
       | VariableName
       | Function_Call
       | FormStateAccess
-      | undefined
-    )[] = ctx.function_params().accept(this);
+    )[] = res;
     return new FunctionCustom(
       variableName,
       parameters,
@@ -187,41 +197,31 @@ export class ParseTreeToAST
     );
   }
 
-  visitParameter(
-    ctx: ParameterContext
-  ):
-    | string
-    | number
-    | VariableName
-    | Function_Call
-    | FormStateAccess
-    | undefined {
-    const funcString = ctx.STRING()?.text;
-    const funcNum = ctx.NUM()?.text;
-    const funcVarName = ctx.VARIABLE_NAME()?.text;
-    const functionCall = <Function_Call>ctx.function_call()?.accept(this);
-    const formStateAccess = <FormStateAccess>(
-      ctx.form_state_access()?.accept(this)
-    );
-    if (funcString) {
-      return funcString;
-    } else if (funcNum) {
-      return Number(funcNum);
-    } else if (funcVarName) {
-      return new VariableName(funcVarName);
-    } else if (functionCall) {
-      return functionCall;
-    } else if (formStateAccess) {
-      return formStateAccess;
-    } else {
-      return undefined;
-    }
+  visitFunction_params(ctx: Function_paramsContext) {
+    const functionParams: any[] = [];
+    ctx.parameter()?.forEach((sub_ctx) => {
+      if (sub_ctx.NUM() || sub_ctx.STRING() || sub_ctx.VARIABLE_NAME()) {
+        const ans = sub_ctx.NUM()
+          ? parseInt(sub_ctx.NUM()?.text.replace(/["]/g, "") || "1")
+          : sub_ctx.STRING()
+          ? sub_ctx.STRING()?.text.replace(/["]/g, "")
+          : new VariableName(
+              sub_ctx.VARIABLE_NAME()?.text.replace(/["]/g, "") || ""
+            );
+        functionParams.push(ans);
+      } else if (sub_ctx.form_state_access() !== undefined) {
+        functionParams.push(sub_ctx.form_state_access()?.accept(this));
+      } else {
+        functionParams.push(sub_ctx.function_call()?.accept(this));
+      }
+    });
+    return functionParams;
   }
 
   visitForm_state_access(ctx: Form_state_accessContext): FormStateAccess {
     return new FormStateAccess(
-      ctx.path_to_key().path_to_page_key().STRING().text,
-      ctx.path_to_key().path_to_question_key().STRING().text
+      ctx.path_to_key().path_to_page_key().STRING().text.replace(/["]/g, ""),
+      ctx.path_to_key().path_to_question_key().STRING().text.replace(/["]/g, "")
     );
   }
 
@@ -247,8 +247,8 @@ export class ParseTreeToAST
   visitStatement(
     ctx: StatementContext
   ): Conditional | Expression | VariableAssignment | undefined {
-    const statementConditional = <Conditional>ctx.conditional()?.accept(this);
-    const statementExpression = <Expression>ctx.expression()?.accept(this);
+    const statementConditional = ctx.conditional()?.accept(this) as Conditional;
+    const statementExpression = ctx.expression()?.accept(this) as Expression;
     const statementVariableAssignment = ctx.var_assignment();
 
     if (statementConditional) {
@@ -280,9 +280,11 @@ export class ParseTreeToAST
     const returnValString = ctx.STRING()?.text;
     const returnValNumString = ctx.NUM()?.text;
     let returnValNum;
-    const returnValExpression = <Expression>ctx.expression()?.accept(this);
-    const returnValFuncCall = <Function_Call>ctx.function_call()?.accept(this);
-    const returnValArray = <ArrayCustom>ctx.array()?.accept(this);
+    const returnValExpression = ctx.expression()?.accept(this) as Expression;
+    const returnValFuncCall = ctx
+      .function_call()
+      ?.accept(this) as Function_Call;
+    const returnValArray = ctx.array()?.accept(this) as ArrayCustom;
     if (returnValVarNameString) {
       returnValVarName = new VariableName(returnValVarNameString);
     } else if (returnValNumString) {
@@ -299,22 +301,23 @@ export class ParseTreeToAST
   }
 
   visitFunction_call(ctx: Function_callContext): Function_Call {
+    const functionParams = ctx.function_params().accept(this);
     return new Function_Call(
       new VariableName(ctx.VARIABLE_NAME().text),
-      ctx.function_params().accept(this)
+      functionParams
     );
   }
 
   visitConditional(ctx: ConditionalContext): Conditional {
     let ifCond = new If_Cond(
-      <Function_Call | VariableName>ctx.if_cond()?.condition().accept(this),
+      ctx.if_cond()?.condition().accept(this) as Function_Call | VariableName,
       ctx.if_cond()?.cond_body().accept(this)
     );
     let elseIfList: Else_If_Cond[] = [];
     for (const e of ctx.else_if_cond()) {
       elseIfList.push(
         new Else_If_Cond(
-          <Function_Call | VariableName>e.condition().accept(this),
+          e.condition().accept(this) as Function_Call | VariableName,
           e.function_body().accept(this)
         )
       );
@@ -326,7 +329,7 @@ export class ParseTreeToAST
   visitCondition(ctx: ConditionContext): Function_Call | VariableName {
     return (
       ctx.function_call()?.accept(this) ||
-      new VariableName(<string>ctx.VARIABLE_NAME()?.text)
+      new VariableName(ctx.VARIABLE_NAME()?.text as string)
     );
   }
 
@@ -365,7 +368,7 @@ export class ParseTreeToAST
   visitQuestion_array(ctx: Question_arrayContext): Question_Array {
     const questionList: Question[] = [];
     for (const q of ctx.question()) {
-      questionList.push(<Question>q.accept(this));
+      questionList.push(q.accept(this) as Question);
     }
     return new Question_Array(questionList);
   }
@@ -374,26 +377,22 @@ export class ParseTreeToAST
   //TODO: Adjust field once Boolean problem is fixed
   visitQuestion(ctx: QuestionContext): Question {
     let id = undefined;
-    let type = undefined;
-    let label = undefined;
-    let options = undefined;
-    let dependsOn = undefined;
-    let displayIf = undefined;
-    let loop = undefined;
-    let isRequired = undefined;
-    let correctAnswer = undefined;
-    let varsObject = undefined;
+    let type;
+    let label;
+    let options;
+    let dependsOn;
+    let displayIf;
+    let loop;
+    let isRequired;
+    let correctAnswer;
+    let varsObject;
     for (let questionFields of ctx.question_fields().question_field()) {
       if (questionFields.id_field()) {
-        let id = questionFields.id_field()?.text_field_value().accept(this);
+        id = questionFields.id_field()?.text_field_value().accept(this);
       } else if (questionFields.type_field()) {
-      } else if (questionFields.type_field()) {
-        let type = questionFields.type_field()?.text;
+        type = questionFields.type_field()?._stop?.text?.replace(/["]/g, "");
       } else if (questionFields.label_field()) {
-        let label = questionFields
-          .label_field()
-          ?.text_field_value()
-          .accept(this);
+        label = questionFields.label_field()?.text_field_value().accept(this);
       } else if (questionFields.options_field()) {
         options = questionFields.options_field()?.accept(this);
       } else if (questionFields.dependsOn_field()) {
@@ -405,13 +404,17 @@ export class ParseTreeToAST
       } else if (questionFields.isRequired_field()) {
         isRequired = questionFields.isRequired_field()?.boolean().accept(this);
       } else if (questionFields.correctAnswer_field()) {
-        correctAnswer = <
-          string | number | VariableName | Function_Call | undefined
-        >questionFields.correctAnswer_field()?.accept(this);
+        correctAnswer = questionFields.correctAnswer_field()?.accept(this) as
+          | string
+          | number
+          | VariableName
+          | Function_Call
+          | undefined;
       } else if (questionFields.variables()?.variables_object()) {
-        varsObject = <VariablesArray>(
-          questionFields.variables()?.variables_object().accept(this)
-        );
+        varsObject = questionFields
+          .variables()
+          ?.variables_object()
+          .accept(this) as VariablesArray;
       }
     }
 
@@ -491,7 +494,7 @@ export class ParseTreeToAST
   }
 
   visitExpression(ctx: ExpressionContext): Expression {
-    let expressionValue = undefined;
+    let expressionValue: number | VariableName | MathExpression;
     let numVal = ctx.NUM()?.text;
     let varName = ctx.VARIABLE_NAME()?.text;
     if (numVal) {
@@ -507,25 +510,20 @@ export class ParseTreeToAST
 
   visitMath_expression(ctx: Math_expressionContext) {
     let expression: Expression = new Expression(ctx.expression().accept(this));
-    let extended_math_expressions: ExtendedMathExpression[] = [];
+    let extendedMathExpressions: ExtendedMathExpression[] = [];
 
     for (let sub_ctx of ctx.extended_math_expression()) {
       let extended_math_expression: ExtendedMathExpression =
         new ExtendedMathExpression(
           new MathOp(sub_ctx.math_op().text),
-          new Expression(sub_ctx.expression()?.accept(this))
+          sub_ctx.expression()?.accept(this)
         );
-      extended_math_expressions.push(extended_math_expression);
+      extendedMathExpressions.push(extended_math_expression);
     }
 
-    return {
-      expression,
-      extended_math_expressions,
-    };
-  }
+    let return_obj = { expression, extendedMathExpressions };
 
-  visitExtended_math_expression(ctx: Extended_math_expressionContext) {
-    console.log("Visiting extended math expression");
+    return return_obj;
   }
 
   //Abstract Tree method

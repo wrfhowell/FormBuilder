@@ -7,7 +7,7 @@
             displayQuestions: 5,
             questions: [
                 {
-                    id: stringConcat("addition-q-", loopIndex),
+                    id: "addition-q-",
                     type: textInput,
                     label: getAdditionQuestionLabel(num1, num2),
                     isRequired: true,
@@ -25,6 +25,9 @@
     functions: [
         addNums(num1, num2) {
             return (num1 + num2)
+        },
+        getAdditionQuestionLabel(num1, num2) {
+            return stringConcat("What is ", num1, " + ", num2, "?")
         }
     ]
 }

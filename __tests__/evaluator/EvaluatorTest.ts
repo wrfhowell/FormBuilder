@@ -30,6 +30,5 @@ describe("Evaluator Tests", () => {
 
     const visitor = new ParseTreeToAST();
     const parsedProgram = parser.program().accept(visitor);
-    console.log(parsedProgram);
   });
 });

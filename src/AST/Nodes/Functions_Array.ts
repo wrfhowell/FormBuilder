@@ -9,7 +9,7 @@ export class Functions_Array extends Node {
     this.functionsArray = functionsArray;
   }
 
-  getFunctionsList(): FunctionCustom[] {
+  getFunctionList(): FunctionCustom[] {
     return this.functionsArray;
   }
 

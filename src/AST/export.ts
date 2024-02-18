@@ -6,10 +6,6 @@ import { Page } from "./Nodes/Page";
 import { Pages } from "./Nodes/Pages";
 import { Program } from "./Nodes/Program";
 import { Question } from "./Nodes/Question";
-import { PageObj } from "./Helpers/PageObj";
-import { PagesObj } from "./Helpers/PagesObj";
-import { QuestionObj } from "./Helpers/QuestionObj";
-import { QuestionsObj } from "./Helpers/QuestionsObj";
 import { Expression } from "./Nodes/Expression";
 import { MathExpression } from "./Nodes/MathExpression";
 import { ArrayCustom } from "./Nodes/ArrayCustom";
@@ -36,14 +32,10 @@ export {
   ArrayValue,
   ArrayCustom,
   Page,
-  PageObj,
   Pages,
-  PagesObj,
   Program,
   Question,
-  QuestionObj,
   Question_Array,
-  QuestionsObj,
   Variable,
   VariableName,
   VariablesArray,
