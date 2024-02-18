@@ -73,7 +73,7 @@ A page object creates a new page and can have any of the following fields, of wh
 ```
 
 - `id: String` - **Required** unique page id (eg. "contact-page") <!-- TODO: write static check for this -->
-- `heder: String` - Page header text. Can be dynamically generated with a function or variable
+- `header: String` - Page header text. Can be dynamically generated with a function or variable
 - `instructions: String` - Instructions or introduction for the quiz takers. Can be dynamically generated with a function or variable.
 - `goTo: String` - ID of page that should follow. If the page that follows is dependent on the quiz taker's responses, it can be generated with a function or a variable <!-- TODO: write dynamic check for this -->
 - `Questions: List` - List of questions that will appear in the page. Refer to the [Question](#question) section for more information about the questions.
@@ -146,7 +146,6 @@ A question object creates a new question inside of a page. The only required fie
 The functions list is a list of C-style curly bracket functions. A few notes about functions
 
 - Functions cannot declare their own variables. If a variable is needed, declare it in the global [vars](#vars) object.
-- Functions _must_ have a return value.
 - Statements in functions can only be composed of mathematical expressions, other function calls (including the API library) or conditional blocks.
   - The allowable math operators are `+`, `-`, `*`, `/`
 
@@ -187,6 +186,8 @@ vars: {
 # Form State
 
 The Form State is a data store that stores all of the quiz taker's responses. These can be accessed by the form developers by entering the page-id and question-id that is needed in this format `formState["page-id"]["question-id"]`.
+
+If a question has a 'correctAnswer' listed, this field can be accessed through the Form State by appending `"-correctAnswer"` to the end of the `"question-id"` part of the path. `formState["page-id"]["question-id-correctAnswer"]`
 
 # API
 
