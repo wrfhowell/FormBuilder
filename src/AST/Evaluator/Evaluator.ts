@@ -34,8 +34,29 @@ export class Evaluator implements Visitor<{}, any> {
       // reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
       return Math.floor(Math.random() * (args[1] - args[0] + 1) + args[0]);
     },
+    getRandom: (args: any[]) => {
+      return Math.random();
+    },
     stringConcat: (args: any[]) => {
       return args.join("");
+    },
+    isEqual: (args: any[]) => {
+      return args[0] === args[1];
+    },
+    isGreater: (args: any[]) => {
+      return args[0] > args[1];
+    },
+    isGreaterEqual: (args: any[]) => {
+      return args[0] >= args[1];
+    },
+    isLess: (args: any[]) => {
+      return args[0] < args[1];
+    },
+    isLessEqual: (args: any[]) => {
+      return args[0] <= args[1];
+    },
+    roundToInt: (args: any[]) => {
+      return Math.round(args[0]);
     },
   };
 
@@ -174,8 +195,6 @@ export class Evaluator implements Visitor<{}, any> {
       questionVariables = questionVariables.accept(context, this);
     }
 
-    console.log("question type: ", question.getQuestionType());
-
     return {
       id: question.getId(),
       type: question.getQuestionType(),
@@ -216,7 +235,6 @@ export class Evaluator implements Visitor<{}, any> {
     let expressionType = expression.getExpression();
 
     if (hasAcceptMethod(expressionType)) {
-      //   console.log("LOOKATMEEEEEEEEE");
       expressionType = expressionType.accept(context, this);
     }
     return { expression: expressionType };
@@ -234,9 +252,7 @@ export class Evaluator implements Visitor<{}, any> {
     let statements = functionBody.getStatements();
     let returnValueFunction = functionBody.getFunctionReturnValue();
     statements = statements.map((statement) => {
-      //   console.log("YOOOOOOO1");
       if (hasAcceptMethod(statement)) {
-        // console.log("YOOOOOOO2");
         return statement.accept(context, this);
       }
       return statement;

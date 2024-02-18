@@ -56,9 +56,7 @@ export const Question = ({
 
   // Get values for each of the variables for the Question
   const evaluateVars = () => {
-    console.log("Starting evaluteVars");
     let currentEvaluatedVars = evaluatedVars;
-    console.log("question vars: ", question.vars);
     if (question.vars) {
       for (let variable of question?.vars) {
         for (let [key, functionBinding] of Object.entries(variable)) {
@@ -129,8 +127,6 @@ export const Question = ({
   const getQuestionLabel = (): string | number => {
     let questionLabel: string | number = "";
 
-    console.log("question label: ", question.label);
-
     if (typeof question.label === "string") {
       return question.label;
     } else if (question.label instanceof VariableName) {
@@ -148,12 +144,8 @@ export const Question = ({
       if (!question.label.args) {
         questionLabel = question.label.value();
       } else {
-        // let args = getArgValues(question.label.args);
         let args = question.label.args;
         questionLabel = question.label.value(args);
-        console.log("question function: ", question.label.value);
-        console.log("question args: ", question.label.args);
-        console.log(questionLabel);
       }
     } else if (
       typeof question.label.value === "number" ||
@@ -161,11 +153,6 @@ export const Question = ({
     ) {
       questionLabel = question.label.value.toString();
     } else {
-      console.log(
-        "Starting FunctionEvaluator for Question Label: ",
-        questionLabel
-      );
-      console.log("Current evaluated vars: ", evaluatedVars);
       const functionEvaluator = new FunctionEvaluator();
       let context: FunctionEvaluatorContext = {
         passedArguments: question.label.args,

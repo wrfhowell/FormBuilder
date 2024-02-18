@@ -390,7 +390,6 @@ export class ParseTreeToAST
       if (questionFields.id_field()) {
         id = questionFields.id_field()?.text_field_value().accept(this);
       } else if (questionFields.type_field()) {
-        console.log("Type from ParseTreeToAST: ", questionFields.type_field());
         type = questionFields.type_field()?._stop?.text?.replace(/["]/g, "");
       } else if (questionFields.label_field()) {
         label = questionFields.label_field()?.text_field_value().accept(this);
@@ -418,8 +417,6 @@ export class ParseTreeToAST
           .accept(this) as VariablesArray;
       }
     }
-
-    console.log("visitQuestion question label: ", label);
 
     return new Question(
       id,
@@ -526,13 +523,7 @@ export class ParseTreeToAST
 
     let return_obj = { expression, extendedMathExpressions };
 
-    console.log("visitMath_expression returning: ", return_obj);
-
     return return_obj;
-  }
-
-  visitExtended_math_expression(ctx: Extended_math_expressionContext) {
-    // console.log("Visiting extended math expression");
   }
 
   //Abstract Tree method
