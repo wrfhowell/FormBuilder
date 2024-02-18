@@ -1,14 +1,18 @@
 import { Node, Visitor, Pages } from "../export";
-import {VariablesArray} from "./VariablesArray";
-import {Functions_Array} from "./Functions_Array";
+import { VariablesArray } from "./VariablesArray";
+import { Functions_Array } from "./Functions_Array";
+import { FunctionCustom } from "./FunctionCustom";
 
 export class Program extends Node {
   private pages: Pages;
   private functionsArray: Functions_Array | undefined;
   private globalvariables: VariablesArray | undefined;
 
-
-  constructor(pages: Pages, functionsArray: Functions_Array | undefined, globalvariables: VariablesArray | undefined) {
+  constructor(
+    pages: Pages,
+    functionsArray: Functions_Array | undefined,
+    globalvariables: VariablesArray | undefined
+  ) {
     super();
     this.pages = pages;
     this.functionsArray = functionsArray;

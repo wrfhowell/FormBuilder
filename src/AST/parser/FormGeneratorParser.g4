@@ -15,7 +15,7 @@ instructions_field: INSTRUCTIONS_KEY COLON text_field_value;
 questions_field: QUESTIONS_KEY COLON question_array;
 goTo_field: GOTO_KEY COLON text_field_value;
 displayQuestions_field: DISPLAY_QUESTIONS_KEY COLON (DISPLAY_ALL | NUM);
-text_field_value: STRING | VARIABLE_NAME | function_call;
+text_field_value: (STRING | VARIABLE_NAME | function_call);
 
 // Vars object
 variables: VARIABLES_KEY COLON variables_object;

@@ -1,3 +1,7 @@
+import { FunctionCustom } from "../AST/Nodes/FunctionCustom";
+import { Function_Call } from "../AST/Nodes/Function_Call";
+import { VariableName } from "../AST/Nodes/VariableName";
+
 export interface IPage {
   id: string;
   header?: string;
@@ -12,7 +16,7 @@ export type QuestionType = "radio" | "checkbox" | "dropdown" | "text";
 export interface IQuestion {
   id: string;
   type: QuestionType;
-  label: FunctionBinding;
+  label: FunctionBinding | string | VariableName;
   isRequired: boolean;
   options?: string[];
   loop?: number;
@@ -29,12 +33,13 @@ export interface IAnswer {
 
 export interface FunctionBinding {
   value: Function;
-  args?: string[];
+  args?: (string | number | Function_Call)[];
 }
 
 export type Function =
   | string
   | number
+  | FunctionCustom
   | ((...args: any[]) => string)
   | ((...args: any[]) => number);
 
