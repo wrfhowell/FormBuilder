@@ -1,3 +1,6 @@
+import { FunctionCustom } from "../AST/Nodes/FunctionCustom";
+import { Function_Call } from "../AST/Nodes/Function_Call";
+
 export interface IPage {
   id: string;
   header?: string;
@@ -29,12 +32,13 @@ export interface IAnswer {
 
 export interface FunctionBinding {
   value: Function;
-  args?: string[];
+  args?: (string | number | Function_Call)[];
 }
 
 export type Function =
   | string
   | number
+  | FunctionCustom
   | ((...args: any[]) => string)
   | ((...args: any[]) => number);
 

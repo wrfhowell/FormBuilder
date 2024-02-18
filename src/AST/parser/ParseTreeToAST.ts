@@ -17,7 +17,6 @@ import {
   Options_fieldContext,
   PageContext,
   PagesContext,
-  ParameterContext,
   ProgramContext,
   Question_arrayContext,
   QuestionContext,
@@ -127,7 +126,7 @@ export class ParseTreeToAST
     let header = undefined;
     let instructions = undefined;
     let goTo = undefined;
-    let questions = undefined;
+    let questions;
     let displayQuestions = undefined;
 
     for (let pageFields of ctx.page_fields().page_field()) {
@@ -167,14 +166,18 @@ export class ParseTreeToAST
     ctx: Text_field_valueContext
   ): string | VariableName | Function_Call {
     return (
-      ctx?.STRING()?.text ||
+      ctx?.STRING()?.text.replace(/["]/g, "") ||
       (ctx?.function_call()?.accept(this) as Function_Call) ||
-      (new VariableName(ctx?.VARIABLE_NAME()?.text as string) as VariableName)
+      (new VariableName(
+        ctx?.VARIABLE_NAME()?.text.replace(/["]/g, "") as string
+      ) as VariableName)
     );
   }
 
   visitFunction(ctx: FunctionContext): FunctionCustom {
-    const variableName = new VariableName(ctx.VARIABLE_NAME().text);
+    const variableName = new VariableName(
+      ctx.VARIABLE_NAME().text.replace(/["]/g, "")
+    );
     const res = ctx.function_params().accept(this);
     const parameters: (
       | string
@@ -182,7 +185,6 @@ export class ParseTreeToAST
       | VariableName
       | Function_Call
       | FormStateAccess
-      | undefined
     )[] = res;
     return new FunctionCustom(
       variableName,
@@ -196,10 +198,12 @@ export class ParseTreeToAST
     ctx.parameter()?.forEach((sub_ctx) => {
       if (sub_ctx.NUM() || sub_ctx.STRING() || sub_ctx.VARIABLE_NAME()) {
         const ans = sub_ctx.NUM()
-          ? sub_ctx.NUM()?.text
+          ? parseInt(sub_ctx.NUM()?.text.replace(/["]/g, "") || "1")
           : sub_ctx.STRING()
-          ? sub_ctx.STRING()?.text
-          : sub_ctx.VARIABLE_NAME()?.text;
+          ? sub_ctx.STRING()?.text.replace(/["]/g, "")
+          : new VariableName(
+              sub_ctx.VARIABLE_NAME()?.text.replace(/["]/g, "") || ""
+            );
         functionParams.push(ans);
       } else if (sub_ctx.form_state_access !== undefined) {
         functionParams.push(sub_ctx.form_state_access()?.accept(this));
@@ -212,8 +216,8 @@ export class ParseTreeToAST
 
   visitForm_state_access(ctx: Form_state_accessContext): FormStateAccess {
     return new FormStateAccess(
-      ctx.path_to_key().path_to_page_key().STRING().text,
-      ctx.path_to_key().path_to_question_key().STRING().text
+      ctx.path_to_key().path_to_page_key().STRING().text.replace(/["]/g, ""),
+      ctx.path_to_key().path_to_question_key().STRING().text.replace(/["]/g, "")
     );
   }
 
@@ -369,21 +373,21 @@ export class ParseTreeToAST
   //TODO: Adjust field once Boolean problem is fixed
   visitQuestion(ctx: QuestionContext): Question {
     let id = undefined;
-    let type = undefined;
-    let label = undefined;
-    let options = undefined;
-    let dependsOn = undefined;
-    let displayIf = undefined;
-    let loop = undefined;
-    let isRequired = undefined;
-    let correctAnswer = undefined;
-    let varsObject = undefined;
+    let type;
+    let label;
+    let options;
+    let dependsOn;
+    let displayIf;
+    let loop;
+    let isRequired;
+    let correctAnswer;
+    let varsObject;
     for (let questionFields of ctx.question_fields().question_field()) {
       if (questionFields.id_field()) {
         id = questionFields.id_field()?.text_field_value().accept(this);
       } else if (questionFields.type_field()) {
-      } else if (questionFields.type_field()) {
-        type = questionFields.type_field()?.text;
+        console.log("Type from ParseTreeToAST: ", questionFields.type_field());
+        type = questionFields.type_field()?._stop?.text?.replace(/["]/g, "");
       } else if (questionFields.label_field()) {
         label = questionFields.label_field()?.text_field_value().accept(this);
       } else if (questionFields.options_field()) {
@@ -487,7 +491,7 @@ export class ParseTreeToAST
   }
 
   visitExpression(ctx: ExpressionContext): Expression {
-    let expressionValue = undefined;
+    let expressionValue: number | VariableName | MathExpression;
     let numVal = ctx.NUM()?.text;
     let varName = ctx.VARIABLE_NAME()?.text;
     if (numVal) {
@@ -503,21 +507,22 @@ export class ParseTreeToAST
 
   visitMath_expression(ctx: Math_expressionContext) {
     let expression: Expression = new Expression(ctx.expression().accept(this));
-    let extended_math_expressions: ExtendedMathExpression[] = [];
+    let extendedMathExpressions: ExtendedMathExpression[] = [];
 
     for (let sub_ctx of ctx.extended_math_expression()) {
       let extended_math_expression: ExtendedMathExpression =
         new ExtendedMathExpression(
           new MathOp(sub_ctx.math_op().text),
-          new Expression(sub_ctx.expression()?.accept(this))
+          sub_ctx.expression()?.accept(this)
         );
-      extended_math_expressions.push(extended_math_expression);
+      extendedMathExpressions.push(extended_math_expression);
     }
 
-    return {
-      expression,
-      extended_math_expressions,
-    };
+    let return_obj = { expression, extendedMathExpressions };
+
+    console.log("visitMath_expression returning: ", return_obj);
+
+    return return_obj;
   }
 
   visitExtended_math_expression(ctx: Extended_math_expressionContext) {

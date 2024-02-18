@@ -10,7 +10,6 @@ export class Function_Call extends Node {
     | VariableName
     | Function_Call
     | FormStateAccess
-    | undefined
   )[];
 
   constructor(
@@ -22,7 +21,6 @@ export class Function_Call extends Node {
       | VariableName
       | Function_Call
       | FormStateAccess
-      | undefined
     )[]
   ) {
     super();

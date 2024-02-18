@@ -10,6 +10,8 @@ import { FormGeneratorLexer } from "../AST/generated/FormGeneratorLexer";
 import { FormGeneratorParser } from "../AST/generated/FormGeneratorParser";
 import { CharStreams, CommonTokenStream } from "antlr4ts";
 import { ParseTreeToAST } from "../AST/parser/ParseTreeToAST";
+import React, { useState } from "react";
+import { GlobalQuizContextProvider, useGlobalQuizContext } from "./Context";
 
 // import { pages } from "./Compiled_Quiz_Example";
 
@@ -19,9 +21,13 @@ interface MainProps {
 
 export const Main = ({ setPagesObj }: MainProps) => {
   const { fileContents, uploadFile } = useFileUpload();
+  const [pages, setPages] = useState<any>();
+
+  const { setFunctionMap } = useGlobalQuizContext();
 
   const navigate = useNavigate();
-  const startQuiz = () => {
+
+  const runStaticChecks = () => {
     const fileStream = CharStreams.fromString(fileContents);
     const lexer = new FormGeneratorLexer(fileStream);
     const tokens = new CommonTokenStream(lexer);
@@ -30,10 +36,17 @@ export const Main = ({ setPagesObj }: MainProps) => {
     // @ts-ignore
     const parsedProgram = parser.program().accept(visitor);
     const evaluator = new Evaluator();
-    let other_obj: any = parsedProgram.accept({}, evaluator);
-    let pages = other_obj.pages;
+    let programObj: any = parsedProgram.accept({}, evaluator);
+    let pages = programObj.pages;
+    let functionMap = programObj.FunctionsMap;
     console.log("pages: ", pages);
+    console.log("functions: ", functionMap);
 
+    setFunctionMap(functionMap);
+    setPages(pages);
+  };
+
+  const startQuiz = () => {
     if (pages) {
       setPagesObj(pages);
       navigate(pages[0].id);
@@ -65,6 +78,11 @@ export const Main = ({ setPagesObj }: MainProps) => {
       >
         Upload
         <VisuallyHiddenInput onChange={uploadFile} type="file" />
+      </Button>
+
+      <h3>Run Static Checks</h3>
+      <Button variant="contained" onClick={runStaticChecks}>
+        Run Static Checks
       </Button>
 
       <h3>Start the Quiz</h3>

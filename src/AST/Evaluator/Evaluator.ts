@@ -27,6 +27,18 @@ import {
 export class Evaluator implements Visitor<{}, any> {
   private jumpTable: any;
 
+  private programFunctions: {
+    [key: string]: FunctionCustom | ((args: any[]) => any);
+  } = {
+    getRandomInt: (args: any[]) => {
+      // reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+      return Math.floor(Math.random() * (args[1] - args[0] + 1) + args[0]);
+    },
+    stringConcat: (args: any[]) => {
+      return args.join("");
+    },
+  };
+
   constructor() {
     this.visitArrayCustom = this.visitArrayCustom.bind(this);
     this.visitArrayValue = this.visitArrayValue.bind(this);
@@ -124,10 +136,15 @@ export class Evaluator implements Visitor<{}, any> {
   }
 
   visitProgram(context: any, program: Program) {
+    program.getFunctionsArray()?.accept(context, this);
+    let globalVariables = program.getGlobalVariables()?.accept(context, this);
+    let pages = program.getPages().accept(context, this);
+    let FunctionsMap = this.programFunctions;
+
     return {
-      pages: program.getPages().accept(context, this),
-      globalVariables: program.getGlobalVariables()?.accept(context, this),
-      FunctionsMap: program.getFunctionsArray()?.accept(context, this),
+      FunctionsMap,
+      globalVariables,
+      pages,
     };
   }
 
@@ -157,6 +174,8 @@ export class Evaluator implements Visitor<{}, any> {
       questionVariables = questionVariables.accept(context, this);
     }
 
+    console.log("question type: ", question.getQuestionType());
+
     return {
       id: question.getId(),
       type: question.getQuestionType(),
@@ -167,7 +186,7 @@ export class Evaluator implements Visitor<{}, any> {
       loop: loop,
       isRequired: isRequired,
       correctAnswer: correctAnswer,
-      questionVariables: questionVariables,
+      vars: questionVariables,
     };
   }
 
@@ -236,23 +255,27 @@ export class Evaluator implements Visitor<{}, any> {
   visitFunctionCall(context: {}, functionCall: Function_Call) {
     let variableName = functionCall.getVariableName().accept(context, this);
     let functionParameters = functionCall.getFunctionParams();
-    if (hasAcceptMethod(functionParameters)) {
-      functionParameters = functionParameters.map((param) => {
-        if (hasAcceptMethod(param)) {
-          return param.accept(context, this);
-        }
-        return param;
-      });
-    }
-    return {
-      variableName: variableName,
-      functionParameters: functionParameters,
+    // if (hasAcceptMethod(functionParameters)) {
+    //   functionParameters = functionParameters.map((param) => {
+    //     if (hasAcceptMethod(param)) {
+    //       return param.accept(context, this);
+    //     }
+    //     return param;
+    //   });
+    // }
+
+    let return_obj = {
+      args: functionParameters,
+      value: this.programFunctions[variableName],
     };
+    return return_obj;
   }
 
   // TODO:
   visitFunctionCustom(context: {}, functionCustom: FunctionCustom) {
     let functionName = functionCustom.getFunctionName().accept(context, this);
+    // console.log("visiting functioncustom for: ", functionName);
+    this.programFunctions[functionName] = functionCustom;
     // let functionParameters = functionCustom.getFunctionParams();
     // let functionBody = functionCustom.getFunctionBody().accept(context, this);
     // functionParameters = functionParameters?.map((param) => {
@@ -333,7 +356,8 @@ export class Evaluator implements Visitor<{}, any> {
     if (hasAcceptMethod(variableValue)) {
       variableValue = variableValue.accept(context, this);
     }
-    return { [variableName]: { value: variableValue } };
+    let return_obj = { [variableName]: variableValue };
+    return return_obj;
   }
 
   visitVariableName(context: {}, variableName: VariableName) {

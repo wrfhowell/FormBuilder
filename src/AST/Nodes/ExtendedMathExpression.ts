@@ -18,7 +18,7 @@ export class ExtendedMathExpression extends Node {
   }
 
   getExpression() {
-    return this.getExpression;
+    return this.expression;
   }
 
   accept<C, T>(context: C, v: Visitor<C, T>): T {

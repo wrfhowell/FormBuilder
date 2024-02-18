@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Grid } from "@mui/material";
 import { Stack } from "@mui/material";
 import { Divider } from "@mui/material";
+import React from "react";
 
 interface PageProps {
   page: IPage;
@@ -59,7 +60,7 @@ export const Page = ({ page }: PageProps) => {
     let validationPassed = true;
     questions.forEach((question) => {
       if (question.isRequired && answers_map.get(question.id) === "") {
-        console.log(`Question ${question.label} is required`);
+        // console.log(`Question ${question.label} is required`);
         validationPassed = false;
       }
     });
@@ -85,7 +86,7 @@ export const Page = ({ page }: PageProps) => {
     const currentQuestionCorrectAnswers = questionCorrectAnswers;
     currentQuestionCorrectAnswers.set(questionId, ans);
     setQuestionCorrectAnswers(currentQuestionCorrectAnswers);
-    console.log("page correct answers: ", currentQuestionCorrectAnswers);
+    // console.log("page correct answers: ", currentQuestionCorrectAnswers);
   };
 
   const updateAnswers = (questionId: string, ans: IAnswer) => {
@@ -104,7 +105,7 @@ export const Page = ({ page }: PageProps) => {
         while (loopVar > 0) {
           questions.push(Object.assign({}, question));
           questions[questions.length - 1].id = question.id + loopIndex;
-          console.log(questions);
+          // console.log(questions);
           loopVar--;
           loopIndex++;
         }
@@ -128,7 +129,7 @@ export const Page = ({ page }: PageProps) => {
           <h1>{page.header}</h1>
           <p>{page.instructions}</p>
           {pageQuestions?.map((question) => (
-            <>
+            <div key={question.id}>
               <Divider />
               <Question
                 setQuestionUserAnswer={updateAnswers}
@@ -136,7 +137,7 @@ export const Page = ({ page }: PageProps) => {
                 key={question.id}
                 question={question}
               />
-            </>
+            </div>
           ))}
           {pageQuestions.length > 0 && (
             <>
