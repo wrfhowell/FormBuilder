@@ -131,9 +131,12 @@ export const Page = ({ page, iteration }: PageProps) => {
       // if (validationPassed && page.goTo) {
 
       if (page.goTo) {
-        console.log("evaluating property: ", page.goTo);
         const nextPage = evaluateProperty(page.goTo).replace(/["]/g, "");
-        navigate(`/${nextPage}`, { state: iteration + 1 });
+        if (nextPage === location.pathname) {
+          navigate(`/${nextPage}`, { state: iteration + 1 });
+        } else {
+          navigate(`/${nextPage}`);
+        }
       }
     }
   };
@@ -165,6 +168,8 @@ export const Page = ({ page, iteration }: PageProps) => {
     // Check if form state has question
     updatedFormState.get(page.id)?.set(questionId, questionAnswerString);
     setFormState(updatedFormState);
+
+    console.log("updated Form State: ", updatedFormState);
   };
 
   const unravelQuestions = () => {

@@ -247,7 +247,6 @@ export class FunctionEvaluator implements Visitor<{}, any> {
       context.returnValue = functionNode(passedArguments);
     } else {
       let newContext = { ...context, passedArguments };
-      console.log("newContext from visitFunctionCall: ", newContext);
       let evalutor = new FunctionEvaluator();
       evalutor.visit(newContext, functionNode);
 
