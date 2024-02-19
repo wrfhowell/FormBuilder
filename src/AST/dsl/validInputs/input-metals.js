@@ -59,11 +59,11 @@
 
     functions: [
         classificationNext() {
-            if(isStringEqual(whatAreYouAns, "Metal")) {
+            if(isEqual(whatAreYouAns, "Metal")) {
             return "metal-pg"
-        } else if(isStringEqual(whatAreYouAns, "Nonmetal")) {
+        } else if(isEqual(whatAreYouAns, "Nonmetal")) {
             return "nonmetal-pg"
-        } else if(isStringEqual(whatAreYouAns, "Metalloid")) {
+        } else if(isEqual(whatAreYouAns, "Metalloid")) {
             return "metalloid-pg"
         }
 
@@ -71,15 +71,15 @@
         },
 
             metalNext() {
-            if(isStringEqual(whatMetalAreYou, "Alkali Metal")) {
+            if(isEqual(whatMetalAreYou, "Alkali Metal")) {
                 return "alkali-metal-pg"
-            } else if(isStringEqual(whatMetalAreYou, "Alkaline Earth Metal")) {
+            } else if(isEqual(whatMetalAreYou, "Alkaline Earth Metal")) {
                 return "alkaline-earth-metal-pg"
-            } else if(isStringEqual(whatMetalAreYou, "Transition Metal")) {
+            } else if(isEqual(whatMetalAreYou, "Transition Metal")) {
                 return "transition-metal-pg"
-            } else if(isStringEqual(whatMetalAreYou, "Post-Transition Metal")) {
+            } else if(isEqual(whatMetalAreYou, "Post-Transition Metal")) {
                 return "post-transition-metal-pg"
-            } else if(isStringEqual(whatMetalAreYou, "Actinide")) {
+            } else if(isEqual(whatMetalAreYou, "Actinide")) {
                 return "actinide-pg"
             }
 
@@ -87,9 +87,9 @@
         },
 
             nonMetalNext() {
-            if(isStringEqual(whatNonMetalAreYou, "Reactive Nonmetal")) {
+            if(isEqual(whatNonMetalAreYou, "Reactive Nonmetal")) {
                 return "reactive-nonmetal-pg"
-            } else if(isStringEqual(whatNonMetalAreYou, "Noble Gas")) {
+            } else if(isEqual(whatNonMetalAreYou, "Noble Gas")) {
                 return "noble-gas-pg"
             }
 

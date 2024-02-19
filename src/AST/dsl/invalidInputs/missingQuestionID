@@ -1,0 +1,16 @@
+{
+     pages: [
+         {
+             id: "classification-pg",
+             header: "Classification",
+             instructions: "Please answer the following question",
+             questions: [
+                 {
+                     type: radio,
+                     label: "What are you?",
+                     options: ["Metal", "Nonmetal", "Metalloid"],
+                     isRequired: true
+                 }
+             ]
+         }]
+ }

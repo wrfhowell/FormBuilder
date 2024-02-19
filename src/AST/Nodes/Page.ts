@@ -5,55 +5,55 @@ import { Question_Array } from "./Question_Array";
 import { VariableName } from "./VariableName";
 
 export class Page extends Node {
-	private id: string | VariableName | Function_Call | undefined;
-	private goTo: string | VariableName | Function_Call | undefined;
-	private header: string | VariableName | Function_Call | undefined;
-	private instructions: string | VariableName | Function_Call | undefined
-	private displayQuestions: string | number | undefined;
-	private questions: Question_Array | undefined;
+  private id: string | undefined;
+  private goTo: string | VariableName | Function_Call | undefined;
+  private header: string | VariableName | Function_Call | undefined;
+  private instructions: string | VariableName | Function_Call | undefined;
+  private displayQuestions: string | number | undefined;
+  private questions: Question_Array | undefined;
 
-	constructor(
-		id: string | VariableName | Function_Call | undefined,
-		goTo: string | VariableName | Function_Call | undefined,
-		header: string | VariableName | Function_Call | undefined,
-		instructions: string | VariableName | Function_Call | undefined,
-		displayQuestions: string | number | undefined,
-		questions: Question_Array | undefined
-	) {
-		super();
-		this.id = id;
-		this.goTo = goTo;
-		this.header = header;
-		this.instructions = instructions;
-		this.displayQuestions = displayQuestions;
-		this.questions = questions;
-	}
+  constructor(
+    id: string | undefined,
+    goTo: string | VariableName | Function_Call | undefined,
+    header: string | VariableName | Function_Call | undefined,
+    instructions: string | VariableName | Function_Call | undefined,
+    displayQuestions: string | number | undefined,
+    questions: Question_Array | undefined
+  ) {
+    super();
+    this.id = id;
+    this.goTo = goTo;
+    this.header = header;
+    this.instructions = instructions;
+    this.displayQuestions = displayQuestions;
+    this.questions = questions;
+  }
 
-	getId() {
-		return this.id;
-	}
+  getId() {
+    return this.id;
+  }
 
-	getGoToObject() {
-		return this.goTo;
-	}
+  getGoToObject() {
+    return this.goTo;
+  }
 
-	getHeader() {
-		return this.header;
-	}
+  getHeader() {
+    return this.header;
+  }
 
-	getInstructions() {
-		return this.instructions;
-	}
+  getInstructions() {
+    return this.instructions;
+  }
 
-	shouldDisplayQuestions() {
-		return this.displayQuestions;
-	}
+  shouldDisplayQuestions() {
+    return this.displayQuestions;
+  }
 
-	getQuestionArray() {
-		return this.questions;
-	}
+  getQuestionArray() {
+    return this.questions;
+  }
 
-	accept<C, T>(context: C, v: Visitor<C, T>): T {
-		return v.visit(context, this);
-	}
+  accept<C, T>(context: C, v: Visitor<C, T>): T {
+    return v.visit(context, this);
+  }
 }

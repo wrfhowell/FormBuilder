@@ -1,0 +1,17 @@
+{
+    pages: [
+        {
+            header: "Classification",
+            instructions: "Please classify yourself",
+            questions: [
+                {
+                    id: "what-are-you",
+                    type: radio,
+                    label: "What are you?",
+                    options: ["Metal", "Nonmetal", "Metalloid"],
+                    isRequired: true
+                }
+            ]
+        }
+    ]
+}
