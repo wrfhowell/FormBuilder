@@ -358,7 +358,6 @@ export class Evaluator implements Visitor<{}, any> {
       };
     }
     let return_obj = { [variableName]: newVariableValue };
-    console.log("returning variable object: ", return_obj);
     return return_obj;
   }
 
