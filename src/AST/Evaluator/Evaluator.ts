@@ -41,7 +41,7 @@ export class Evaluator implements Visitor<{}, any> {
       return args.join("");
     },
     isEqual: (args: any[]) => {
-      return args[0] === args[1];
+      return args[0] == args[1];
     },
     isGreater: (args: any[]) => {
       return args[0] > args[1];

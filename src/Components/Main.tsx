@@ -23,7 +23,7 @@ export const Main = ({ setPagesObj }: MainProps) => {
   const { fileContents, uploadFile } = useFileUpload();
   const [pages, setPages] = useState<any>();
 
-  const { setFunctionMap } = useGlobalQuizContext();
+  const { setFunctionMap, setFormState } = useGlobalQuizContext();
 
   const navigate = useNavigate();
 
@@ -37,13 +37,19 @@ export const Main = ({ setPagesObj }: MainProps) => {
     const parsedProgram = parser.program().accept(visitor);
     const evaluator = new Evaluator();
     let programObj: any = parsedProgram.accept({}, evaluator);
-    let pages = programObj.pages;
+    let pages = programObj.pages as IPage[];
     let functionMap = programObj.FunctionsMap;
     console.log("pages: ", pages);
     console.log("functions: ", functionMap);
 
     setFunctionMap(functionMap);
     setPages(pages);
+
+    const initialFormState = new Map();
+    pages.forEach((page) => {
+      initialFormState.set(page.id, new Map());
+    });
+    setFormState(initialFormState);
   };
 
   const startQuiz = () => {
