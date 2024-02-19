@@ -11,6 +11,14 @@ import { If_Cond } from "../Nodes/If_Cond";
 import { Else_If_Cond } from "../Nodes/Else_If_Cond";
 import { Cond_Body } from "../Nodes/Cond_Body";
 
+const LOGGING = false;
+
+const log = (...args: any[]) => {
+  if (LOGGING) {
+    console.log(...args);
+  }
+};
+
 export interface VarsContext {
   [key: string]: string | number;
 }
@@ -20,6 +28,8 @@ export interface FunctionsContext {
 }
 
 export interface FunctionEvaluatorContext {
+  globalVars: VarsContext;
+  formState: Map<string, Map<string, string>>;
   vars: VarsContext;
   functions: FunctionsContext;
   returnValue: any;
@@ -32,6 +42,7 @@ export class FunctionEvaluator implements Visitor<{}, any> {
 
   constructor() {
     this.visitExpression = this.visitExpression.bind(this);
+    this.visitFormStateAccess = this.visitFormStateAccess.bind(this);
     this.visitFunctionCustom = this.visitFunctionCustom.bind(this);
     this.visitFunctionBody = this.visitFunctionBody.bind(this);
     this.visitFunctionCall = this.visitFunctionCall.bind(this);
@@ -50,6 +61,7 @@ export class FunctionEvaluator implements Visitor<{}, any> {
       Cond_Body: this.visitCondBody,
       Else_If_Cond: this.visitElseIfCond,
       Expression: this.visitExpression,
+      FormStateAccess: this.visitFormStateAccess,
       Function_Call: this.visitFunctionCall,
       FunctionCustom: this.visitFunctionCustom,
       Function_Body: this.visitFunctionBody,
@@ -75,20 +87,20 @@ export class FunctionEvaluator implements Visitor<{}, any> {
   }
 
   visitString(context: FunctionEvaluatorContext, node: any) {
-    console.log("Visiting String: ", node);
+    log("Visiting String: ", node);
     context.returnValue = node;
   }
 
   visitNumber(context: FunctionEvaluatorContext, node: any) {
-    console.log("Visiting Number: ", node);
+    log("Visiting Number: ", node);
     context.returnValue = node;
   }
 
   visitConditional(context: FunctionEvaluatorContext, node: Conditional) {
     let BreakException = {};
-    console.log("Visiting conditional");
+    log("Visiting conditional");
     node.getIfCond().accept(context, this);
-    console.log("conditional value: ", context.returnValue);
+    log("conditional value: ", context.returnValue);
     if (context.returnValue.condSuccess === true) {
       context.returnValue = context.returnValue.returnValue;
       return;
@@ -152,6 +164,16 @@ export class FunctionEvaluator implements Visitor<{}, any> {
     };
   }
 
+  visitFormStateAccess(
+    context: FunctionEvaluatorContext,
+    node: FormStateAccess
+  ) {
+    const pageId = node.getPageId();
+    const questionId = node.getQuestionId();
+    const formStateValue = context.formState.get(pageId)?.get(questionId);
+    context.returnValue = formStateValue;
+  }
+
   visitIfCond(context: FunctionEvaluatorContext, node: If_Cond) {
     node.getCondition().accept(context, this);
     if (context.returnValue === false) {
@@ -162,7 +184,7 @@ export class FunctionEvaluator implements Visitor<{}, any> {
   }
 
   visitExpression(context: FunctionEvaluatorContext, node: Expression) {
-    console.log("Visiting Expression");
+    log("Visiting Expression");
     let expression = node.getExpression();
     if (typeof expression === "number") {
       context.returnValue = expression;
@@ -173,7 +195,7 @@ export class FunctionEvaluator implements Visitor<{}, any> {
   }
 
   visitFunctionBody(context: FunctionEvaluatorContext, node: Function_Body) {
-    console.log("Visiting FunctionBody");
+    log("Visiting FunctionBody");
 
     let BreakException = {};
 
@@ -204,7 +226,7 @@ export class FunctionEvaluator implements Visitor<{}, any> {
   }
 
   visitFunctionCall(context: FunctionEvaluatorContext, node: Function_Call) {
-    console.log("Visiting FunctionCall");
+    log("Visiting FunctionCall");
     let passedArgumentsRaw = node.getFunctionParams();
     let passedArguments: (string | number)[] = [];
 
@@ -223,7 +245,8 @@ export class FunctionEvaluator implements Visitor<{}, any> {
         rawVar.accept(context, this);
         passedArguments.push(context.returnValue);
       } else {
-        // FormStateAccess
+        rawVar.accept(context, this);
+        passedArguments.push(context.returnValue);
       }
     });
 
@@ -233,7 +256,6 @@ export class FunctionEvaluator implements Visitor<{}, any> {
       context.returnValue = functionNode(passedArguments);
     } else {
       let newContext = { ...context, passedArguments };
-      console.log("newContext from visitFunctionCall: ", newContext);
       let evalutor = new FunctionEvaluator();
       evalutor.visit(newContext, functionNode);
 
@@ -242,7 +264,7 @@ export class FunctionEvaluator implements Visitor<{}, any> {
   }
 
   visitFunctionCustom(context: FunctionEvaluatorContext, node: FunctionCustom) {
-    console.log("Visiting FunctionCustom");
+    log("Visiting FunctionCustom");
     this.convertFunctionArgumentsToValues(
       context,
       node.getFunctionParams() as VariableName[]
@@ -252,7 +274,7 @@ export class FunctionEvaluator implements Visitor<{}, any> {
   }
 
   visitMathExpression(context: FunctionEvaluatorContext, node: MathExpression) {
-    console.log("Visiting MathExpression");
+    log("Visiting MathExpression");
     // get expression val
     node.getExpression().accept(context, this);
     let return_val = context.returnValue as number;
@@ -281,21 +303,40 @@ export class FunctionEvaluator implements Visitor<{}, any> {
   ) {
     let variableName = node.getVariableName().getName();
 
-    let variableAssignedValue = node.getVariableAssignedValue();
-    if (
-      typeof variableAssignedValue === "string" ||
-      typeof variableAssignedValue === "number"
-    ) {
-      context.vars[variableName] = variableAssignedValue;
+    // determine if variable is a local one
+    if (context.globalVars[variableName] !== undefined) {
+      let variableAssignedValue = node.getVariableAssignedValue();
+      if (
+        typeof variableAssignedValue === "string" ||
+        typeof variableAssignedValue === "number"
+      ) {
+        context.globalVars[variableName] = variableAssignedValue;
+      } else {
+        variableAssignedValue?.accept(context, this);
+        context.globalVars[variableName] = context.returnValue;
+      }
     } else {
-      variableAssignedValue?.accept(context, this);
-      context.vars[variableName] = context.returnValue;
+      let variableAssignedValue = node.getVariableAssignedValue();
+      if (
+        typeof variableAssignedValue === "string" ||
+        typeof variableAssignedValue === "number"
+      ) {
+        context.vars[variableName] = variableAssignedValue;
+      } else {
+        variableAssignedValue?.accept(context, this);
+        context.vars[variableName] = context.returnValue;
+      }
     }
   }
 
   visitVariableName(context: FunctionEvaluatorContext, node: VariableName) {
-    console.log("Visiting VariableName");
-    context.returnValue = context.vars[node.getName()];
+    log("Visiting VariableName");
+    // determine if need to return local or global variable
+    if (context.vars[node.getName()] !== undefined) {
+      context.returnValue = context.vars[node.getName()];
+    } else {
+      context.returnValue = context.globalVars[node.getName()];
+    }
   }
 
   // Converts the passed variable names or function calls to values, and adds them to the vars context
@@ -303,7 +344,7 @@ export class FunctionEvaluator implements Visitor<{}, any> {
     context: FunctionEvaluatorContext,
     parameterNames: VariableName[]
   ) {
-    console.log("convertFunctionArgumentsToValues");
+    log("convertFunctionArgumentsToValues");
     context.passedArguments?.forEach((variable, index: number) => {
       parameterNames[index].accept(context, this);
       let argumentName = parameterNames[index].getName();

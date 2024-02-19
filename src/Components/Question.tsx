@@ -1,4 +1,4 @@
-import { IQuestion, IAnswer, FunctionBinding } from "./Interfaces";
+import { IQuestion, IAnswer, FunctionBinding, Vars } from "./Interfaces";
 import { QuestionRadio } from "./QuestionRadio";
 import { QuestionCheckbox } from "./QuestionCheckbox";
 import { QuestionText } from "./QuestionText";
@@ -9,28 +9,30 @@ import {
   FunctionEvaluatorContext,
 } from "../AST/Evaluator/FunctionEvaluator";
 import React from "react";
-import { Function_Call } from "../AST/Nodes/Function_Call";
 import { useGlobalQuizContext } from "./Context";
 import { VariableName } from "../AST/Nodes/VariableName";
+import { compareObjects, evaluateVars } from "./functions";
 
 interface QuestionProps {
+  pageId: string;
   question: IQuestion;
   setQuestionUserAnswer: (questionId: string, ans: IAnswer) => void;
-  setQuestionCorrectAnswer: (questionId: string, ans: string) => void;
 }
 
 export const Question = ({
+  pageId,
   question,
   setQuestionUserAnswer,
-  setQuestionCorrectAnswer,
 }: QuestionProps) => {
-  const { functionMap } = useGlobalQuizContext();
+  const { functionMap, formState, setFormState } = useGlobalQuizContext();
   const [evaluatedVars, setEvaluatedVars] = useState<{
     [key: string]: string | number;
   }>({});
   const [questionsRendered, setQuestionsRendered] = useState(false);
   const questionObj = {
-    text: <QuestionText id={question.id} setAnswer={setQuestionUserAnswer} />,
+    textInput: (
+      <QuestionText id={question.id} setAnswer={setQuestionUserAnswer} />
+    ),
     dropdown: (
       <QuestionDropdown
         id={question.id}
@@ -55,72 +57,19 @@ export const Question = ({
   };
 
   // Get values for each of the variables for the Question
-  const evaluateVars = () => {
-    let currentEvaluatedVars = evaluatedVars;
-    if (question.vars) {
-      for (let variable of question?.vars) {
-        for (let [key, functionBinding] of Object.entries(variable)) {
-          if (
-            typeof functionBinding.value === "string" ||
-            typeof functionBinding.value === "number"
-          ) {
-            // Function binding value is a string / number
-            currentEvaluatedVars[key] = functionBinding.value;
-          } else if (typeof functionBinding.value === "function") {
-            if (!functionBinding.args) {
-              // Function Binding is function without arguments
-              currentEvaluatedVars[key] = functionBinding.value();
-            } else {
-              // Function Binding is function with arguments
-              let args = getArgValues(
-                functionBinding.args,
-                currentEvaluatedVars
-              );
-              currentEvaluatedVars[key] = functionBinding.value(args);
-            }
-          } else {
-            // function binding is a FunctionCustom and needs to be evaluated
-            const functionEvaluator = new FunctionEvaluator();
-            const context: FunctionEvaluatorContext = {
-              passedArguments: functionBinding.args,
-              vars: { ...currentEvaluatedVars },
-              functions: functionMap,
-              returnValue: 0,
-            };
-            functionEvaluator.visit(context, functionBinding.value);
-            currentEvaluatedVars[key] = context.returnValue;
-          }
-        }
-      }
-    }
+  const evaluateQuestionVars = () => {
+    if (!question.vars) return;
+    const { currentEvaluatedVars, globalVars: updatedGlobalVars } =
+      evaluateVars(
+        question.vars,
+        evaluatedVars,
+        { ...window.globalVars },
+        formState,
+        functionMap
+      );
+    window.globalVars = updatedGlobalVars;
 
-    console.log(
-      "Finishing evaluateVars. Currently evaluated vars: ",
-      currentEvaluatedVars
-    );
     setEvaluatedVars(currentEvaluatedVars);
-  };
-
-  const getArgValues = (
-    args: (string | number | Function_Call)[],
-    evaluatedVars: { [key: string]: string | number }
-  ): (string | number)[] => {
-    let argValues: (string | number)[] = [];
-
-    args.forEach((arg) => {
-      const functionEvaluator: FunctionEvaluator = new FunctionEvaluator();
-      const context: FunctionEvaluatorContext = {
-        vars: evaluatedVars,
-        functions: functionMap,
-        passedArguments: [],
-        returnValue: 0,
-      };
-
-      functionEvaluator.visit(context, arg);
-      argValues.push(context.returnValue);
-    });
-
-    return argValues;
   };
 
   // Evaluate the label for the question
@@ -131,28 +80,33 @@ export const Question = ({
 
   const evaluateProperty = (
     property: string | FunctionBinding | VariableName
-  ) => {
-    let propertyValue: string | number = "";
+  ): string => {
+    let propertyValue: string = "";
 
     if (typeof property === "string") {
       return property;
     } else if (property instanceof VariableName) {
       const functionEvaluator = new FunctionEvaluator();
+      const updatedGlobalVars = { ...window.globalVars };
       const context: FunctionEvaluatorContext = {
+        formState,
+        globalVars: updatedGlobalVars,
         vars: { ...evaluatedVars },
         functions: functionMap,
         returnValue: 0,
       };
       functionEvaluator.visit(context, property);
+
+      window.globalVars = updatedGlobalVars;
       return context.returnValue;
     }
 
     if (typeof property.value === "function") {
       if (!property.args) {
-        propertyValue = property.value();
+        propertyValue = property.value().toString();
       } else {
         let args = property.args;
-        propertyValue = property.value(args);
+        propertyValue = property.value(args).toString();
       }
     } else if (
       typeof property.value === "number" ||
@@ -161,26 +115,42 @@ export const Question = ({
       propertyValue = property.value.toString();
     } else {
       const functionEvaluator = new FunctionEvaluator();
+      const updatedGlobalVars = { ...window.globalVars };
       let context: FunctionEvaluatorContext = {
+        formState,
+        globalVars: updatedGlobalVars,
         passedArguments: property.args,
         vars: { ...evaluatedVars },
         functions: functionMap,
         returnValue: 0,
       };
       functionEvaluator.visit(context, property.value);
+      window.globalVars = updatedGlobalVars;
       propertyValue = context.returnValue;
     }
-    return propertyValue;
+    return propertyValue.toString();
   };
 
   const getCorrectAnswer = () => {
     if (!question.correctAnswer) return;
     const questionCorrectAnswer = evaluateProperty(question.correctAnswer);
-    setQuestionCorrectAnswer(question.id, questionCorrectAnswer);
+    const updatedFormState = formState;
+    updatedFormState
+      .get(pageId)
+      ?.set(`${question.id}-correctAnswer`, questionCorrectAnswer);
+    setFormState(updatedFormState);
+    console.log(formState);
+  };
+
+  const addQuestionIdToFormState = () => {
+    const updatedFormState = formState;
+    updatedFormState.get(pageId)?.set(question.id, "");
+    setFormState(updatedFormState);
   };
 
   useEffect(() => {
-    evaluateVars();
+    addQuestionIdToFormState();
+    evaluateQuestionVars();
     getCorrectAnswer();
     setQuestionsRendered(true);
   }, []);

@@ -1,6 +1,6 @@
 import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
-import { IPage } from "./Interfaces";
+import { FunctionBinding, IPage, Vars } from "./Interfaces";
 import { styled } from "@mui/material/styles";
 import { useFileUpload } from "./Hooks";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
@@ -11,9 +11,8 @@ import { FormGeneratorParser } from "../AST/generated/FormGeneratorParser";
 import { CharStreams, CommonTokenStream } from "antlr4ts";
 import { ParseTreeToAST } from "../AST/parser/ParseTreeToAST";
 import React, { useState } from "react";
-import { GlobalQuizContextProvider, useGlobalQuizContext } from "./Context";
-
-// import { pages } from "./Compiled_Quiz_Example";
+import { useGlobalQuizContext } from "./Context";
+import { evaluateVars } from "./functions";
 
 interface MainProps {
   setPagesObj: (pagesObj: IPage[]) => void;
@@ -21,9 +20,13 @@ interface MainProps {
 
 export const Main = ({ setPagesObj }: MainProps) => {
   const { fileContents, uploadFile } = useFileUpload();
-  const [pages, setPages] = useState<any>();
+  const [pages, setPages] = useState<IPage[]>([]);
+  const [unevaluatedGlobalVars, setUnevaluatedGlobalVars] = useState<Vars[]>(
+    []
+  );
 
-  const { setFunctionMap } = useGlobalQuizContext();
+  const { setFunctionMap, functionMap, setFormState, formState } =
+    useGlobalQuizContext();
 
   const navigate = useNavigate();
 
@@ -37,16 +40,34 @@ export const Main = ({ setPagesObj }: MainProps) => {
     const parsedProgram = parser.program().accept(visitor);
     const evaluator = new Evaluator();
     let programObj: any = parsedProgram.accept({}, evaluator);
-    let pages = programObj.pages;
+    let pagesObj = programObj.pages as IPage[];
     let functionMap = programObj.FunctionsMap;
-    console.log("pages: ", pages);
-    console.log("functions: ", functionMap);
+    let globalVariables = programObj.globalVariables as Vars[];
 
+    setUnevaluatedGlobalVars(globalVariables);
     setFunctionMap(functionMap);
-    setPages(pages);
+    setPages(pagesObj);
+
+    const initialFormState = new Map();
+    pagesObj.forEach((page) => {
+      initialFormState.set(page.id, new Map());
+    });
+    setFormState(initialFormState);
+  };
+
+  const evaluateGlobalVariables = (vars: Vars[]) => {
+    const { currentEvaluatedVars } = evaluateVars(
+      vars,
+      {},
+      {},
+      formState,
+      functionMap
+    );
+    window.globalVars = currentEvaluatedVars;
   };
 
   const startQuiz = () => {
+    evaluateGlobalVariables(unevaluatedGlobalVars);
     if (pages) {
       setPagesObj(pages);
       navigate(pages[0].id);

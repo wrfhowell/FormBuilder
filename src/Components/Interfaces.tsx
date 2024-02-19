@@ -7,11 +7,11 @@ export interface IPage {
   header?: string;
   displayQuestions?: number;
   instructions?: string;
-  goTo?: (ans: Map<string, string>, correctAns: Map<string, string>) => string;
+  goTo?: FunctionBinding | string | VariableName;
   questions?: IQuestion[];
 }
 
-export type QuestionType = "radio" | "checkbox" | "dropdown" | "text";
+export type QuestionType = "radio" | "checkbox" | "dropdown" | "textInput";
 
 export interface IQuestion {
   id: string;
@@ -27,7 +27,7 @@ export interface IQuestion {
 export interface IAnswer {
   radioSelection?: string;
   textSelection?: string;
-  dropdownSelection?: boolean;
+  dropdownSelection?: string;
   checkboxSelection?: string[];
 }
 
