@@ -106,7 +106,6 @@ export const Page = ({ page, iteration }: PageProps) => {
         returnValue: 0,
       };
       functionEvaluator.visit(context, property.value);
-      // setGlobalVars(updatedGlobalVars);
       window.globalVars = updatedGlobalVars;
       propertyValue = context.returnValue;
     }
