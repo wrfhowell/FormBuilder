@@ -1,8 +1,16 @@
-import { is } from "@babel/types";
 import {
   ArrayCustom,
   ArrayValue,
+  Cond_Body,
+  Conditional,
+  Else_If_Cond,
   Expression,
+  FormStateAccess,
+  Function_Body,
+  Function_Call,
+  FunctionCustom,
+  Functions_Array,
+  If_Cond,
   MathExpression,
   Page,
   Pages,
@@ -14,28 +22,19 @@ import {
   VariableName,
   VariablesArray,
   Visitor,
-  Cond_Body,
-  Conditional,
-  Else_If_Cond,
-  FormStateAccess,
-  FunctionCustom,
-  Function_Body,
-  Function_Call,
-  Functions_Array,
-  If_Cond,
 } from "../AST/export";
-import exp from "constants";
 
 type baseCheckerContext = {
   functionNames: string[];
   globalVariables: string[];
   pageIds: string[];
+  apiFunctionNames: string[];
   functionParams?: string[];
   questionVars?: string[];
   [key: string]: any;
 };
 
-class CheckerError extends Error {
+export class CheckerError extends Error {
   constructor(message?: string) {
     super(message);
     Error.captureStackTrace(this, CheckerError);
@@ -44,6 +43,17 @@ class CheckerError extends Error {
 
 export class BaseChecker implements Visitor<{}, any> {
   private jumpTable: any;
+  private apiFunctionNames: string[] = [
+    "stringConcat",
+    "isEqual",
+    "isGreater",
+    "isGreaterEqual",
+    "isLess",
+    "isLessEqual",
+    "getRandom",
+    "getRandomInt",
+    "roundToInt",
+  ];
 
   constructor() {
     this.visitArrayCustom = this.visitArrayCustom.bind(this);
@@ -118,10 +128,12 @@ export class BaseChecker implements Visitor<{}, any> {
     context.functionNames = [];
     context.globalVariables = [];
     context.pageIds = [];
+    context.apiFunctionNames = this.apiFunctionNames;
 
     this.addFunctionNamesToContext(program, context);
     this.addGlobalVarNamesToContext(program, context);
     this.addPageIdToContext(program, context);
+
 
     // Check if there are duplicate function, variable or pageID names
     if (this.hasDuplicates(context.functionNames)) {
@@ -297,7 +309,7 @@ export class BaseChecker implements Visitor<{}, any> {
     functionsArray: Functions_Array
   ) {
     functionsArray
-      .getFunctionsList()
+      .getFunctionList()
       .forEach((functionCustom) => functionCustom.accept(context, this));
   }
 
@@ -357,7 +369,7 @@ export class BaseChecker implements Visitor<{}, any> {
     this.checkVarAndFunCallInFunctionIsValid(context, variableValue);
 
     if (hasAcceptMethod(variableValue)) {
-      variableValue = variableValue.accept(context, this);
+      variableValue.accept(context, this);
     }
   }
 
@@ -532,12 +544,17 @@ export class BaseChecker implements Visitor<{}, any> {
   private addFunctionNamesToContext(program: Program, context: any) {
     if (program.getFunctionsArray()) {
       let functionsList: FunctionCustom[] =
-        program.getFunctionsArray()?.getFunctionsList() || [];
+        program.getFunctionsArray()?.getFunctionList() || [];
 
       functionsList.forEach((func: FunctionCustom) => {
-        context.functionNames.push(func.getFunctionName().getName());
+        let functionName = func.getFunctionName().getName()
+        if(this.apiFunctionNames.includes(functionName)) {
+          throw new CheckerError(`${functionName} is already taken by the API library.` )
+        }
+        context.functionNames.push(functionName);
       });
     }
+    context.functionNames = context.functionNames.concat(this.apiFunctionNames);
   }
 
   private addPageIdToContext(program: Program, context: any) {

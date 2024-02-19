@@ -192,12 +192,12 @@ If a question has a 'correctAnswer' listed, this field can be accessed through t
 # API
 
 Functions currently used in examples:
-stringConcat(args...),
-isEqual(num1, num2),
-isGreater(num1, num2),
-isGreaterEqual(num1, num2),
-isLess(num1, num2),
-isLessEqual(num1, num2)
-getRandom(),
-getRandomInt(min, max)
-roundToInt()
+* stringConcat(args...),
+* isEqual(num1, num2),
+* isGreater(num1, num2),
+* isGreaterEqual(num1, num2),
+* isLess(num1, num2),
+* isLessEqual(num1, num2)
+* getRandom(),
+* getRandomInt(min, max)
+* roundToInt()
