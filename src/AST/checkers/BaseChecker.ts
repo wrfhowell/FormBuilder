@@ -22,7 +22,8 @@ import {
   VariableName,
   VariablesArray,
   Visitor,
-} from "../AST/export";
+  ExtendedMathExpression
+} from "../export";
 
 type baseCheckerContext = {
   functionNames: string[];
@@ -167,7 +168,7 @@ export class BaseChecker implements Visitor<{}, any> {
       );
     }
 
-    pages.getPageArray().forEach((page) => page.accept(context, this));
+    pages.getPageArray().forEach((page: Page) => page.accept(context, this));
   }
 
   visitPage(context: baseCheckerContext, page: Page) {
@@ -218,7 +219,7 @@ export class BaseChecker implements Visitor<{}, any> {
   ) {
     questionArray
       .getQuestionList()
-      .forEach((question) => question.accept(context, this));
+      .forEach((question: Question) => question.accept(context, this));
   }
 
   visitQuestion(context: baseCheckerContext, question: Question) {
@@ -231,7 +232,7 @@ export class BaseChecker implements Visitor<{}, any> {
       question
         .getQuestionVariables()
         ?.getVariableList()
-        .map((variable) => variable.getVariableName()) || [];
+        .map((variable: Variable) => variable.getVariableName()) || [];
 
     context.questionVars = questionVariables;
 
@@ -310,7 +311,7 @@ export class BaseChecker implements Visitor<{}, any> {
   ) {
     functionsArray
       .getFunctionList()
-      .forEach((functionCustom) => functionCustom.accept(context, this));
+      .forEach((fun: FunctionCustom) => fun.accept(context, this));
   }
 
   visitFunctionCustom(
@@ -319,7 +320,7 @@ export class BaseChecker implements Visitor<{}, any> {
   ) {
     // Check that function parameters are not function calls.
     let functionParameters = functionCustom.getFunctionParams();
-    functionParameters.forEach((param) => {
+    functionParameters.forEach((param: any) => {
       if (!(param instanceof VariableName)) {
         throw new CheckerError("Invalid function parameter name.");
       }
@@ -340,7 +341,7 @@ export class BaseChecker implements Visitor<{}, any> {
     // check that returnValueFunction has valid variable or function call
     this.checkVarAndFunCallInFunctionIsValid(context, returnValueFunction);
 
-    statements.forEach((statement) => {
+    statements.forEach((statement: any) => {
       if (hasAcceptMethod(statement)) {
         statement.accept(context, this);
       }
@@ -379,7 +380,7 @@ export class BaseChecker implements Visitor<{}, any> {
     let elseCond = conditional.getElseCond();
 
     ifCond.accept(context, this);
-    elseIfCond.forEach((elseIf) => elseIf.accept(context, this));
+    elseIfCond.forEach((elseIf: Else_If_Cond) => elseIf.accept(context, this));
     if (hasAcceptMethod(elseCond)) {
       elseCond = elseCond.accept(context, this);
     }
@@ -412,7 +413,7 @@ export class BaseChecker implements Visitor<{}, any> {
 
     this.checkVarAndFunCallInFunctionIsValid(context, returnValueIf);
 
-    statements.forEach((statement) => {
+    statements.forEach((statement: any) => {
       if (hasAcceptMethod(statement)) {
         statement.accept(context, this);
       }
@@ -442,7 +443,7 @@ export class BaseChecker implements Visitor<{}, any> {
 
     this.checkVarAndFunCallInFunctionIsValid(context, expression);
 
-    extendedMathExpressions.forEach((extendedMathExpression) => {
+    extendedMathExpressions.forEach((extendedMathExpression: ExtendedMathExpression) => {
       if (hasAcceptMethod(extendedMathExpression)) {
         extendedMathExpression.accept(context, this);
       }
@@ -469,7 +470,7 @@ export class BaseChecker implements Visitor<{}, any> {
       throw new CheckerError("Function not declared");
     }
 
-    functionParameters.forEach((param) => {
+    functionParameters.forEach((param: any) => {
       if (hasAcceptMethod(param)) {
         return param.accept(context, this);
       }
@@ -512,7 +513,7 @@ export class BaseChecker implements Visitor<{}, any> {
   ) {
     variablesArray
       .getVariableList()
-      .forEach((variable) => variable.accept(context, this));
+      .forEach((variable: Variable) => variable.accept(context, this));
   }
 
   visitVariable(context: baseCheckerContext, variable: Variable) {

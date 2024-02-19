@@ -1,5 +1,6 @@
 {
     pages: [
+        {
             header: "Classification",
             instructions: "Please classify yourself",
             questions: [
@@ -11,5 +12,6 @@
                     isRequired: true
                 }
             ]
-        }]
+        }
+    ]
 }

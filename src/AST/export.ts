@@ -23,6 +23,7 @@ import { Function_Body } from "./Nodes/Function_Body";
 import { Function_Call } from "./Nodes/Function_Call";
 import { Functions_Array } from "./Nodes/Functions_Array";
 import { If_Cond } from "./Nodes/If_Cond";
+import {ExtendedMathExpression} from "./Nodes/ExtendedMathExpression"
 
 export {
   Evaluator,
@@ -49,6 +50,7 @@ export {
   Function_Call,
   Functions_Array,
   If_Cond,
+  ExtendedMathExpression
 };
 
 export type { Visitor };

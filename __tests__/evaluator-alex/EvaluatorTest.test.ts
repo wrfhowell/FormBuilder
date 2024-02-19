@@ -1,7 +1,7 @@
 import { Evaluator } from "../../src/AST/export";
 import { readFileSync } from "fs";
-import { FormGeneratorLexer } from "../../generated/FormGeneratorLexer";
-import { FormGeneratorParser } from "../../generated/FormGeneratorParser";
+import { FormGeneratorLexer } from "../../src/AST/generated/FormGeneratorLexer";
+import { FormGeneratorParser } from "../../src/AST/generated/FormGeneratorParser";
 import { CharStreams, CommonTokenStream } from "antlr4ts";
 import { ParseTreeToAST } from "../../src/AST/parser/ParseTreeToAST";
 
