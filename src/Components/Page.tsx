@@ -140,9 +140,9 @@ export const Page = ({ page, iteration }: PageProps) => {
       if (page.goTo) {
         const nextPage = evaluateProperty(page.goTo).replace(/["]/g, "");
         if (nextPage === location.pathname) {
-          navigate(`/${nextPage}`, { state: iteration + 1 });
+          navigate(`/${nextPage}`, { state: iteration + 1, replace: true });
         } else {
-          navigate(`/${nextPage}`);
+          navigate(`/${nextPage}`, { replace: true });
         }
       }
     }

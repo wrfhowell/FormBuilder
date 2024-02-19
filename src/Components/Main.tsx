@@ -10,7 +10,7 @@ import { FormGeneratorLexer } from "../AST/generated/FormGeneratorLexer";
 import { FormGeneratorParser } from "../AST/generated/FormGeneratorParser";
 import { CharStreams, CommonTokenStream } from "antlr4ts";
 import { ParseTreeToAST } from "../AST/parser/ParseTreeToAST";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useGlobalQuizContext } from "./Context";
 import { evaluateVars } from "./functions";
 
@@ -90,6 +90,12 @@ export const Main = ({ setPagesObj }: MainProps) => {
     width: 1,
   });
 
+  useEffect(() => {
+    if (fileContents !== "") {
+      runStaticChecks();
+    }
+  }, [fileContents]);
+
   return (
     <>
       <h1>Quiz Creator DSL</h1>
@@ -101,11 +107,6 @@ export const Main = ({ setPagesObj }: MainProps) => {
       >
         Upload
         <VisuallyHiddenInput onChange={uploadFile} type="file" />
-      </Button>
-
-      <h3>Run Static Checks</h3>
-      <Button variant="contained" onClick={runStaticChecks}>
-        Run Static Checks
       </Button>
 
       <h3>Start the Quiz</h3>
