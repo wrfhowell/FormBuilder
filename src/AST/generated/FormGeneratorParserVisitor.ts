@@ -9,7 +9,7 @@ import { Page_arrayContext } from "./FormGeneratorParser";
 import { PageContext } from "./FormGeneratorParser";
 import { Page_fieldsContext } from "./FormGeneratorParser";
 import { Page_fieldContext } from "./FormGeneratorParser";
-import { Id_fieldContext } from "./FormGeneratorParser";
+import { Page_id_fieldContext } from "./FormGeneratorParser";
 import { Header_fieldContext } from "./FormGeneratorParser";
 import { Instructions_fieldContext } from "./FormGeneratorParser";
 import { Questions_fieldContext } from "./FormGeneratorParser";
@@ -24,6 +24,7 @@ import { Question_arrayContext } from "./FormGeneratorParser";
 import { QuestionContext } from "./FormGeneratorParser";
 import { Question_fieldsContext } from "./FormGeneratorParser";
 import { Question_fieldContext } from "./FormGeneratorParser";
+import { Id_fieldContext } from "./FormGeneratorParser";
 import { Type_fieldContext } from "./FormGeneratorParser";
 import { Label_fieldContext } from "./FormGeneratorParser";
 import { Options_fieldContext } from "./FormGeneratorParser";
@@ -114,11 +115,11 @@ export interface FormGeneratorParserVisitor<Result> extends ParseTreeVisitor<Res
 	visitPage_field?: (ctx: Page_fieldContext) => Result;
 
 	/**
-	 * Visit a parse tree produced by `FormGeneratorParser.id_field`.
+	 * Visit a parse tree produced by `FormGeneratorParser.page_id_field`.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	visitId_field?: (ctx: Id_fieldContext) => Result;
+	visitPage_id_field?: (ctx: Page_id_fieldContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `FormGeneratorParser.header_field`.
@@ -217,6 +218,13 @@ export interface FormGeneratorParserVisitor<Result> extends ParseTreeVisitor<Res
 	 * @return the visitor result
 	 */
 	visitQuestion_field?: (ctx: Question_fieldContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by `FormGeneratorParser.id_field`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitId_field?: (ctx: Id_fieldContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `FormGeneratorParser.type_field`.

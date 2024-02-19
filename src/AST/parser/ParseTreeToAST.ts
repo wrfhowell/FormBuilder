@@ -130,8 +130,8 @@ export class ParseTreeToAST
     let displayQuestions = undefined;
 
     for (let pageFields of ctx.page_fields().page_field()) {
-      if (pageFields.id_field()) {
-        id = pageFields.id_field()?.text_field_value().accept(this);
+      if (pageFields.page_id_field()) {
+        id = pageFields.page_id_field()?.STRING().text.replace(/["]/g, "");
       } else if (pageFields.header_field()) {
         header = pageFields.header_field()?.text_field_value().accept(this);
       } else if (pageFields.instructions_field()) {
@@ -235,7 +235,11 @@ export class ParseTreeToAST
     for (const s of ctx.statement()) {
       statements.push(s.accept(this));
     }
-    const returnVal = ctx.returnValue().accept(this);
+    let returnVal
+    if(ctx.returnValue()) {
+      //@ts-ignore
+      returnVal = ctx.returnValue().accept(this);
+    }
 
     if (returnVal) {
       return new Function_Body(statements, returnVal);
