@@ -69,10 +69,6 @@ export const Question = ({
       );
     window.globalVars = updatedGlobalVars;
 
-    console.log(
-      "Finishing evaluateVars. Currently evaluated vars: ",
-      currentEvaluatedVars
-    );
     setEvaluatedVars(currentEvaluatedVars);
   };
 
