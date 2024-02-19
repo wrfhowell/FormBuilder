@@ -25,13 +25,8 @@ export const Main = ({ setPagesObj }: MainProps) => {
     []
   );
 
-  const {
-    setFunctionMap,
-    functionMap,
-    setFormState,
-    formState,
-    // setGlobalVars,
-  } = useGlobalQuizContext();
+  const { setFunctionMap, functionMap, setFormState, formState } =
+    useGlobalQuizContext();
 
   const navigate = useNavigate();
 
@@ -68,8 +63,6 @@ export const Main = ({ setPagesObj }: MainProps) => {
       formState,
       functionMap
     );
-    console.log("Evaluated global vars: ", currentEvaluatedVars);
-    // setGlobalVars(currentEvaluatedVars);
     window.globalVars = currentEvaluatedVars;
   };
 

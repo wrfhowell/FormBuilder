@@ -157,7 +157,6 @@ export const Question = ({
     evaluateQuestionVars();
     getCorrectAnswer();
     setQuestionsRendered(true);
-    console.log("here in question: ", question.id);
   }, []);
 
   return (

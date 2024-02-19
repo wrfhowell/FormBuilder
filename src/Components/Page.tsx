@@ -147,7 +147,6 @@ export const Page = ({ page, iteration }: PageProps) => {
         }
       }
     }
-    console.log("new global Variables: ", window.globalVars);
   };
 
   const convertIAnswerToString = (ans: IAnswer): string => {
@@ -215,7 +214,6 @@ export const Page = ({ page, iteration }: PageProps) => {
     if (page.questions && pageQuestions.length === 0) {
       unravelQuestions();
     }
-    console.log("here from page: ", page.id);
   }, [pageQuestions, location]);
 
   return (
