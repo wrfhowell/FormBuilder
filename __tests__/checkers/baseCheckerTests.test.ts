@@ -535,7 +535,7 @@ describe("Base Checker Tests", () => {
     expect(() => parsedProgram.accept({}, checker)).toThrow( "Variable not declared in function parameters or global vars");
   });
 
-  it("Should throw error due to undeclared variable in array", () => {
+  it("Should throw error due to undeclared options in array", () => {
     const file = readFileSync(
         path.resolve(__dirname,"../../src/AST/dsl/invalidInputs/invalidQuestionOptions2"),
         "utf-8"
@@ -703,4 +703,101 @@ describe("Base Checker Tests", () => {
 
     expect(() => parsedProgram.accept({}, checker)).toThrow( "isEqual is already taken by the API library.");
   });
+
+  it("Should not throw any error with input-math", () => {
+    const file = readFileSync(
+        path.resolve(__dirname,"../../src/AST/dsl/validInputs/input-math.js"),
+        "utf-8"
+    );
+    const fileStream = CharStreams.fromString(file);
+
+    const lexer = new FormGeneratorLexer(fileStream);
+
+    lexer.reset();
+
+    const tokens = new CommonTokenStream(lexer);
+
+    const parser = new FormGeneratorParser(tokens);
+
+    const visitor = new ParseTreeToAST();
+    //@ts-ignore
+    const parsedProgram = parser.program().accept(visitor);
+
+    const checker = new BaseChecker();
+
+    expect(() => parsedProgram.accept({}, checker)).not.toThrow( Error);
+  });
+
+  it("Should not throw any error with input-contact", () => {
+    const file = readFileSync(
+        path.resolve(__dirname,"../../src/AST/dsl/validInputs/input-contact.js"),
+        "utf-8"
+    );
+    const fileStream = CharStreams.fromString(file);
+
+    const lexer = new FormGeneratorLexer(fileStream);
+
+    lexer.reset();
+
+    const tokens = new CommonTokenStream(lexer);
+
+    const parser = new FormGeneratorParser(tokens);
+
+    const visitor = new ParseTreeToAST();
+    //@ts-ignore
+    const parsedProgram = parser.program().accept(visitor);
+
+    const checker = new BaseChecker();
+
+    expect(() => parsedProgram.accept({}, checker)).not.toThrow( Error);
+  });
+
+  it("Should not throw any error with input-metals", () => {
+    const file = readFileSync(
+        path.resolve(__dirname,"../../src/AST/dsl/validInputs/input-metals.js"),
+        "utf-8"
+    );
+    const fileStream = CharStreams.fromString(file);
+
+    const lexer = new FormGeneratorLexer(fileStream);
+
+    lexer.reset();
+
+    const tokens = new CommonTokenStream(lexer);
+
+    const parser = new FormGeneratorParser(tokens);
+
+    const visitor = new ParseTreeToAST();
+    //@ts-ignore
+    const parsedProgram = parser.program().accept(visitor);
+
+    const checker = new BaseChecker();
+
+    expect(() => parsedProgram.accept({}, checker)).not.toThrow( Error);
+  });
+
+  it("Should not throw any error with example.dsl", () => {
+    const file = readFileSync(
+        path.resolve(__dirname,"../../src/AST/dsl/validInputs/example.dsl"),
+        "utf-8"
+    );
+    const fileStream = CharStreams.fromString(file);
+
+    const lexer = new FormGeneratorLexer(fileStream);
+
+    lexer.reset();
+
+    const tokens = new CommonTokenStream(lexer);
+
+    const parser = new FormGeneratorParser(tokens);
+
+    const visitor = new ParseTreeToAST();
+    //@ts-ignore
+    const parsedProgram = parser.program().accept(visitor);
+
+    const checker = new BaseChecker();
+
+    expect(() => parsedProgram.accept({}, checker)).not.toThrow( Error);
+  });
+
 });

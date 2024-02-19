@@ -97,25 +97,25 @@
 
   functions: [
       getCityOptions(prov) {
-        if(isStringEqual(prov, "Ontario")) {
+        if(isEqual(prov, "Ontario")) {
       return ontarioCities
-    } else if(isStringEqual(prov, "Quebec")) {
+    } else if(isEqual(prov, "Quebec")) {
       return quebecCities
-    } else if(isStringEqual(prov, "Nova Scotia")) {
+    } else if(isEqual(prov, "Nova Scotia")) {
       return novaScotiaCities
-    } else if(isStringEqual(prov, "New Brunswick")) {
+    } else if(isEqual(prov, "New Brunswick")) {
       return newBrunswickCities
-    } else if(isStringEqual(prov, "Manitoba")) {
+    } else if(isEqual(prov, "Manitoba")) {
       return manitobaCities
-    } else if(isStringEqual(prov, "British Columbia")) {
+    } else if(isEqual(prov, "British Columbia")) {
       return britishColumbiaCities
-    } else if(isStringEqual(prov, "Prince Edward Island")) {
+    } else if(isEqual(prov, "Prince Edward Island")) {
       return princeEdwardIslandCities
-    } else if(isStringEqual(prov, "Saskatchewan")) {
+    } else if(isEqual(prov, "Saskatchewan")) {
       return saskatchewanCities
-    } else if(isStringEqual(prov, "Alberta")) {
+    } else if(isEqual(prov, "Alberta")) {
       return albertaCities
-    } else if(isStringEqual(prov, "Newfoundland and Labrador")) {
+    } else if(isEqual(prov, "Newfoundland and Labrador")) {
       return newfoundlandAndLabradorCities
     }
       return []

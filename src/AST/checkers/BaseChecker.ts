@@ -71,6 +71,7 @@ export class BaseChecker implements Visitor<{}, any> {
     this.visitIfCond = this.visitIfCond.bind(this);
     this.visitMathExpression = this.visitMathExpression.bind(this);
     this.visitExtendedMathExpression = this.visitExtendedMathExpression.bind(this);
+    this.visitMathOp = this.visitMathOp.bind(this);
     this.visitPage = this.visitPage.bind(this);
     this.visitPages = this.visitPages.bind(this);
     this.visitProgram = this.visitProgram.bind(this);
@@ -96,6 +97,7 @@ export class BaseChecker implements Visitor<{}, any> {
       If_Cond: this.visitIfCond,
       MathExpression: this.visitMathExpression,
       ExtendedMathExpression: this.visitExtendedMathExpression,
+      MathOp: this.visitMathOp,
       Page: this.visitPage,
       Pages: this.visitPages,
       Program: this.visitProgram,
@@ -256,8 +258,7 @@ export class BaseChecker implements Visitor<{}, any> {
     // Check that fields instantiated with variables or function calls refer to declared variables or function calls
     if (
       typeof label !== "string" &&
-      !(label instanceof String) &&
-      label !== undefined
+        !(label instanceof String)
     ) {
       this.checkValidityOfQuestionField(
         label,
@@ -482,7 +483,7 @@ export class BaseChecker implements Visitor<{}, any> {
   }
 
   visitMathOp(context: baseCheckerContext, mathOp: any) {
-    let op = mathOp.getOp();
+    let op = mathOp.getOperation();
     let validOps = ["+", "-", "*", "/"];
     if (!validOps.includes(op)) {
       throw new CheckerError("Invalid math operation");
@@ -618,13 +619,13 @@ export class BaseChecker implements Visitor<{}, any> {
     context: baseCheckerContext,
     symbol: string | Function_Call | VariableName | undefined
   ): boolean {
+    let result = true;
     if (symbol instanceof VariableName) {
-      return this.isGlobalVarDeclared(context, symbol);
+      result = this.isGlobalVarDeclared(context, symbol);
     } else if (symbol instanceof Function_Call) {
-      return this.isFunctionNameDeclared(context, symbol);
-    } else {
-      return false;
+      result = this.isFunctionNameDeclared(context, symbol);
     }
+    return result;
   }
 
   private isFunctionNameDeclared(
@@ -663,8 +664,8 @@ export class BaseChecker implements Visitor<{}, any> {
   ) {
     if (symbol instanceof VariableName) {
       if (
-        !this.isVarDeclaredInQuestion(questionVariables, symbol) ||
-        this.isGlobalVarDeclared(context, symbol)
+        !this.isVarDeclaredInQuestion(questionVariables, symbol) &&
+        !this.isGlobalVarDeclared(context, symbol)
       ) {
         throw new CheckerError(
           `Question ${fieldName} making reference to undeclared variable`
