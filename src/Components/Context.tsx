@@ -18,8 +18,6 @@ export interface IGlobalQuizContext {
   setFunctionMap: Dispatch<SetStateAction<FunctionsContext>>;
   formState: Map<string, Map<string, string>>;
   setFormState: Dispatch<SetStateAction<IFormStateContext>>;
-  // globalVars: GlobalVarsContext;
-  // setGlobalVars: Dispatch<SetStateAction<GlobalVarsContext>>;
 }
 
 // Context storing function definitions and global variables
@@ -28,8 +26,6 @@ export const GlobalQuizContext = createContext<IGlobalQuizContext>({
   setFunctionMap: () => {},
   formState: new Map(),
   setFormState: () => {},
-  // globalVars: {},
-  // setGlobalVars: () => {},
 });
 
 export const useGlobalQuizContext = () => useContext(GlobalQuizContext);
@@ -37,7 +33,6 @@ export const useGlobalQuizContext = () => useContext(GlobalQuizContext);
 export const GlobalQuizContextProvider = ({ children }: any) => {
   const [functionMap, setFunctionMap] = useState<FunctionsContext>({});
   const [formState, setFormState] = useState<IFormStateContext>(new Map());
-  // const [globalVars, setGlobalVars] = useState<GlobalVarsContext>({});
 
   return (
     <GlobalQuizContext.Provider
@@ -46,8 +41,6 @@ export const GlobalQuizContextProvider = ({ children }: any) => {
         setFunctionMap,
         formState,
         setFormState,
-        // globalVars,
-        // setGlobalVars,
       }}
     >
       {children}
