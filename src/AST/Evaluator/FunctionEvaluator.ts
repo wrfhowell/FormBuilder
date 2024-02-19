@@ -20,6 +20,7 @@ export interface FunctionsContext {
 }
 
 export interface FunctionEvaluatorContext {
+  formState: Map<string, Map<string, string>>;
   vars: VarsContext;
   functions: FunctionsContext;
   returnValue: any;
@@ -32,6 +33,7 @@ export class FunctionEvaluator implements Visitor<{}, any> {
 
   constructor() {
     this.visitExpression = this.visitExpression.bind(this);
+    this.visitFormStateAccess = this.visitFormStateAccess.bind(this);
     this.visitFunctionCustom = this.visitFunctionCustom.bind(this);
     this.visitFunctionBody = this.visitFunctionBody.bind(this);
     this.visitFunctionCall = this.visitFunctionCall.bind(this);
@@ -50,6 +52,7 @@ export class FunctionEvaluator implements Visitor<{}, any> {
       Cond_Body: this.visitCondBody,
       Else_If_Cond: this.visitElseIfCond,
       Expression: this.visitExpression,
+      FormStateAccess: this.visitFormStateAccess,
       Function_Call: this.visitFunctionCall,
       FunctionCustom: this.visitFunctionCustom,
       Function_Body: this.visitFunctionBody,
@@ -152,6 +155,16 @@ export class FunctionEvaluator implements Visitor<{}, any> {
     };
   }
 
+  visitFormStateAccess(
+    context: FunctionEvaluatorContext,
+    node: FormStateAccess
+  ) {
+    const pageId = node.getPageId();
+    const questionId = node.getQuestionId();
+    const formStateValue = context.formState.get(pageId)?.get(questionId);
+    context.returnValue = formStateValue;
+  }
+
   visitIfCond(context: FunctionEvaluatorContext, node: If_Cond) {
     node.getCondition().accept(context, this);
     if (context.returnValue === false) {
@@ -223,7 +236,8 @@ export class FunctionEvaluator implements Visitor<{}, any> {
         rawVar.accept(context, this);
         passedArguments.push(context.returnValue);
       } else {
-        // FormStateAccess
+        rawVar.accept(context, this);
+        passedArguments.push(context.returnValue);
       }
     });
 
@@ -233,7 +247,6 @@ export class FunctionEvaluator implements Visitor<{}, any> {
       context.returnValue = functionNode(passedArguments);
     } else {
       let newContext = { ...context, passedArguments };
-      console.log("newContext from visitFunctionCall: ", newContext);
       let evalutor = new FunctionEvaluator();
       evalutor.visit(newContext, functionNode);
 

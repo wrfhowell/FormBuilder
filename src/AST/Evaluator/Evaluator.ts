@@ -41,7 +41,7 @@ export class Evaluator implements Visitor<{}, any> {
       return args.join("");
     },
     isEqual: (args: any[]) => {
-      return args[0] === args[1];
+      return args[0] == args[1];
     },
     isGreater: (args: any[]) => {
       return args[0] > args[1];
@@ -242,8 +242,7 @@ export class Evaluator implements Visitor<{}, any> {
 
   visitFormStateAccess(context: {}, formStateAccess: FormStateAccess) {
     return {
-      pageId: formStateAccess.getPageId(),
-      questionId: formStateAccess.getQuestionId(),
+      value: formStateAccess,
     };
   }
 
@@ -350,10 +349,15 @@ export class Evaluator implements Visitor<{}, any> {
   visitVariable(context: {}, variable: Variable) {
     let variableName = variable.getVariableName();
     let variableValue = variable.getVariableValue();
+    let newVariableValue;
     if (hasAcceptMethod(variableValue)) {
-      variableValue = variableValue.accept(context, this);
+      newVariableValue = variableValue.accept(context, this);
+    } else {
+      newVariableValue = {
+        value: variableValue,
+      };
     }
-    let return_obj = { [variableName]: variableValue };
+    let return_obj = { [variableName]: newVariableValue };
     return return_obj;
   }
 

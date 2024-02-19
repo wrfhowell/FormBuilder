@@ -14,17 +14,17 @@ import { useGlobalQuizContext } from "./Context";
 import { VariableName } from "../AST/Nodes/VariableName";
 
 interface QuestionProps {
+  pageId: string;
   question: IQuestion;
   setQuestionUserAnswer: (questionId: string, ans: IAnswer) => void;
-  setQuestionCorrectAnswer: (questionId: string, ans: string) => void;
 }
 
 export const Question = ({
+  pageId,
   question,
   setQuestionUserAnswer,
-  setQuestionCorrectAnswer,
 }: QuestionProps) => {
-  const { functionMap } = useGlobalQuizContext();
+  const { functionMap, formState, setFormState } = useGlobalQuizContext();
   const [evaluatedVars, setEvaluatedVars] = useState<{
     [key: string]: string | number;
   }>({});
@@ -82,6 +82,7 @@ export const Question = ({
             // function binding is a FunctionCustom and needs to be evaluated
             const functionEvaluator = new FunctionEvaluator();
             const context: FunctionEvaluatorContext = {
+              formState,
               passedArguments: functionBinding.args,
               vars: { ...currentEvaluatedVars },
               functions: functionMap,
@@ -110,6 +111,7 @@ export const Question = ({
     args.forEach((arg) => {
       const functionEvaluator: FunctionEvaluator = new FunctionEvaluator();
       const context: FunctionEvaluatorContext = {
+        formState,
         vars: evaluatedVars,
         functions: functionMap,
         passedArguments: [],
@@ -131,14 +133,15 @@ export const Question = ({
 
   const evaluateProperty = (
     property: string | FunctionBinding | VariableName
-  ) => {
-    let propertyValue: string | number = "";
+  ): string => {
+    let propertyValue: string = "";
 
     if (typeof property === "string") {
       return property;
     } else if (property instanceof VariableName) {
       const functionEvaluator = new FunctionEvaluator();
       const context: FunctionEvaluatorContext = {
+        formState,
         vars: { ...evaluatedVars },
         functions: functionMap,
         returnValue: 0,
@@ -149,10 +152,10 @@ export const Question = ({
 
     if (typeof property.value === "function") {
       if (!property.args) {
-        propertyValue = property.value();
+        propertyValue = property.value().toString();
       } else {
         let args = property.args;
-        propertyValue = property.value(args);
+        propertyValue = property.value(args).toString();
       }
     } else if (
       typeof property.value === "number" ||
@@ -162,6 +165,7 @@ export const Question = ({
     } else {
       const functionEvaluator = new FunctionEvaluator();
       let context: FunctionEvaluatorContext = {
+        formState,
         passedArguments: property.args,
         vars: { ...evaluatedVars },
         functions: functionMap,
@@ -170,16 +174,28 @@ export const Question = ({
       functionEvaluator.visit(context, property.value);
       propertyValue = context.returnValue;
     }
-    return propertyValue;
+    return propertyValue.toString();
   };
 
   const getCorrectAnswer = () => {
     if (!question.correctAnswer) return;
     const questionCorrectAnswer = evaluateProperty(question.correctAnswer);
-    setQuestionCorrectAnswer(question.id, questionCorrectAnswer);
+    const updatedFormState = formState;
+    updatedFormState
+      .get(pageId)
+      ?.set(`${question.id}-correctAnswer`, questionCorrectAnswer);
+    setFormState(updatedFormState);
+    console.log(formState);
+  };
+
+  const addQuestionIdToFormState = () => {
+    const updatedFormState = formState;
+    updatedFormState.get(pageId)?.set(question.id, "");
+    setFormState(updatedFormState);
   };
 
   useEffect(() => {
+    addQuestionIdToFormState();
     evaluateVars();
     getCorrectAnswer();
     setQuestionsRendered(true);
