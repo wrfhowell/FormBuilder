@@ -1,0 +1,30 @@
+{
+     pages: [
+         {
+             id: "classification-pg",
+             header: "Classification",
+             instructions: "Please answer the following question",
+             questions: [
+                 {
+                     id: "what-are-you",
+                     type: radio,
+                     label: "What are you?",
+                     options: ["Metal", "Nonmetal", "Metalloid"],
+                     isRequired: true,
+                     vars: {
+                        myQVar: 3,
+                        myQVar: 3
+                     }
+                 }
+             ]
+         }
+     ],
+     functions: [
+        myTestFun(param1, param2) {
+            return (1+1)
+        }
+     ],
+     vars: {
+        myVar: 5
+     }
+ }

@@ -70,6 +70,7 @@ export class BaseChecker implements Visitor<{}, any> {
     this.visitFunctionsArray = this.visitFunctionsArray.bind(this);
     this.visitIfCond = this.visitIfCond.bind(this);
     this.visitMathExpression = this.visitMathExpression.bind(this);
+    this.visitExtendedMathExpression = this.visitExtendedMathExpression.bind(this);
     this.visitPage = this.visitPage.bind(this);
     this.visitPages = this.visitPages.bind(this);
     this.visitProgram = this.visitProgram.bind(this);
@@ -94,6 +95,7 @@ export class BaseChecker implements Visitor<{}, any> {
       Functions_Array: this.visitFunctionsArray,
       If_Cond: this.visitIfCond,
       MathExpression: this.visitMathExpression,
+      ExtendedMathExpression: this.visitExtendedMathExpression,
       Page: this.visitPage,
       Pages: this.visitPages,
       Program: this.visitProgram,
@@ -182,7 +184,7 @@ export class BaseChecker implements Visitor<{}, any> {
     let instructions = page.getInstructions();
     let questions = page.getQuestionArray();
 
-    if (!this.isGoToValueValid(goTo, context)) {
+    if (goTo && !this.isGoToValueValid(goTo, context)) {
       throw new CheckerError(
         "Page GoTo must reference a valid page ID, variable name or function call"
       );
@@ -233,6 +235,10 @@ export class BaseChecker implements Visitor<{}, any> {
         .getQuestionVariables()
         ?.getVariableList()
         .map((variable: Variable) => variable.getVariableName()) || [];
+
+    if(this.hasDuplicates(questionVariables)) {
+      throw new CheckerError("Duplicate question variables found")
+    }
 
     context.questionVars = questionVariables;
 
@@ -291,17 +297,20 @@ export class BaseChecker implements Visitor<{}, any> {
     if (hasAcceptMethod(question.getQuestionVariables())) {
       question.getQuestionVariables()?.accept(context, this);
     }
+    if(options instanceof ArrayCustom) {
+      console.log("I'm here!")
+    }
     if (hasAcceptMethod(options)) {
-      options = options.accept(context, this);
+      options.accept(context, this);
     }
     if (hasAcceptMethod(correctAnswer)) {
-      correctAnswer = correctAnswer.accept(context, this);
+      correctAnswer.accept(context, this);
     }
     if (hasAcceptMethod(id)) {
-      id = id.accept(context, this);
+      id.accept(context, this);
     }
     if (hasAcceptMethod(label)) {
-      label = label.accept(context, this);
+      label.accept(context, this);
     }
   }
 
@@ -322,7 +331,7 @@ export class BaseChecker implements Visitor<{}, any> {
     let functionParameters = functionCustom.getFunctionParams();
     functionParameters.forEach((param: any) => {
       if (!(param instanceof VariableName)) {
-        throw new CheckerError("Invalid function parameter name.");
+        throw new CheckerError("Invalid function parameter.");
       }
     });
 
@@ -454,6 +463,24 @@ export class BaseChecker implements Visitor<{}, any> {
     }
   }
 
+  visitExtendedMathExpression(
+      context: baseCheckerContext,
+      extendedMathExpression: ExtendedMathExpression
+  ) {
+    let expression = extendedMathExpression.getExpression();
+    let mathOp = extendedMathExpression.getMathOp()
+
+    this.checkVarAndFunCallInFunctionIsValid(context, expression);
+
+    if (hasAcceptMethod(expression)) {
+      expression.accept(context, this);
+    }
+
+    if(hasAcceptMethod(mathOp)) {
+      mathOp.accept(context, this);
+    }
+  }
+
   visitMathOp(context: baseCheckerContext, mathOp: any) {
     let op = mathOp.getOp();
     let validOps = ["+", "-", "*", "/"];
@@ -497,11 +524,11 @@ export class BaseChecker implements Visitor<{}, any> {
           !this.isGlobalVarDeclared(context, value) &&
           !context.questionVars.includes(value.getName())
         ) {
-          throw new CheckerError("Array value not declared");
+          throw new CheckerError("Undeclared variable in array");
         }
       } else {
         if (!this.isGlobalVarDeclared(context, value)) {
-          throw new CheckerError("Array value not declared");
+          throw new CheckerError("Undeclared variable in array");
         }
       }
     }
@@ -663,13 +690,13 @@ export class BaseChecker implements Visitor<{}, any> {
           !this.isGlobalVarDeclared(context, symbol)
         ) {
           throw new CheckerError(
-            "Condition variable not declared in function parameters or globally"
+            "Variable not declared in function parameters or global vars"
           );
         }
       } else {
         if (!this.isGlobalVarDeclared(context, symbol)) {
           throw new CheckerError(
-            "Condition variable not declared in function parameters or globally"
+            "Calling undeclared function"
           );
         }
       }

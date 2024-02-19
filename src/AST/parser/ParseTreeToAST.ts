@@ -131,7 +131,7 @@ export class ParseTreeToAST
 
     for (let pageFields of ctx.page_fields().page_field()) {
       if (pageFields.page_id_field()) {
-        id = pageFields.page_id_field()?.STRING().accept(this);
+        id = pageFields.page_id_field()?.STRING().text;
       } else if (pageFields.header_field()) {
         header = pageFields.header_field()?.text_field_value().accept(this);
       } else if (pageFields.instructions_field()) {

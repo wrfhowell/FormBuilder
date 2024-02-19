@@ -13,7 +13,7 @@ export class Page extends Node {
   private questions: Question_Array | undefined;
 
   constructor(
-    id: string,
+    id: string | undefined,
     goTo: string | VariableName | Function_Call | undefined,
     header: string | VariableName | Function_Call | undefined,
     instructions: string | VariableName | Function_Call | undefined,
