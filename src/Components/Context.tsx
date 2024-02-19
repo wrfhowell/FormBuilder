@@ -9,11 +9,15 @@ import { FunctionsContext } from "../AST/Evaluator/FunctionEvaluator";
 
 export type IFormStateContext = Map<string, Map<string, string>>;
 
+export interface GlobalVarsContext {
+  [key: string]: string | number;
+}
+
 export interface IGlobalQuizContext {
   functionMap: FunctionsContext;
   setFunctionMap: Dispatch<SetStateAction<FunctionsContext>>;
   formState: Map<string, Map<string, string>>;
-  setFormState: Dispatch<SetStateAction<Map<string, Map<string, string>>>>;
+  setFormState: Dispatch<SetStateAction<IFormStateContext>>;
 }
 
 // Context storing function definitions and global variables
@@ -32,7 +36,12 @@ export const GlobalQuizContextProvider = ({ children }: any) => {
 
   return (
     <GlobalQuizContext.Provider
-      value={{ functionMap, setFunctionMap, formState, setFormState }}
+      value={{
+        functionMap,
+        setFunctionMap,
+        formState,
+        setFormState,
+      }}
     >
       {children}
     </GlobalQuizContext.Provider>
