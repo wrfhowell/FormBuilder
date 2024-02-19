@@ -18,7 +18,9 @@ export interface IQuestion {
   type: QuestionType;
   label: FunctionBinding | string | VariableName;
   isRequired: boolean;
-  options?: string[];
+  dependsOn?: string;
+  displayIf?: string;
+  options?: { value: string | number | VariableName }[];
   loop?: number;
   correctAnswer?: FunctionBinding;
   vars?: Vars[];
