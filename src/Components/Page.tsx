@@ -49,7 +49,7 @@ export const Page = ({ page, iteration }: PageProps) => {
           question.id,
           answers.get(question.id)?.dropdownSelection?.toString() || ""
         );
-      } else if (question.type === "text") {
+      } else if (question.type === "textInput") {
         new_answers.set(
           question.id,
           answers.get(question.id)?.textSelection || ""
@@ -68,13 +68,16 @@ export const Page = ({ page, iteration }: PageProps) => {
       return property;
     } else if (property instanceof VariableName) {
       const functionEvaluator = new FunctionEvaluator();
+      const updatedGlobalVars = { ...window.globalVars };
       const context: FunctionEvaluatorContext = {
         formState,
         vars: {},
+        globalVars: updatedGlobalVars,
         functions: functionMap,
         returnValue: 0,
       };
       functionEvaluator.visit(context, property);
+      window.globalVars = updatedGlobalVars;
       return context.returnValue;
     }
 
@@ -92,14 +95,19 @@ export const Page = ({ page, iteration }: PageProps) => {
       propertyValue = property.value.toString();
     } else {
       const functionEvaluator = new FunctionEvaluator();
+      const updatedGlobalVars = { ...window.globalVars };
+
       let context: FunctionEvaluatorContext = {
         formState,
         passedArguments: property.args,
         vars: {},
+        globalVars: updatedGlobalVars,
         functions: functionMap,
         returnValue: 0,
       };
       functionEvaluator.visit(context, property.value);
+      // setGlobalVars(updatedGlobalVars);
+      window.globalVars = updatedGlobalVars;
       propertyValue = context.returnValue;
     }
     return propertyValue.toString();
@@ -139,6 +147,7 @@ export const Page = ({ page, iteration }: PageProps) => {
         }
       }
     }
+    console.log("new global Variables: ", window.globalVars);
   };
 
   const convertIAnswerToString = (ans: IAnswer): string => {
@@ -206,6 +215,7 @@ export const Page = ({ page, iteration }: PageProps) => {
     if (page.questions && pageQuestions.length === 0) {
       unravelQuestions();
     }
+    console.log("here from page: ", page.id);
   }, [pageQuestions, location]);
 
   return (

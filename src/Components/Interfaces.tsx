@@ -11,7 +11,7 @@ export interface IPage {
   questions?: IQuestion[];
 }
 
-export type QuestionType = "radio" | "checkbox" | "dropdown" | "text";
+export type QuestionType = "radio" | "checkbox" | "dropdown" | "textInput";
 
 export interface IQuestion {
   id: string;
