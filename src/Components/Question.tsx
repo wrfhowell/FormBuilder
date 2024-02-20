@@ -34,6 +34,8 @@ export const Question = ({
     [key: string]: string | number | (string | number)[];
   }>({});
   const [questionsRendered, setQuestionsRendered] = useState(false);
+
+  // Retrieves the correct type of questino to render on the page
   const getQuestionObj = () => {
     let questionOptions: (string | number)[];
     if (question.options) {
@@ -80,7 +82,6 @@ export const Question = ({
   // Get values for each of the variables for the Question
   const evaluateQuestionVars = () => {
     if (!question.vars) return;
-    console.log("starting evaluate question vars");
     const { currentEvaluatedVars, globalVars: updatedGlobalVars } =
       evaluateVars(
         question.vars,
@@ -91,14 +92,16 @@ export const Question = ({
       );
     window.globalVars = updatedGlobalVars;
     setEvaluatedVars(currentEvaluatedVars);
+    console.log("evaluated vars: ", currentEvaluatedVars);
   };
 
-  // Evaluate the label for the question
+  // Evaluate the label for the Question
   const getQuestionLabel = (): string | number => {
     let questionLabel: string | number = evaluateProperty(question.label);
     return questionLabel;
   };
 
+  // Evaluates a specific property of the Question
   const evaluateProperty = (
     property: string | FunctionBinding | VariableName
   ): string => {
@@ -141,7 +144,6 @@ export const Question = ({
     ) {
       propertyValue = property.value.toString();
     } else {
-      console.log("got here 1");
       const functionEvaluator = new FunctionEvaluator();
       const updatedGlobalVars = { ...window.globalVars };
       let context: FunctionEvaluatorContext = {
@@ -159,6 +161,7 @@ export const Question = ({
     return propertyValue.toString();
   };
 
+  // Evaluates the correct answer for the question
   const getCorrectAnswer = () => {
     if (!question.correctAnswer) return;
     const questionCorrectAnswer = evaluateProperty(question.correctAnswer);
@@ -169,12 +172,14 @@ export const Question = ({
     setFormState(updatedFormState);
   };
 
+  // Adds the Question ID to the Form State for retrieval in other Questions or functions
   const addQuestionIdToFormState = () => {
     const updatedFormState = formState;
     updatedFormState.get(pageId)?.set(question.id, "");
     setFormState(updatedFormState);
   };
 
+  // Selectively renders the component based on the value of the dependsOn property
   const evaluateDependsOn = () => {
     if (questionsRendered && !question.dependsOn) {
       return;

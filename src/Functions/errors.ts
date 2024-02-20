@@ -11,3 +11,10 @@ export class EvaluatorError extends Error {
     this.name = "EvaluatorError";
   }
 }
+
+export class FunctionEvaluatorError extends Error {
+  constructor(message: any) {
+    super(message);
+    this.name = "FunctionEvaluatorError";
+  }
+}

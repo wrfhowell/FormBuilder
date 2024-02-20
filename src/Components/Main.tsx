@@ -12,6 +12,7 @@ import { VisuallyHiddenInput } from "./VisuallyHiddenInput";
 import { ErrorComponent } from "./ErrorComponent";
 import { parseProgram } from "src/Functions/uiEvaluatorFunctions";
 import { Box, Grid } from "@mui/material";
+import { updateConsoleErrors } from "src/Functions/window";
 
 interface MainProps {
   setPagesObj: (pagesObj: IPage[]) => void;
@@ -75,10 +76,14 @@ export const Main = ({ setPagesObj }: MainProps) => {
   useEffect(() => {
     setStaticChecksError(undefined);
     setStaticChecksPassed(false);
-    if (fileContents !== "") {
+    if (fileContents !== "" && fileContents !== undefined) {
       runStaticChecks();
     }
   }, [fileContents]);
+
+  useEffect(() => {
+    updateConsoleErrors();
+  }, []);
 
   return (
     <Grid container>
