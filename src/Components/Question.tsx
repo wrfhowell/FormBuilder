@@ -87,14 +87,11 @@ export const Question = ({
       );
     window.globalVars = updatedGlobalVars;
     setEvaluatedVars(currentEvaluatedVars);
-    console.log("vars: ", currentEvaluatedVars);
   };
 
   // Evaluate the label for the question
   const getQuestionLabel = (): string | number => {
-    console.log("starting get question label");
     let questionLabel: string | number = evaluateProperty(question.label);
-    console.log("got question label: ", questionLabel);
     return questionLabel;
   };
 
@@ -102,12 +99,7 @@ export const Question = ({
     property: string | FunctionBinding | VariableName
   ): string => {
     let propertyValue: string = "";
-    console.log(
-      "evaluateProperty: ",
-      property,
-      "evaluated vars: ",
-      evaluatedVars
-    );
+
     if (typeof property === "string" || typeof property === "number") {
       return property;
     } else if (property instanceof VariableName) {
@@ -211,7 +203,6 @@ export const Question = ({
   }, [formState]);
 
   useEffect(() => {
-    console.log("re rendering here");
     addQuestionIdToFormState();
   }, []);
 

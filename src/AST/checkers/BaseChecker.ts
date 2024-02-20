@@ -22,7 +22,7 @@ import {
   VariableName,
   VariablesArray,
   Visitor,
-  ExtendedMathExpression
+  ExtendedMathExpression,
 } from "../export";
 
 type baseCheckerContext = {
@@ -70,7 +70,8 @@ export class BaseChecker implements Visitor<{}, any> {
     this.visitFunctionsArray = this.visitFunctionsArray.bind(this);
     this.visitIfCond = this.visitIfCond.bind(this);
     this.visitMathExpression = this.visitMathExpression.bind(this);
-    this.visitExtendedMathExpression = this.visitExtendedMathExpression.bind(this);
+    this.visitExtendedMathExpression =
+      this.visitExtendedMathExpression.bind(this);
     this.visitMathOp = this.visitMathOp.bind(this);
     this.visitPage = this.visitPage.bind(this);
     this.visitPages = this.visitPages.bind(this);
@@ -138,7 +139,6 @@ export class BaseChecker implements Visitor<{}, any> {
     this.addFunctionNamesToContext(program, context);
     this.addGlobalVarNamesToContext(program, context);
     this.addPageIdToContext(program, context);
-
 
     // Check if there are duplicate function, variable or pageID names
     if (this.hasDuplicates(context.functionNames)) {
@@ -238,8 +238,8 @@ export class BaseChecker implements Visitor<{}, any> {
         ?.getVariableList()
         .map((variable: Variable) => variable.getVariableName()) || [];
 
-    if(this.hasDuplicates(questionVariables)) {
-      throw new CheckerError("Duplicate question variables found")
+    if (this.hasDuplicates(questionVariables)) {
+      throw new CheckerError("Duplicate question variables found");
     }
 
     context.questionVars = questionVariables;
@@ -256,10 +256,7 @@ export class BaseChecker implements Visitor<{}, any> {
     }
 
     // Check that fields instantiated with variables or function calls refer to declared variables or function calls
-    if (
-      typeof label !== "string" &&
-        !(label instanceof String)
-    ) {
+    if (typeof label !== "string" && !(label instanceof String)) {
       this.checkValidityOfQuestionField(
         label,
         questionVariables,
@@ -298,8 +295,7 @@ export class BaseChecker implements Visitor<{}, any> {
     if (hasAcceptMethod(question.getQuestionVariables())) {
       question.getQuestionVariables()?.accept(context, this);
     }
-    if(options instanceof ArrayCustom) {
-      console.log("I'm here!")
+    if (options instanceof ArrayCustom) {
     }
     if (hasAcceptMethod(options)) {
       options.accept(context, this);
@@ -453,11 +449,13 @@ export class BaseChecker implements Visitor<{}, any> {
 
     this.checkVarAndFunCallInFunctionIsValid(context, expression);
 
-    extendedMathExpressions.forEach((extendedMathExpression: ExtendedMathExpression) => {
-      if (hasAcceptMethod(extendedMathExpression)) {
-        extendedMathExpression.accept(context, this);
+    extendedMathExpressions.forEach(
+      (extendedMathExpression: ExtendedMathExpression) => {
+        if (hasAcceptMethod(extendedMathExpression)) {
+          extendedMathExpression.accept(context, this);
+        }
       }
-    });
+    );
 
     if (hasAcceptMethod(expression)) {
       expression = expression.accept(context, this);
@@ -465,11 +463,11 @@ export class BaseChecker implements Visitor<{}, any> {
   }
 
   visitExtendedMathExpression(
-      context: baseCheckerContext,
-      extendedMathExpression: ExtendedMathExpression
+    context: baseCheckerContext,
+    extendedMathExpression: ExtendedMathExpression
   ) {
     let expression = extendedMathExpression.getExpression();
-    let mathOp = extendedMathExpression.getMathOp()
+    let mathOp = extendedMathExpression.getMathOp();
 
     this.checkVarAndFunCallInFunctionIsValid(context, expression);
 
@@ -477,7 +475,7 @@ export class BaseChecker implements Visitor<{}, any> {
       expression.accept(context, this);
     }
 
-    if(hasAcceptMethod(mathOp)) {
+    if (hasAcceptMethod(mathOp)) {
       mathOp.accept(context, this);
     }
   }
@@ -576,9 +574,11 @@ export class BaseChecker implements Visitor<{}, any> {
         program.getFunctionsArray()?.getFunctionList() || [];
 
       functionsList.forEach((func: FunctionCustom) => {
-        let functionName = func.getFunctionName().getName()
-        if(this.apiFunctionNames.includes(functionName)) {
-          throw new CheckerError(`${functionName} is already taken by the API library.` )
+        let functionName = func.getFunctionName().getName();
+        if (this.apiFunctionNames.includes(functionName)) {
+          throw new CheckerError(
+            `${functionName} is already taken by the API library.`
+          );
         }
         context.functionNames.push(functionName);
       });
@@ -696,9 +696,7 @@ export class BaseChecker implements Visitor<{}, any> {
         }
       } else {
         if (!this.isGlobalVarDeclared(context, symbol)) {
-          throw new CheckerError(
-            "Calling undeclared function"
-          );
+          throw new CheckerError("Calling undeclared function");
         }
       }
     } else if (symbol instanceof Function_Call) {
