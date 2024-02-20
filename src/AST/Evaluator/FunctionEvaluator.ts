@@ -1,4 +1,4 @@
-import { MathExpression, Visitor } from "../export";
+import { ArrayCustom, MathExpression, Visitor } from "../export";
 import { Function_Body } from "../Nodes/Function_Body";
 import { Function_Call } from "../Nodes/Function_Call";
 import { FunctionCustom } from "../Nodes/FunctionCustom";
@@ -10,6 +10,7 @@ import { Conditional } from "../Nodes/Conditional";
 import { If_Cond } from "../Nodes/If_Cond";
 import { Else_If_Cond } from "../Nodes/Else_If_Cond";
 import { Cond_Body } from "../Nodes/Cond_Body";
+import { ArrayValue } from "../export";
 
 const LOGGING = false;
 
@@ -20,7 +21,7 @@ const log = (...args: any[]) => {
 };
 
 export interface VarsContext {
-  [key: string]: string | number;
+  [key: string]: string | number | (string | number)[];
 }
 
 export interface FunctionsContext {
@@ -41,6 +42,9 @@ export class FunctionEvaluator implements Visitor<{}, any> {
   private returnEncountered: boolean = false;
 
   constructor() {
+    this.visitArray = this.visitArray.bind(this);
+    this.visitArrayCustom = this.visitArrayCustom.bind(this);
+    this.visitArrayValue = this.visitArrayValue.bind(this);
     this.visitExpression = this.visitExpression.bind(this);
     this.visitFormStateAccess = this.visitFormStateAccess.bind(this);
     this.visitFunctionCustom = this.visitFunctionCustom.bind(this);
@@ -57,6 +61,9 @@ export class FunctionEvaluator implements Visitor<{}, any> {
     this.visitElseIfCond = this.visitElseIfCond.bind(this);
 
     this.jumpTable = {
+      Array: this.visitArray,
+      ArrayCustom: this.visitArrayCustom,
+      ArrayValue: this.visitArrayValue,
       Conditional: this.visitConditional,
       Cond_Body: this.visitCondBody,
       Else_If_Cond: this.visitElseIfCond,
@@ -83,6 +90,44 @@ export class FunctionEvaluator implements Visitor<{}, any> {
       console.error(
         `No visit method defined for node type ${nodeType}: ${node}`
       );
+    }
+  }
+
+  visitArray(context: FunctionEvaluatorContext, node: Array<ArrayValue>) {
+    log("Visiting Array: ", node);
+    let evaluated_array: (string | number)[] = [];
+    node.forEach((item) => {
+      if (typeof item === "string" || typeof item === "number") {
+        evaluated_array.push(item);
+      } else {
+        item.accept(context, this);
+        evaluated_array.push(context.returnValue);
+      }
+    });
+    context.returnValue = evaluated_array;
+  }
+
+  visitArrayCustom(context: FunctionEvaluatorContext, node: ArrayCustom) {
+    log("Visiting ArrayCustom: ", node);
+    let array = node.getArrayCustom();
+    let evaluated_array: (string | number)[] = [];
+    array.forEach((item) => {
+      if (typeof item === "number" || typeof item === "string") {
+        evaluated_array.push(item);
+      } else {
+        item.accept(context, this);
+        evaluated_array.push(context.returnValue);
+      }
+    });
+    context.returnValue = evaluated_array;
+  }
+
+  visitArrayValue(context: FunctionEvaluatorContext, node: ArrayValue) {
+    let arrayValue = node.getValue();
+    if (typeof arrayValue === "string" || typeof arrayValue === "number") {
+      context.returnValue = node.getValue();
+    } else {
+      arrayValue?.accept(context, this);
     }
   }
 
@@ -265,6 +310,7 @@ export class FunctionEvaluator implements Visitor<{}, any> {
 
   visitFunctionCustom(context: FunctionEvaluatorContext, node: FunctionCustom) {
     log("Visiting FunctionCustom");
+
     this.convertFunctionArgumentsToValues(
       context,
       node.getFunctionParams() as VariableName[]
@@ -357,23 +403,3 @@ export class FunctionEvaluator implements Visitor<{}, any> {
     });
   }
 }
-
-export const evaluateOptions = (
-  options: { value: string | number | VariableName }[],
-  vars: { [key: string]: string | number },
-  globalVars: { [key: string]: string | number }
-): (string | number)[] => {
-  const evaluatedOptions: (string | number)[] = [];
-  options.forEach((option) => {
-    if (typeof option.value === "string" || typeof option.value === "number") {
-      evaluatedOptions.push(option.value);
-    } else {
-      if (vars.hasOwnProperty(option.value.getName())) {
-        evaluatedOptions.push(vars[option.value.getName()]);
-      } else {
-        evaluatedOptions.push(globalVars[option.value.getName()]);
-      }
-    }
-  });
-  return evaluatedOptions;
-};

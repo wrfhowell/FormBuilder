@@ -40,6 +40,7 @@ export const QuestionCheckbox = ({
           <FormControlLabel
             onChange={handleCheck}
             control={<Checkbox />}
+            key={item}
             label={item}
             value={item}
           />

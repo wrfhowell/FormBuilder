@@ -7,12 +7,11 @@ import { useEffect, useState } from "react";
 import {
   FunctionEvaluator,
   FunctionEvaluatorContext,
-  evaluateOptions,
 } from "../AST/Evaluator/FunctionEvaluator";
 import React from "react";
 import { useGlobalQuizContext } from "./Context";
 import { VariableName } from "../AST/Nodes/VariableName";
-import { evaluateVars } from "./functions";
+import { evaluateVars, evaluateOptions, getArgValues } from "./functions";
 import { Divider } from "@mui/material";
 
 interface QuestionProps {
@@ -28,15 +27,21 @@ export const Question = ({
 }: QuestionProps) => {
   const { functionMap, formState, setFormState } = useGlobalQuizContext();
   const [evaluatedVars, setEvaluatedVars] = useState<{
-    [key: string]: string | number;
+    [key: string]: string | number | (string | number)[];
   }>({});
   const [questionsRendered, setQuestionsRendered] = useState(false);
   const getQuestionObj = () => {
     let questionOptions: (string | number)[];
     if (question.options) {
-      questionOptions = evaluateOptions(question.options, evaluatedVars, {
-        ...window.globalVars,
-      });
+      questionOptions = evaluateOptions(
+        question.options,
+        evaluatedVars,
+        {
+          ...window.globalVars,
+        },
+        formState,
+        functionMap
+      );
     } else {
       questionOptions = [];
     }
@@ -71,6 +76,7 @@ export const Question = ({
   // Get values for each of the variables for the Question
   const evaluateQuestionVars = () => {
     if (!question.vars) return;
+    console.log("starting evaluate question vars");
     const { currentEvaluatedVars, globalVars: updatedGlobalVars } =
       evaluateVars(
         question.vars,
@@ -94,7 +100,7 @@ export const Question = ({
   ): string => {
     let propertyValue: string = "";
 
-    if (typeof property === "string") {
+    if (typeof property === "string" || typeof property === "number") {
       return property;
     } else if (property instanceof VariableName) {
       const functionEvaluator = new FunctionEvaluator();
@@ -116,7 +122,13 @@ export const Question = ({
       if (!property.args) {
         propertyValue = property.value().toString();
       } else {
-        let args = property.args;
+        let args = getArgValues(
+          property.args,
+          { ...evaluatedVars },
+          { ...window.globalVars },
+          formState,
+          functionMap
+        );
         propertyValue = property.value(args).toString();
       }
     } else if (
@@ -125,6 +137,7 @@ export const Question = ({
     ) {
       propertyValue = property.value.toString();
     } else {
+      console.log("got here 1");
       const functionEvaluator = new FunctionEvaluator();
       const updatedGlobalVars = { ...window.globalVars };
       let context: FunctionEvaluatorContext = {
@@ -162,10 +175,9 @@ export const Question = ({
     if (questionsRendered && !question.dependsOn) {
       return;
     } else if (questionsRendered && question.dependsOn) {
-      const questionAns = formState
-        .get(pageId)
-        ?.get(question.dependsOn.replace(/["]/g, ""));
-      if (questionAns !== question.displayIf) {
+      const questionAns = formState.get(pageId)?.get(question.dependsOn);
+
+      if (question.displayIf && questionAns !== question.displayIf) {
         setQuestionsRendered(false);
       }
     } else if (!questionsRendered && !question.dependsOn) {
@@ -173,10 +185,12 @@ export const Question = ({
       getCorrectAnswer();
       setQuestionsRendered(true);
     } else if (!questionsRendered && question.dependsOn) {
-      const questionAns = formState
-        .get(pageId)
-        ?.get(question.dependsOn.replace(/["]/g, ""));
-      if (questionAns === question.displayIf) {
+      const questionAns = formState.get(pageId)?.get(question.dependsOn);
+      if (question.displayIf && questionAns === question.displayIf) {
+        evaluateQuestionVars();
+        getCorrectAnswer();
+        setQuestionsRendered(true);
+      } else if (!question.displayIf && questionAns !== "") {
         evaluateQuestionVars();
         getCorrectAnswer();
         setQuestionsRendered(true);
@@ -190,7 +204,6 @@ export const Question = ({
 
   useEffect(() => {
     addQuestionIdToFormState();
-    evaluateDependsOn();
   }, []);
 
   return (

@@ -3,18 +3,19 @@ import { FunctionEvaluator } from "src/AST/Evaluator/FunctionEvaluator";
 import { FunctionEvaluatorContext } from "src/AST/Evaluator/FunctionEvaluator";
 import { IFormStateContext } from "./Context";
 import { FunctionsContext } from "../AST/Evaluator/FunctionEvaluator";
-import { Vars } from "./Interfaces";
+import { FunctionBinding, Vars } from "./Interfaces";
+import { VariableName } from "src/AST/Nodes/VariableName";
 
 declare global {
   interface Window {
-    globalVars: { [key: string]: string | number };
+    globalVars: { [key: string]: string | number | (string | number)[] };
   }
 }
 
 export const getArgValues = (
   args: (string | number | Function_Call)[],
-  evaluatedVars: { [key: string]: string | number },
-  globalVars: { [key: string]: string | number },
+  evaluatedVars: { [key: string]: string | number | (string | number)[] },
+  globalVars: { [key: string]: string | number | (string | number)[] },
   formState: IFormStateContext,
   functionMap: FunctionsContext
 ): (string | number)[] => {
@@ -40,8 +41,8 @@ export const getArgValues = (
 
 export const evaluateVars = (
   vars: Vars[],
-  evaluatedVars: { [key: string]: string | number },
-  globalVars: { [key: string]: string | number },
+  evaluatedVars: { [key: string]: string | number | (string | number)[] },
+  globalVars: { [key: string]: string | number | (string | number)[] },
   formState: IFormStateContext,
   functionMap: FunctionsContext
 ) => {
@@ -105,4 +106,49 @@ export const compareObjects = (
   }
 
   return false;
+};
+
+export const evaluateOptions = (
+  options:
+    | { value: string | number | VariableName }[]
+    | VariableName
+    | FunctionBinding,
+  vars: { [key: string]: string | number | (string | number)[] },
+  globalVars: { [key: string]: string | number | (string | number)[] },
+  formState: Map<string, Map<string, string>>,
+  functions: FunctionsContext
+): (string | number)[] => {
+  let optionsArgs: (string | number | Function_Call)[] = [];
+  let nodeToVisit;
+  if (!(options instanceof Array) && !(options instanceof VariableName)) {
+    // Options is a FunctionBinding
+
+    if (options.args) {
+      optionsArgs = getArgValues(
+        options.args,
+        { ...vars },
+        { ...globalVars },
+        formState,
+        functions
+      );
+    }
+
+    nodeToVisit = options.value;
+  } else {
+    nodeToVisit = options;
+  }
+
+  const context: FunctionEvaluatorContext = {
+    formState,
+    globalVars,
+    vars: { ...vars },
+    functions,
+    returnValue: 0,
+    passedArguments: optionsArgs,
+  };
+  const functionEvaluator = new FunctionEvaluator();
+
+  functionEvaluator.visit(context, nodeToVisit);
+
+  return context.returnValue;
 };

@@ -55,9 +55,6 @@ export const Main = ({ setPagesObj }: MainProps) => {
     setFunctionMap(functionMap);
     setPages(pagesObj);
 
-    console.log("global variables: ", globalVariables);
-    console.log("pages: ", pagesObj);
-
     const initialFormState = new Map();
     pagesObj.forEach((page) => {
       initialFormState.set(page.id, new Map());

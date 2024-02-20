@@ -226,9 +226,11 @@ export class Evaluator implements Visitor<{}, any> {
   }
 
   visitArrayCustom(context: {}, arrayCustom: ArrayCustom) {
-    return arrayCustom
-      .getArrayCustom()
-      .map((option) => option.accept(context, this));
+    return {
+      value: arrayCustom
+        .getArrayCustom()
+        .map((option) => option.accept(context, this)),
+    };
   }
 
   visitExpression(context: {}, expression: Expression) {

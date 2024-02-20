@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { IAnswer } from "./Interfaces";
 import { RadioGroup, Radio, FormControlLabel } from "@mui/material";
-import { VariableName } from "src/AST/Nodes/VariableName";
 
 interface QuestionRadioProps {
   id: string;
@@ -17,8 +16,6 @@ export const QuestionRadio = ({
   const handleChange = (e: any) => {
     setAnswer(id, { radioSelection: e.target.value });
   };
-
-  const evaluateOptions = () => {};
 
   return (
     <RadioGroup name="radio-buttons-group">

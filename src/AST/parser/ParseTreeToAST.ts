@@ -101,7 +101,9 @@ export class ParseTreeToAST
       if (varValue.NUM()?.text) {
         variableList.push(new Variable(varName, Number(varValue.NUM()?.text)));
       } else if (varValue.STRING()?.text) {
-        variableList.push(new Variable(varName, varValue.STRING()?.text));
+        variableList.push(
+          new Variable(varName, varValue.STRING()?.text.replace(/["]/g, ""))
+        );
       } else if (varBoolean) {
         variableList.push(new Variable(varName, varBoolean));
       } else if (varValue.array()) {
@@ -235,8 +237,8 @@ export class ParseTreeToAST
     for (const s of ctx.statement()) {
       statements.push(s.accept(this));
     }
-    let returnVal
-    if(ctx.returnValue()) {
+    let returnVal;
+    if (ctx.returnValue()) {
       //@ts-ignore
       returnVal = ctx.returnValue().accept(this);
     }
@@ -400,9 +402,15 @@ export class ParseTreeToAST
       } else if (questionFields.options_field()) {
         options = questionFields.options_field()?.accept(this);
       } else if (questionFields.dependsOn_field()) {
-        dependsOn = questionFields.dependsOn_field()?.STRING().text;
+        dependsOn = questionFields
+          .dependsOn_field()
+          ?.STRING()
+          .text.replace(/["]/g, "");
       } else if (questionFields.displayIf_field()) {
-        displayIf = questionFields.displayIf_field()?.STRING().text;
+        displayIf = questionFields
+          .displayIf_field()
+          ?.STRING()
+          .text.replace(/["]/g, "");
       } else if (questionFields.loop_field()) {
         loop = Number(questionFields.loop_field()?.NUM().text);
       } else if (questionFields.isRequired_field()) {
@@ -461,7 +469,7 @@ export class ParseTreeToAST
     const arrayList: ArrayValue[] = [];
     for (const a of ctx.array_value()) {
       const currNumValue = a.NUM()?.text;
-      const currStringValue = a.STRING()?.text;
+      const currStringValue = a.STRING()?.text.replace(/["]/g, "");
       const currVarNameVal = a.VARIABLE_NAME()?.text;
 
       if (currNumValue) {
