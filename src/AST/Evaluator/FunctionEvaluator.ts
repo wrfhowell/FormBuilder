@@ -1,4 +1,4 @@
-import { MathExpression, Visitor } from "../export";
+import { ArrayCustom, MathExpression, Visitor } from "../export";
 import { Function_Body } from "../Nodes/Function_Body";
 import { Function_Call } from "../Nodes/Function_Call";
 import { FunctionCustom } from "../Nodes/FunctionCustom";
@@ -43,6 +43,7 @@ export class FunctionEvaluator implements Visitor<{}, any> {
 
   constructor() {
     this.visitArray = this.visitArray.bind(this);
+    this.visitArrayCustom = this.visitArrayCustom.bind(this);
     this.visitArrayValue = this.visitArrayValue.bind(this);
     this.visitExpression = this.visitExpression.bind(this);
     this.visitFormStateAccess = this.visitFormStateAccess.bind(this);
@@ -61,6 +62,7 @@ export class FunctionEvaluator implements Visitor<{}, any> {
 
     this.jumpTable = {
       Array: this.visitArray,
+      ArrayCustom: this.visitArrayCustom,
       ArrayValue: this.visitArrayValue,
       Conditional: this.visitConditional,
       Cond_Body: this.visitCondBody,
@@ -92,11 +94,30 @@ export class FunctionEvaluator implements Visitor<{}, any> {
   }
 
   visitArray(context: FunctionEvaluatorContext, node: Array<ArrayValue>) {
-    log("Visitng Array: ", node);
+    log("Visiting Array: ", node);
     let evaluated_array: (string | number)[] = [];
     node.forEach((item) => {
-      item.accept(context, this);
-      evaluated_array.push(context.returnValue);
+      if (typeof item === "string" || typeof item === "number") {
+        evaluated_array.push(item);
+      } else {
+        item.accept(context, this);
+        evaluated_array.push(context.returnValue);
+      }
+    });
+    context.returnValue = evaluated_array;
+  }
+
+  visitArrayCustom(context: FunctionEvaluatorContext, node: ArrayCustom) {
+    log("Visiting ArrayCustom: ", node);
+    let array = node.getArrayCustom();
+    let evaluated_array: (string | number)[] = [];
+    array.forEach((item) => {
+      if (typeof item === "number" || typeof item === "string") {
+        evaluated_array.push(item);
+      } else {
+        item.accept(context, this);
+        evaluated_array.push(context.returnValue);
+      }
     });
     context.returnValue = evaluated_array;
   }

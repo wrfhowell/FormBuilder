@@ -11,7 +11,7 @@ import {
 import React from "react";
 import { useGlobalQuizContext } from "./Context";
 import { VariableName } from "../AST/Nodes/VariableName";
-import { evaluateVars, evaluateOptions } from "./functions";
+import { evaluateVars, evaluateOptions, getArgValues } from "./functions";
 import { Divider } from "@mui/material";
 
 interface QuestionProps {
@@ -76,6 +76,7 @@ export const Question = ({
   // Get values for each of the variables for the Question
   const evaluateQuestionVars = () => {
     if (!question.vars) return;
+    console.log("starting evaluate question vars");
     const { currentEvaluatedVars, globalVars: updatedGlobalVars } =
       evaluateVars(
         question.vars,
@@ -91,7 +92,9 @@ export const Question = ({
 
   // Evaluate the label for the question
   const getQuestionLabel = (): string | number => {
+    console.log("starting get question label");
     let questionLabel: string | number = evaluateProperty(question.label);
+    console.log("got question label: ", questionLabel);
     return questionLabel;
   };
 
@@ -99,8 +102,13 @@ export const Question = ({
     property: string | FunctionBinding | VariableName
   ): string => {
     let propertyValue: string = "";
-
-    if (typeof property === "string") {
+    console.log(
+      "evaluateProperty: ",
+      property,
+      "evaluated vars: ",
+      evaluatedVars
+    );
+    if (typeof property === "string" || typeof property === "number") {
       return property;
     } else if (property instanceof VariableName) {
       const functionEvaluator = new FunctionEvaluator();
@@ -122,7 +130,13 @@ export const Question = ({
       if (!property.args) {
         propertyValue = property.value().toString();
       } else {
-        let args = property.args;
+        let args = getArgValues(
+          property.args,
+          { ...evaluatedVars },
+          { ...window.globalVars },
+          formState,
+          functionMap
+        );
         propertyValue = property.value(args).toString();
       }
     } else if (
@@ -131,6 +145,7 @@ export const Question = ({
     ) {
       propertyValue = property.value.toString();
     } else {
+      console.log("got here 1");
       const functionEvaluator = new FunctionEvaluator();
       const updatedGlobalVars = { ...window.globalVars };
       let context: FunctionEvaluatorContext = {
@@ -196,8 +211,8 @@ export const Question = ({
   }, [formState]);
 
   useEffect(() => {
+    console.log("re rendering here");
     addQuestionIdToFormState();
-    evaluateDependsOn();
   }, []);
 
   return (

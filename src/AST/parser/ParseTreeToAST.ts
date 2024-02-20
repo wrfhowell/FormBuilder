@@ -465,7 +465,7 @@ export class ParseTreeToAST
     }
   }
 
-  visitArray(ctx: ArrayContext): ArrayValue[] {
+  visitArray(ctx: ArrayContext): ArrayCustom {
     const arrayList: ArrayValue[] = [];
     for (const a of ctx.array_value()) {
       const currNumValue = a.NUM()?.text;
@@ -482,7 +482,7 @@ export class ParseTreeToAST
         arrayList.push(new ArrayValue(undefined));
       }
     }
-    return arrayList;
+    return new ArrayCustom(arrayList);
   }
 
   visitCorrectAnswer_field(
