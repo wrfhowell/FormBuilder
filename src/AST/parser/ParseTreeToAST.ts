@@ -235,8 +235,8 @@ export class ParseTreeToAST
     for (const s of ctx.statement()) {
       statements.push(s.accept(this));
     }
-    let returnVal
-    if(ctx.returnValue()) {
+    let returnVal;
+    if (ctx.returnValue()) {
       //@ts-ignore
       returnVal = ctx.returnValue().accept(this);
     }
@@ -461,7 +461,7 @@ export class ParseTreeToAST
     const arrayList: ArrayValue[] = [];
     for (const a of ctx.array_value()) {
       const currNumValue = a.NUM()?.text;
-      const currStringValue = a.STRING()?.text;
+      const currStringValue = a.STRING()?.text.replace(/["]/g, "");
       const currVarNameVal = a.VARIABLE_NAME()?.text;
 
       if (currNumValue) {

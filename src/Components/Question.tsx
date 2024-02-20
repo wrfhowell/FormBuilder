@@ -7,12 +7,11 @@ import { useEffect, useState } from "react";
 import {
   FunctionEvaluator,
   FunctionEvaluatorContext,
-  evaluateOptions,
 } from "../AST/Evaluator/FunctionEvaluator";
 import React from "react";
 import { useGlobalQuizContext } from "./Context";
 import { VariableName } from "../AST/Nodes/VariableName";
-import { evaluateVars } from "./functions";
+import { evaluateVars, evaluateOptions } from "./functions";
 import { Divider } from "@mui/material";
 
 interface QuestionProps {
@@ -34,9 +33,15 @@ export const Question = ({
   const getQuestionObj = () => {
     let questionOptions: (string | number)[];
     if (question.options) {
-      questionOptions = evaluateOptions(question.options, evaluatedVars, {
-        ...window.globalVars,
-      });
+      questionOptions = evaluateOptions(
+        question.options,
+        evaluatedVars,
+        {
+          ...window.globalVars,
+        },
+        formState,
+        functionMap
+      );
     } else {
       questionOptions = [];
     }
