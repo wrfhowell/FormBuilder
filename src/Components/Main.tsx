@@ -13,6 +13,7 @@ import { ParseTreeToAST } from "../AST/parser/ParseTreeToAST";
 import React, { useState, useEffect } from "react";
 import { useGlobalQuizContext } from "./Context";
 import { evaluateVars } from "./functions";
+import { BaseChecker } from "src/AST/checkers/BaseChecker";
 
 interface MainProps {
   setPagesObj: (pagesObj: IPage[]) => void;
@@ -38,7 +39,13 @@ export const Main = ({ setPagesObj }: MainProps) => {
     const visitor = new ParseTreeToAST();
     // @ts-ignore
     const parsedProgram = parser.program().accept(visitor);
+    const baseChecker = new BaseChecker();
     const evaluator = new Evaluator();
+    try {
+      parsedProgram.accept({}, baseChecker);
+    } catch (err) {
+      console.log(err);
+    }
     let programObj: any = parsedProgram.accept({}, evaluator);
     let pagesObj = programObj.pages as IPage[];
     let functionMap = programObj.FunctionsMap;
@@ -48,6 +55,7 @@ export const Main = ({ setPagesObj }: MainProps) => {
     setFunctionMap(functionMap);
     setPages(pagesObj);
 
+    console.log("global variables: ", globalVariables);
     console.log("pages: ", pagesObj);
 
     const initialFormState = new Map();
