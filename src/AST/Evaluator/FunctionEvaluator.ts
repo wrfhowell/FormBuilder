@@ -289,6 +289,7 @@ export class FunctionEvaluator implements Visitor<{}, any> {
 
   visitFunctionCustom(context: FunctionEvaluatorContext, node: FunctionCustom) {
     log("Visiting FunctionCustom");
+
     this.convertFunctionArgumentsToValues(
       context,
       node.getFunctionParams() as VariableName[]

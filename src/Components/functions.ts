@@ -3,7 +3,7 @@ import { FunctionEvaluator } from "src/AST/Evaluator/FunctionEvaluator";
 import { FunctionEvaluatorContext } from "src/AST/Evaluator/FunctionEvaluator";
 import { IFormStateContext } from "./Context";
 import { FunctionsContext } from "../AST/Evaluator/FunctionEvaluator";
-import { Vars } from "./Interfaces";
+import { FunctionBinding, Vars } from "./Interfaces";
 import { VariableName } from "src/AST/Nodes/VariableName";
 
 declare global {
@@ -14,7 +14,7 @@ declare global {
 
 export const getArgValues = (
   args: (string | number | Function_Call)[],
-  evaluatedVars: { [key: string]: string | number },
+  evaluatedVars: { [key: string]: string | number | (string | number)[] },
   globalVars: { [key: string]: string | number | (string | number)[] },
   formState: IFormStateContext,
   functionMap: FunctionsContext
@@ -41,7 +41,7 @@ export const getArgValues = (
 
 export const evaluateVars = (
   vars: Vars[],
-  evaluatedVars: { [key: string]: string | number },
+  evaluatedVars: { [key: string]: string | number | (string | number)[] },
   globalVars: { [key: string]: string | number | (string | number)[] },
   formState: IFormStateContext,
   functionMap: FunctionsContext
@@ -109,55 +109,46 @@ export const compareObjects = (
 };
 
 export const evaluateOptions = (
-  options: { value: string | number | VariableName }[] | VariableName,
+  options:
+    | { value: string | number | VariableName }[]
+    | VariableName
+    | FunctionBinding,
   vars: { [key: string]: string | number | (string | number)[] },
   globalVars: { [key: string]: string | number | (string | number)[] },
   formState: Map<string, Map<string, string>>,
   functions: FunctionsContext
 ): (string | number)[] => {
+  let optionsArgs: (string | number | Function_Call)[] = [];
+  let nodeToVisit;
+  if (!(options instanceof Array) && !(options instanceof VariableName)) {
+    // Options is a FunctionBinding
+
+    if (options.args) {
+      optionsArgs = getArgValues(
+        options.args,
+        { ...vars },
+        { ...globalVars },
+        formState,
+        functions
+      );
+    }
+
+    nodeToVisit = options.value;
+  } else {
+    nodeToVisit = options;
+  }
+
   const context: FunctionEvaluatorContext = {
     formState,
     globalVars,
     vars: { ...vars },
     functions,
     returnValue: 0,
+    passedArguments: optionsArgs,
   };
   const functionEvaluator = new FunctionEvaluator();
 
-  functionEvaluator.visit(context, options);
+  functionEvaluator.visit(context, nodeToVisit);
 
   return context.returnValue;
-
-  //   console.log("options from evaluateOptions: ", options);
-  //   let evaluatedOptions: (string | number)[] = [];
-
-  //   if (options instanceof VariableName) {
-  //     if (vars.hasOwnProperty(options.getName())) {
-  //       let evaluatedOptionsTest = vars[options.getName()];
-  //       if (evaluatedOptionsTest instanceof Array) {
-  //         evaluatedOptions = evaluatedOptionsTest;
-  //       } else {
-  //         evaluatedOptions.push(evaluatedOptionsTest);
-  //       }
-  //     } else {
-  //       let evaluatedOptionsTest = globalVars[options.getName()];
-  //       if (evaluatedOptionsTest instanceof Array) {
-  //         evaluatedOptions = evaluatedOptionsTest;
-  //       }
-  //     }
-  //     return evaluatedOptions;
-  //   }
-
-  //   options.forEach((option) => {
-  //     if (typeof option.value === "string" || typeof option.value === "number") {
-  //       evaluatedOptions.push(option.value);
-  //     } else {
-  //       if (vars.hasOwnProperty(option.value.getName())) {
-  //         evaluatedOptions.push(vars[option.value.getName()]);
-  //       } else {
-  //         evaluatedOptions.push(globalVars[option.value.getName()]);
-  //       }
-  //     }
-  //   });
-  //   return evaluatedOptions;
 };

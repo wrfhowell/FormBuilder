@@ -27,7 +27,7 @@ export const Question = ({
 }: QuestionProps) => {
   const { functionMap, formState, setFormState } = useGlobalQuizContext();
   const [evaluatedVars, setEvaluatedVars] = useState<{
-    [key: string]: string | number;
+    [key: string]: string | number | (string | number)[];
   }>({});
   const [questionsRendered, setQuestionsRendered] = useState(false);
   const getQuestionObj = () => {
@@ -86,6 +86,7 @@ export const Question = ({
       );
     window.globalVars = updatedGlobalVars;
     setEvaluatedVars(currentEvaluatedVars);
+    console.log("vars: ", currentEvaluatedVars);
   };
 
   // Evaluate the label for the question
@@ -167,10 +168,9 @@ export const Question = ({
     if (questionsRendered && !question.dependsOn) {
       return;
     } else if (questionsRendered && question.dependsOn) {
-      const questionAns = formState
-        .get(pageId)
-        ?.get(question.dependsOn.replace(/["]/g, ""));
-      if (questionAns !== question.displayIf) {
+      const questionAns = formState.get(pageId)?.get(question.dependsOn);
+
+      if (question.displayIf && questionAns !== question.displayIf) {
         setQuestionsRendered(false);
       }
     } else if (!questionsRendered && !question.dependsOn) {
@@ -178,10 +178,12 @@ export const Question = ({
       getCorrectAnswer();
       setQuestionsRendered(true);
     } else if (!questionsRendered && question.dependsOn) {
-      const questionAns = formState
-        .get(pageId)
-        ?.get(question.dependsOn.replace(/["]/g, ""));
-      if (questionAns === question.displayIf) {
+      const questionAns = formState.get(pageId)?.get(question.dependsOn);
+      if (question.displayIf && questionAns === question.displayIf) {
+        evaluateQuestionVars();
+        getCorrectAnswer();
+        setQuestionsRendered(true);
+      } else if (!question.displayIf && questionAns !== "") {
         evaluateQuestionVars();
         getCorrectAnswer();
         setQuestionsRendered(true);
