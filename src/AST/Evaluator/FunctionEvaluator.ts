@@ -357,3 +357,23 @@ export class FunctionEvaluator implements Visitor<{}, any> {
     });
   }
 }
+
+export const evaluateOptions = (
+  options: { value: string | number | VariableName }[],
+  vars: { [key: string]: string | number },
+  globalVars: { [key: string]: string | number }
+): (string | number)[] => {
+  const evaluatedOptions: (string | number)[] = [];
+  options.forEach((option) => {
+    if (typeof option.value === "string" || typeof option.value === "number") {
+      evaluatedOptions.push(option.value);
+    } else {
+      if (vars.hasOwnProperty(option.value.getName())) {
+        evaluatedOptions.push(vars[option.value.getName()]);
+      } else {
+        evaluatedOptions.push(globalVars[option.value.getName()]);
+      }
+    }
+  });
+  return evaluatedOptions;
+};

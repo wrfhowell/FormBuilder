@@ -7,11 +7,13 @@ import { useEffect, useState } from "react";
 import {
   FunctionEvaluator,
   FunctionEvaluatorContext,
+  evaluateOptions,
 } from "../AST/Evaluator/FunctionEvaluator";
 import React from "react";
 import { useGlobalQuizContext } from "./Context";
 import { VariableName } from "../AST/Nodes/VariableName";
-import { compareObjects, evaluateVars } from "./functions";
+import { evaluateVars } from "./functions";
+import { Divider } from "@mui/material";
 
 interface QuestionProps {
   pageId: string;
@@ -29,31 +31,41 @@ export const Question = ({
     [key: string]: string | number;
   }>({});
   const [questionsRendered, setQuestionsRendered] = useState(false);
-  const questionObj = {
-    textInput: (
-      <QuestionText id={question.id} setAnswer={setQuestionUserAnswer} />
-    ),
-    dropdown: (
-      <QuestionDropdown
-        id={question.id}
-        setAnswer={setQuestionUserAnswer}
-        options={question.options}
-      />
-    ),
-    checkbox: (
-      <QuestionCheckbox
-        id={question.id}
-        options={question.options}
-        setAnswer={setQuestionUserAnswer}
-      />
-    ),
-    radio: (
-      <QuestionRadio
-        options={question.options}
-        id={question.id}
-        setAnswer={setQuestionUserAnswer}
-      />
-    ),
+  const getQuestionObj = () => {
+    let questionOptions: (string | number)[];
+    if (question.options) {
+      questionOptions = evaluateOptions(question.options, evaluatedVars, {
+        ...window.globalVars,
+      });
+    } else {
+      questionOptions = [];
+    }
+    return {
+      textInput: (
+        <QuestionText id={question.id} setAnswer={setQuestionUserAnswer} />
+      ),
+      dropdown: (
+        <QuestionDropdown
+          id={question.id}
+          setAnswer={setQuestionUserAnswer}
+          options={questionOptions}
+        />
+      ),
+      checkbox: (
+        <QuestionCheckbox
+          id={question.id}
+          options={questionOptions}
+          setAnswer={setQuestionUserAnswer}
+        />
+      ),
+      radio: (
+        <QuestionRadio
+          options={questionOptions}
+          id={question.id}
+          setAnswer={setQuestionUserAnswer}
+        />
+      ),
+    };
   };
 
   // Get values for each of the variables for the Question
@@ -68,7 +80,6 @@ export const Question = ({
         functionMap
       );
     window.globalVars = updatedGlobalVars;
-
     setEvaluatedVars(currentEvaluatedVars);
   };
 
@@ -139,7 +150,6 @@ export const Question = ({
       .get(pageId)
       ?.set(`${question.id}-correctAnswer`, questionCorrectAnswer);
     setFormState(updatedFormState);
-    console.log(formState);
   };
 
   const addQuestionIdToFormState = () => {
@@ -148,19 +158,48 @@ export const Question = ({
     setFormState(updatedFormState);
   };
 
+  const evaluateDependsOn = () => {
+    if (questionsRendered && !question.dependsOn) {
+      return;
+    } else if (questionsRendered && question.dependsOn) {
+      const questionAns = formState
+        .get(pageId)
+        ?.get(question.dependsOn.replace(/["]/g, ""));
+      if (questionAns !== question.displayIf) {
+        setQuestionsRendered(false);
+      }
+    } else if (!questionsRendered && !question.dependsOn) {
+      evaluateQuestionVars();
+      getCorrectAnswer();
+      setQuestionsRendered(true);
+    } else if (!questionsRendered && question.dependsOn) {
+      const questionAns = formState
+        .get(pageId)
+        ?.get(question.dependsOn.replace(/["]/g, ""));
+      if (questionAns === question.displayIf) {
+        evaluateQuestionVars();
+        getCorrectAnswer();
+        setQuestionsRendered(true);
+      }
+    }
+  };
+
+  useEffect(() => {
+    evaluateDependsOn();
+  }, [formState]);
+
   useEffect(() => {
     addQuestionIdToFormState();
-    evaluateQuestionVars();
-    getCorrectAnswer();
-    setQuestionsRendered(true);
+    evaluateDependsOn();
   }, []);
 
   return (
     <div>
       {questionsRendered && (
         <div>
+          <Divider />
           <h2>{getQuestionLabel()}</h2>
-          {questionObj[question.type]}
+          {getQuestionObj()[question.type]}
         </div>
       )}
     </div>

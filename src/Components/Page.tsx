@@ -140,9 +140,9 @@ export const Page = ({ page, iteration }: PageProps) => {
       if (page.goTo) {
         const nextPage = evaluateProperty(page.goTo).replace(/["]/g, "");
         if (nextPage === location.pathname) {
-          navigate(`/${nextPage}`, { state: iteration + 1 });
+          navigate(`/${nextPage}`, { state: iteration + 1, replace: true });
         } else {
-          navigate(`/${nextPage}`);
+          navigate(`/${nextPage}`, { replace: true });
         }
       }
     }
@@ -169,14 +169,10 @@ export const Page = ({ page, iteration }: PageProps) => {
     setUserAnswers(currentAnswers);
 
     // Update form state for question
-    const updatedFormState = formState;
+    const updatedFormState = new Map(formState);
     const questionAnswerString = convertIAnswerToString(ans);
-
-    // Check if form state has question
     updatedFormState.get(page.id)?.set(questionId, questionAnswerString);
     setFormState(updatedFormState);
-
-    console.log("updated Form State: ", updatedFormState);
   };
 
   const unravelQuestions = () => {
@@ -189,7 +185,6 @@ export const Page = ({ page, iteration }: PageProps) => {
         while (loopVar > 0) {
           questions.push(Object.assign({}, question));
           questions[questions.length - 1].id = question.id + loopIndex;
-          // console.log(questions);
           loopVar--;
           loopIndex++;
         }
@@ -198,7 +193,32 @@ export const Page = ({ page, iteration }: PageProps) => {
       }
     });
 
-    setPageQuestions(questions);
+    if (page.displayQuestions && page.displayQuestions < questions.length) {
+      let condensedQuestions: any[] = [];
+      const indexesToInclude = generateUniqueNumbers(
+        page.displayQuestions,
+        questions.length
+      );
+      indexesToInclude.forEach((num) => {
+        condensedQuestions.push(questions[num]);
+      });
+      setPageQuestions(condensedQuestions);
+    } else {
+      setPageQuestions(questions);
+    }
+  };
+
+  const generateUniqueNumbers = (count: number, max: number): number[] => {
+    const included = new Set();
+    const numbers: number[] = [];
+    while (numbers.length < count) {
+      let newNum = Math.floor(Math.random() * max);
+      if (!included.has(newNum)) {
+        numbers.push(newNum);
+        included.add(newNum);
+      }
+    }
+    return numbers;
   };
 
   useEffect(() => {
@@ -224,7 +244,6 @@ export const Page = ({ page, iteration }: PageProps) => {
           <p>{page.instructions}</p>
           {pageQuestions?.map((question) => (
             <div key={question.id}>
-              <Divider />
               <Question
                 pageId={page.id}
                 setQuestionUserAnswer={updateAnswers}

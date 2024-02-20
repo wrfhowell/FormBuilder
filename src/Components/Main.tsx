@@ -10,9 +10,10 @@ import { FormGeneratorLexer } from "../AST/generated/FormGeneratorLexer";
 import { FormGeneratorParser } from "../AST/generated/FormGeneratorParser";
 import { CharStreams, CommonTokenStream } from "antlr4ts";
 import { ParseTreeToAST } from "../AST/parser/ParseTreeToAST";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useGlobalQuizContext } from "./Context";
 import { evaluateVars } from "./functions";
+import { BaseChecker } from "src/AST/checkers/BaseChecker";
 
 interface MainProps {
   setPagesObj: (pagesObj: IPage[]) => void;
@@ -38,7 +39,13 @@ export const Main = ({ setPagesObj }: MainProps) => {
     const visitor = new ParseTreeToAST();
     // @ts-ignore
     const parsedProgram = parser.program().accept(visitor);
+    const baseChecker = new BaseChecker();
     const evaluator = new Evaluator();
+    try {
+      parsedProgram.accept({}, baseChecker);
+    } catch (err) {
+      console.log(err);
+    }
     let programObj: any = parsedProgram.accept({}, evaluator);
     let pagesObj = programObj.pages as IPage[];
     let functionMap = programObj.FunctionsMap;
@@ -47,6 +54,9 @@ export const Main = ({ setPagesObj }: MainProps) => {
     setUnevaluatedGlobalVars(globalVariables);
     setFunctionMap(functionMap);
     setPages(pagesObj);
+
+    console.log("global variables: ", globalVariables);
+    console.log("pages: ", pagesObj);
 
     const initialFormState = new Map();
     pagesObj.forEach((page) => {
@@ -88,6 +98,12 @@ export const Main = ({ setPagesObj }: MainProps) => {
     width: 1,
   });
 
+  useEffect(() => {
+    if (fileContents !== "") {
+      runStaticChecks();
+    }
+  }, [fileContents]);
+
   return (
     <>
       <h1>Quiz Creator DSL</h1>
@@ -99,11 +115,6 @@ export const Main = ({ setPagesObj }: MainProps) => {
       >
         Upload
         <VisuallyHiddenInput onChange={uploadFile} type="file" />
-      </Button>
-
-      <h3>Run Static Checks</h3>
-      <Button variant="contained" onClick={runStaticChecks}>
-        Run Static Checks
       </Button>
 
       <h3>Start the Quiz</h3>

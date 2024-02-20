@@ -469,7 +469,7 @@ export class ParseTreeToAST
       } else if (currStringValue) {
         arrayList.push(new ArrayValue(currStringValue));
       } else if (currVarNameVal) {
-        arrayList.push(new ArrayValue(currVarNameVal));
+        arrayList.push(new ArrayValue(new VariableName(currVarNameVal)));
       } else {
         arrayList.push(new ArrayValue(undefined));
       }
