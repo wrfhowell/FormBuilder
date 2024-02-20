@@ -1,16 +1,10 @@
 import { Function_Call } from "src/AST/Nodes/Function_Call";
 import { FunctionEvaluator } from "src/AST/Evaluator/FunctionEvaluator";
 import { FunctionEvaluatorContext } from "src/AST/Evaluator/FunctionEvaluator";
-import { IFormStateContext } from "./Context";
+import { IFormStateContext } from "../Components/Context";
 import { FunctionsContext } from "../AST/Evaluator/FunctionEvaluator";
-import { FunctionBinding, Vars } from "./Interfaces";
+import { FunctionBinding, Vars } from "../Components/Interfaces";
 import { VariableName } from "src/AST/Nodes/VariableName";
-
-declare global {
-  interface Window {
-    globalVars: { [key: string]: string | number | (string | number)[] };
-  }
-}
 
 export const getArgValues = (
   args: (string | number | Function_Call)[],

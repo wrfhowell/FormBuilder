@@ -11,7 +11,11 @@ import {
 import React from "react";
 import { useGlobalQuizContext } from "./Context";
 import { VariableName } from "../AST/Nodes/VariableName";
-import { evaluateVars, evaluateOptions, getArgValues } from "./functions";
+import {
+  evaluateVars,
+  evaluateOptions,
+  getArgValues,
+} from "../Functions/functions";
 import { Divider } from "@mui/material";
 
 interface QuestionProps {

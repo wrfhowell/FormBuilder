@@ -12,7 +12,7 @@ import { CharStreams, CommonTokenStream } from "antlr4ts";
 import { ParseTreeToAST } from "../AST/parser/ParseTreeToAST";
 import React, { useState, useEffect } from "react";
 import { useGlobalQuizContext } from "./Context";
-import { evaluateVars } from "./functions";
+import { evaluateVars } from "../Functions/functions";
 import { BaseChecker } from "src/AST/checkers/BaseChecker";
 
 interface MainProps {
@@ -21,6 +21,8 @@ interface MainProps {
 
 export const Main = ({ setPagesObj }: MainProps) => {
   const { fileContents, uploadFile } = useFileUpload();
+  const [staticChecksPassed, setStaticChecksPassed] = useState(false);
+  const [staticChecksError, setStaticChecksError] = useState(false);
   const [pages, setPages] = useState<IPage[]>([]);
   const [unevaluatedGlobalVars, setUnevaluatedGlobalVars] = useState<Vars[]>(
     []
@@ -45,6 +47,7 @@ export const Main = ({ setPagesObj }: MainProps) => {
       parsedProgram.accept({}, baseChecker);
     } catch (err) {
       console.log(err);
+      setStaticChecksError(true);
     }
     let programObj: any = parsedProgram.accept({}, evaluator);
     let pagesObj = programObj.pages as IPage[];
@@ -60,6 +63,7 @@ export const Main = ({ setPagesObj }: MainProps) => {
       initialFormState.set(page.id, new Map());
     });
     setFormState(initialFormState);
+    setStaticChecksPassed(true);
   };
 
   const evaluateGlobalVariables = (vars: Vars[]) => {
@@ -114,10 +118,14 @@ export const Main = ({ setPagesObj }: MainProps) => {
         <VisuallyHiddenInput onChange={uploadFile} type="file" />
       </Button>
 
-      <h3>Start the Quiz</h3>
-      <Button variant="contained" onClick={startQuiz} startIcon={<Quiz />}>
-        Start Quiz
-      </Button>
+      {staticChecksPassed && (
+        <>
+          <h3>Start the Quiz</h3>
+          <Button variant="contained" onClick={startQuiz} startIcon={<Quiz />}>
+            Start Quiz
+          </Button>
+        </>
+      )}
     </>
   );
 };
