@@ -1,16 +1,13 @@
 import { Function_Call } from "src/AST/Nodes/Function_Call";
-import { FunctionEvaluator } from "src/AST/Evaluator/FunctionEvaluator";
+import {
+  FunctionEvaluator,
+  VarsContext,
+} from "src/AST/Evaluator/FunctionEvaluator";
 import { FunctionEvaluatorContext } from "src/AST/Evaluator/FunctionEvaluator";
-import { IFormStateContext } from "./Context";
+import { IFormStateContext } from "../Components/Context";
 import { FunctionsContext } from "../AST/Evaluator/FunctionEvaluator";
-import { FunctionBinding, Vars } from "./Interfaces";
+import { FunctionBinding, Vars } from "../Components/Interfaces";
 import { VariableName } from "src/AST/Nodes/VariableName";
-
-declare global {
-  interface Window {
-    globalVars: { [key: string]: string | number | (string | number)[] };
-  }
-}
 
 export const getArgValues = (
   args: (string | number | Function_Call)[],
@@ -151,4 +148,66 @@ export const evaluateOptions = (
   functionEvaluator.visit(context, nodeToVisit);
 
   return context.returnValue;
+};
+
+export const evaluateProperty = (
+  property: string | FunctionBinding | VariableName,
+  formState: Map<string, Map<string, string>>,
+  functionMap: FunctionsContext,
+  vars: VarsContext
+): string => {
+  let propertyValue: string = "";
+
+  if (typeof property === "string" || typeof property === "number") {
+    return property;
+  } else if (property instanceof VariableName) {
+    const functionEvaluator = new FunctionEvaluator();
+    const updatedGlobalVars = { ...window.globalVars };
+    const context: FunctionEvaluatorContext = {
+      formState,
+      vars,
+      globalVars: updatedGlobalVars,
+      functions: functionMap,
+      returnValue: 0,
+    };
+    functionEvaluator.visit(context, property);
+    window.globalVars = updatedGlobalVars;
+    return context.returnValue;
+  }
+
+  if (typeof property.value === "function") {
+    if (!property.args) {
+      propertyValue = property.value().toString();
+    } else {
+      let args = getArgValues(
+        property.args,
+        vars,
+        { ...window.globalVars },
+        formState,
+        functionMap
+      );
+      propertyValue = property.value(args).toString();
+    }
+  } else if (
+    typeof property.value === "number" ||
+    typeof property.value === "string"
+  ) {
+    propertyValue = property.value.toString();
+  } else {
+    const functionEvaluator = new FunctionEvaluator();
+    const updatedGlobalVars = { ...window.globalVars };
+
+    let context: FunctionEvaluatorContext = {
+      formState,
+      passedArguments: property.args,
+      vars,
+      globalVars: updatedGlobalVars,
+      functions: functionMap,
+      returnValue: 0,
+    };
+    functionEvaluator.visit(context, property.value);
+    window.globalVars = updatedGlobalVars;
+    propertyValue = context.returnValue;
+  }
+  return propertyValue.toString();
 };

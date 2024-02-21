@@ -1,17 +1,17 @@
-import { IQuestion, IAnswer, FunctionBinding, Vars } from "./Interfaces";
+import { IQuestion, IAnswer } from "./Interfaces";
 import { QuestionRadio } from "./QuestionRadio";
 import { QuestionCheckbox } from "./QuestionCheckbox";
 import { QuestionText } from "./QuestionText";
 import { QuestionDropdown } from "./QuestionDropdown";
 import { useEffect, useState } from "react";
-import {
-  FunctionEvaluator,
-  FunctionEvaluatorContext,
-} from "../AST/Evaluator/FunctionEvaluator";
 import React from "react";
 import { useGlobalQuizContext } from "./Context";
-import { VariableName } from "../AST/Nodes/VariableName";
-import { evaluateVars, evaluateOptions, getArgValues } from "./functions";
+import { useErrorContext } from "./ErrorContext";
+import {
+  evaluateVars,
+  evaluateOptions,
+  evaluateProperty,
+} from "../Functions/functions";
 import { Divider } from "@mui/material";
 
 interface QuestionProps {
@@ -30,6 +30,10 @@ export const Question = ({
     [key: string]: string | number | (string | number)[];
   }>({});
   const [questionsRendered, setQuestionsRendered] = useState(false);
+  const [questionLabel, setQuestionLabel] = useState<string>();
+  const { showError } = useErrorContext();
+
+  // Retrieves the correct type of question to render on the page
   const getQuestionObj = () => {
     let questionOptions: (string | number)[];
     if (question.options) {
@@ -76,101 +80,70 @@ export const Question = ({
   // Get values for each of the variables for the Question
   const evaluateQuestionVars = () => {
     if (!question.vars) return;
-    console.log("starting evaluate question vars");
-    const { currentEvaluatedVars, globalVars: updatedGlobalVars } =
-      evaluateVars(
-        question.vars,
-        evaluatedVars,
-        { ...window.globalVars },
-        formState,
-        functionMap
-      );
-    window.globalVars = updatedGlobalVars;
-    setEvaluatedVars(currentEvaluatedVars);
-  };
 
-  // Evaluate the label for the question
-  const getQuestionLabel = (): string | number => {
-    let questionLabel: string | number = evaluateProperty(question.label);
-    return questionLabel;
-  };
-
-  const evaluateProperty = (
-    property: string | FunctionBinding | VariableName
-  ): string => {
-    let propertyValue: string = "";
-
-    if (typeof property === "string" || typeof property === "number") {
-      return property;
-    } else if (property instanceof VariableName) {
-      const functionEvaluator = new FunctionEvaluator();
-      const updatedGlobalVars = { ...window.globalVars };
-      const context: FunctionEvaluatorContext = {
-        formState,
-        globalVars: updatedGlobalVars,
-        vars: { ...evaluatedVars },
-        functions: functionMap,
-        returnValue: 0,
-      };
-      functionEvaluator.visit(context, property);
-
-      window.globalVars = updatedGlobalVars;
-      return context.returnValue;
-    }
-
-    if (typeof property.value === "function") {
-      if (!property.args) {
-        propertyValue = property.value().toString();
-      } else {
-        let args = getArgValues(
-          property.args,
-          { ...evaluatedVars },
+    try {
+      const { currentEvaluatedVars, globalVars: updatedGlobalVars } =
+        evaluateVars(
+          question.vars,
+          evaluatedVars,
           { ...window.globalVars },
           formState,
           functionMap
         );
-        propertyValue = property.value(args).toString();
-      }
-    } else if (
-      typeof property.value === "number" ||
-      typeof property.value === "string"
-    ) {
-      propertyValue = property.value.toString();
-    } else {
-      console.log("got here 1");
-      const functionEvaluator = new FunctionEvaluator();
-      const updatedGlobalVars = { ...window.globalVars };
-      let context: FunctionEvaluatorContext = {
-        formState,
-        globalVars: updatedGlobalVars,
-        passedArguments: property.args,
-        vars: { ...evaluatedVars },
-        functions: functionMap,
-        returnValue: 0,
-      };
-      functionEvaluator.visit(context, property.value);
       window.globalVars = updatedGlobalVars;
-      propertyValue = context.returnValue;
+      setEvaluatedVars(currentEvaluatedVars);
+    } catch (err) {
+      showError(err);
     }
-    return propertyValue.toString();
   };
 
+  // Evaluate the label for the Question
+  const getQuestionLabel = () => {
+    try {
+      let questionLabel: string | number = evaluateProperty(
+        question.label,
+        formState,
+        functionMap,
+        { ...evaluatedVars }
+      );
+      if (typeof questionLabel !== "string" && isNaN(questionLabel)) {
+        throw new Error("Could not evaluate question label");
+      }
+      setQuestionLabel(questionLabel);
+    } catch (err) {
+      showError(err);
+    }
+  };
+
+  // Evaluates the correct answer for the question
   const getCorrectAnswer = () => {
     if (!question.correctAnswer) return;
-    const questionCorrectAnswer = evaluateProperty(question.correctAnswer);
-    const updatedFormState = formState;
-    updatedFormState
-      .get(pageId)
-      ?.set(`${question.id}-correctAnswer`, questionCorrectAnswer);
-    setFormState(updatedFormState);
+
+    try {
+      const questionCorrectAnswer = evaluateProperty(
+        question.correctAnswer,
+        formState,
+        functionMap,
+        { ...evaluatedVars }
+      );
+      const updatedFormState = formState;
+      updatedFormState
+        .get(pageId)
+        ?.set(`${question.id}-correctAnswer`, questionCorrectAnswer);
+      setFormState(updatedFormState);
+    } catch (err) {
+      showError(err);
+    }
   };
 
+  // Adds the Question ID to the Form State for retrieval in other Questions or functions
   const addQuestionIdToFormState = () => {
     const updatedFormState = formState;
     updatedFormState.get(pageId)?.set(question.id, "");
     setFormState(updatedFormState);
   };
 
+  // Selectively renders the component based on the value of the dependsOn property
   const evaluateDependsOn = () => {
     if (questionsRendered && !question.dependsOn) {
       return;
@@ -182,16 +155,19 @@ export const Question = ({
       }
     } else if (!questionsRendered && !question.dependsOn) {
       evaluateQuestionVars();
+      getQuestionLabel();
       getCorrectAnswer();
       setQuestionsRendered(true);
     } else if (!questionsRendered && question.dependsOn) {
       const questionAns = formState.get(pageId)?.get(question.dependsOn);
       if (question.displayIf && questionAns === question.displayIf) {
         evaluateQuestionVars();
+        getQuestionLabel();
         getCorrectAnswer();
         setQuestionsRendered(true);
       } else if (!question.displayIf && questionAns !== "") {
         evaluateQuestionVars();
+        getQuestionLabel();
         getCorrectAnswer();
         setQuestionsRendered(true);
       }
@@ -211,7 +187,12 @@ export const Question = ({
       {questionsRendered && (
         <div>
           <Divider />
-          <h2>{getQuestionLabel()}</h2>
+          {questionLabel && (
+            <div>
+              <h3>{questionLabel}</h3>
+              {question.isRequired && <p>*Required</p>}
+            </div>
+          )}
           {getQuestionObj()[question.type]}
         </div>
       )}

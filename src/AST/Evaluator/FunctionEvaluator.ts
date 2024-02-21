@@ -11,6 +11,7 @@ import { If_Cond } from "../Nodes/If_Cond";
 import { Else_If_Cond } from "../Nodes/Else_If_Cond";
 import { Cond_Body } from "../Nodes/Cond_Body";
 import { ArrayValue } from "../export";
+import { FunctionEvaluatorError } from "src/Functions/errors";
 
 const LOGGING = false;
 
@@ -90,6 +91,9 @@ export class FunctionEvaluator implements Visitor<{}, any> {
       console.error(
         `No visit method defined for node type ${nodeType}: ${node}`
       );
+      throw new FunctionEvaluatorError(
+        `No visit method defined for node type ${nodeType}: ${node}`
+      );
     }
   }
 
@@ -131,12 +135,12 @@ export class FunctionEvaluator implements Visitor<{}, any> {
     }
   }
 
-  visitString(context: FunctionEvaluatorContext, node: any) {
+  visitString(context: FunctionEvaluatorContext, node: string) {
     log("Visiting String: ", node);
     context.returnValue = node;
   }
 
-  visitNumber(context: FunctionEvaluatorContext, node: any) {
+  visitNumber(context: FunctionEvaluatorContext, node: number) {
     log("Visiting Number: ", node);
     context.returnValue = node;
   }
@@ -216,6 +220,11 @@ export class FunctionEvaluator implements Visitor<{}, any> {
     const pageId = node.getPageId();
     const questionId = node.getQuestionId();
     const formStateValue = context.formState.get(pageId)?.get(questionId);
+    if (formStateValue === undefined) {
+      throw new FunctionEvaluatorError(
+        `FormState not defined for pageId "${pageId}" and questionId "${questionId}"`
+      );
+    }
     context.returnValue = formStateValue;
   }
 
@@ -376,12 +385,19 @@ export class FunctionEvaluator implements Visitor<{}, any> {
   }
 
   visitVariableName(context: FunctionEvaluatorContext, node: VariableName) {
-    log("Visiting VariableName");
+    log("Visiting VariableName: ", node);
     // determine if need to return local or global variable
+
     if (context.vars[node.getName()] !== undefined) {
       context.returnValue = context.vars[node.getName()];
     } else {
       context.returnValue = context.globalVars[node.getName()];
+    }
+
+    if (context.returnValue === undefined) {
+      throw new FunctionEvaluatorError(
+        `Variable not defined: ${node.getName()}`
+      );
     }
   }
 
@@ -390,9 +406,9 @@ export class FunctionEvaluator implements Visitor<{}, any> {
     context: FunctionEvaluatorContext,
     parameterNames: VariableName[]
   ) {
-    log("convertFunctionArgumentsToValues");
+    log("convertFunctionArgumentsToValues: ", context.passedArguments);
     context.passedArguments?.forEach((variable, index: number) => {
-      parameterNames[index].accept(context, this);
+      // parameterNames[index].accept(context, this);
       let argumentName = parameterNames[index].getName();
       if (typeof variable === "string" || typeof variable === "number") {
         context.vars[argumentName] = variable;
