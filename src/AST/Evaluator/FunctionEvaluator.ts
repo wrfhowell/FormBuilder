@@ -13,7 +13,7 @@ import { Cond_Body } from "../Nodes/Cond_Body";
 import { ArrayValue } from "../export";
 import { FunctionEvaluatorError } from "src/Functions/errors";
 
-const LOGGING = true;
+const LOGGING = false;
 
 const log = (...args: any[]) => {
   if (LOGGING) {
@@ -220,6 +220,11 @@ export class FunctionEvaluator implements Visitor<{}, any> {
     const pageId = node.getPageId();
     const questionId = node.getQuestionId();
     const formStateValue = context.formState.get(pageId)?.get(questionId);
+    if (formStateValue === undefined) {
+      throw new FunctionEvaluatorError(
+        `FormState not defined for pageId "${pageId}" and questionId "${questionId}"`
+      );
+    }
     context.returnValue = formStateValue;
   }
 

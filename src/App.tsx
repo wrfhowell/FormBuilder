@@ -5,7 +5,8 @@ import { Main } from "./Components/Main";
 import { Page } from "./Components/Page";
 import { IPage } from "./Components/Interfaces";
 import React from "react";
-import { GlobalQuizContextProvider } from "./Components/Context";
+import { ContextProvider } from "./Components/Context";
+import { ErrorContextProvider } from "./Components/ErrorContext";
 
 function App() {
   const [pagesObj, setPagesObj] = useState<IPage[]>();
@@ -16,21 +17,23 @@ function App() {
 
   return (
     <div className="App">
-      <GlobalQuizContextProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Main setPagesObj={setPages} />} />
-            {pagesObj?.map((page) => (
-              <Route
-                key={page.id}
-                path={page.id}
-                element={<Page page={page} iteration={0} />}
-              />
-            ))}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </BrowserRouter>
-      </GlobalQuizContextProvider>
+      <ContextProvider>
+        <ErrorContextProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Main setPagesObj={setPages} />} />
+              {pagesObj?.map((page) => (
+                <Route
+                  key={page.id}
+                  path={page.id}
+                  element={<Page page={page} iteration={0} />}
+                />
+              ))}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </ErrorContextProvider>
+      </ContextProvider>
     </div>
   );
 }

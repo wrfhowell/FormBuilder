@@ -17,7 +17,8 @@ export const setGlobalVariables = (vars: GlobalVarsType) => {
 };
 
 export const updateConsoleErrors = () => {
-  window.console.error = function (text: any) {
+  window.console.error = function (...text: any) {
+    console.log(text);
     throw new Error(text);
   };
 };

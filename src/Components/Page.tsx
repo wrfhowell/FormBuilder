@@ -9,6 +9,8 @@ import { Divider } from "@mui/material";
 import React from "react";
 import { useGlobalQuizContext } from "./Context";
 import { evaluateProperty } from "src/Functions/functions";
+import { useErrorContext } from "./ErrorContext";
+import { getGlobalVariables } from "src/Functions/window";
 
 interface PageProps {
   page: IPage;
@@ -18,79 +20,58 @@ interface PageProps {
 export const Page = ({ page, iteration }: PageProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { showError } = useErrorContext();
   const { setFormState, formState, functionMap } = useGlobalQuizContext();
   const [userAnswers, setUserAnswers] = useState<Map<string, IAnswer>>(
     new Map()
   );
   const [pageQuestions, setPageQuestions] = useState<IQuestion[]>([]);
+  const [pageHeader, setPageHeader] = useState<string | number>();
+  const [pageInstructions, setPageInstructions] = useState<string | number>();
 
-  const convertIAnswerToAnswer = (
-    questions: IQuestion[],
-    answers: Map<string, IAnswer>
-  ): Map<string, string> => {
-    const new_answers = new Map<string, string>();
-    questions.forEach((question, index) => {
-      if (question.type === "checkbox") {
-        new_answers.set(
-          question.id,
-          (answers.get(question.id)?.checkboxSelection || [""]).join(",")
-        );
-      } else if (question.type === "radio") {
-        new_answers.set(
-          question.id,
-          answers.get(question.id)?.radioSelection || ""
-        );
-      } else if (question.type === "dropdown") {
-        new_answers.set(
-          question.id,
-          answers.get(question.id)?.dropdownSelection?.toString() || ""
-        );
-      } else if (question.type === "textInput") {
-        new_answers.set(
-          question.id,
-          answers.get(question.id)?.textSelection || ""
-        );
-      }
-    });
-    return new_answers;
-  };
-
-  const validateRequiredQuestions = (
-    questions: IQuestion[],
-    answers_map: Map<string, string>
-  ): boolean => {
+  const validateRequiredQuestions = (): {
+    validationPassed: boolean;
+    requiredQuestionId: string | undefined;
+  } => {
     let validationPassed = true;
-    questions.forEach((question) => {
-      if (question.isRequired && answers_map.get(question.id) === "") {
-        // console.log(`Question ${question.label} is required`);
+    let requiredQuestionId;
+    pageQuestions.forEach((question) => {
+      if (
+        question.isRequired &&
+        formState.get(page.id)?.get(question.id) === ""
+      ) {
         validationPassed = false;
+        requiredQuestionId = question.id;
       }
     });
-    return validationPassed;
+    return { validationPassed, requiredQuestionId };
   };
 
   const handleSubmit = () => {
     if (page.questions) {
-      // let converted_answers = new Map<string, string>();
-      // converted_answers = convertIAnswerToAnswer(pageQuestions, userAnswers);
+      const { validationPassed, requiredQuestionId } =
+        validateRequiredQuestions();
 
-      // const validationPassed = validateRequiredQuestions(
-      //   pageQuestions,
-      //   converted_answers
-      // );
-      // if (validationPassed && page.goTo) {
+      if (!validationPassed) {
+        showError(new Error(`Question is required: ${requiredQuestionId}`));
+        return;
+      }
 
       if (page.goTo) {
-        const nextPage = evaluateProperty(
-          page.goTo,
-          formState,
-          functionMap,
-          {}
-        ).replace(/["]/g, "");
-        if (nextPage === location.pathname) {
-          navigate(`/${nextPage}`, { state: iteration + 1, replace: true });
-        } else {
-          navigate(`/${nextPage}`, { replace: true });
+        try {
+          const nextPage = evaluateProperty(
+            page.goTo,
+            formState,
+            functionMap,
+            {}
+          ).replace(/["]/g, "");
+          if (nextPage === location.pathname) {
+            navigate(`/${nextPage}`, { state: iteration + 1, replace: true });
+          } else {
+            navigate(`/${nextPage}`, { replace: true });
+          }
+        } catch (err) {
+          showError(err);
         }
       }
     }
@@ -169,8 +150,46 @@ export const Page = ({ page, iteration }: PageProps) => {
     return numbers;
   };
 
+  const evaluatePageHeader = () => {
+    if (!page.header) return;
+
+    try {
+      const pageHeaderEvaluated = evaluateProperty(
+        page.header,
+        formState,
+        functionMap,
+        {
+          ...getGlobalVariables(),
+        }
+      );
+      setPageHeader(pageHeaderEvaluated);
+    } catch (err) {
+      showError(err);
+    }
+  };
+
+  const evaluatePageInstructions = () => {
+    if (!page.instructions) return;
+
+    try {
+      const pageInstructionsEvaluated = evaluateProperty(
+        page.instructions,
+        formState,
+        functionMap,
+        {
+          ...getGlobalVariables(),
+        }
+      );
+      setPageInstructions(pageInstructionsEvaluated);
+    } catch (err) {
+      showError(err);
+    }
+  };
+
   useEffect(() => {
     clearQuestions();
+    evaluatePageHeader();
+    evaluatePageInstructions();
   }, [page, location]);
 
   const clearQuestions = () => {
@@ -183,13 +202,18 @@ export const Page = ({ page, iteration }: PageProps) => {
     }
   }, [pageQuestions, location]);
 
+  useEffect(() => {
+    evaluatePageHeader();
+    evaluatePageInstructions();
+  }, []);
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={4}></Grid>
       <Grid item xs={4}>
         <Stack spacing={2}>
-          <h1>{page.header}</h1>
-          <p>{page.instructions}</p>
+          {pageHeader && <h1>{pageHeader}</h1>}
+          {pageInstructions && <p>{pageInstructions}</p>}
           {pageQuestions?.map((question) => (
             <div key={question.id}>
               <Question
