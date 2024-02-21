@@ -187,7 +187,12 @@ export const Question = ({
       {questionsRendered && (
         <div>
           <Divider />
-          {questionLabel && <h2>{questionLabel}</h2>}
+          {questionLabel && (
+            <div>
+              <h3>{questionLabel}</h3>
+              {question.isRequired && <p>*Required</p>}
+            </div>
+          )}
           {getQuestionObj()[question.type]}
         </div>
       )}

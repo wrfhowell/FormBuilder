@@ -49,11 +49,12 @@ export const Page = ({ page, iteration }: PageProps) => {
 
   const handleSubmit = () => {
     if (page.questions) {
-      const { validationPassed, requiredQuestionId } =
-        validateRequiredQuestions();
+      const { validationPassed } = validateRequiredQuestions();
 
       if (!validationPassed) {
-        showError(new Error(`Question is required: ${requiredQuestionId}`));
+        showError(
+          new Error(`There are still required questions that must be answered`)
+        );
         return;
       }
 
