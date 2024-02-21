@@ -30,7 +30,7 @@ export const Question = ({
   }>({});
   const [questionsRendered, setQuestionsRendered] = useState(false);
 
-  // Retrieves the correct type of questino to render on the page
+  // Retrieves the correct type of question to render on the page
   const getQuestionObj = () => {
     let questionOptions: (string | number)[];
     if (question.options) {
