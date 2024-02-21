@@ -1,20 +1,15 @@
-import { IQuestion, IAnswer, FunctionBinding, Vars } from "./Interfaces";
+import { IQuestion, IAnswer } from "./Interfaces";
 import { QuestionRadio } from "./QuestionRadio";
 import { QuestionCheckbox } from "./QuestionCheckbox";
 import { QuestionText } from "./QuestionText";
 import { QuestionDropdown } from "./QuestionDropdown";
 import { useEffect, useState } from "react";
-import {
-  FunctionEvaluator,
-  FunctionEvaluatorContext,
-} from "../AST/Evaluator/FunctionEvaluator";
 import React from "react";
 import { useGlobalQuizContext } from "./Context";
-import { VariableName } from "../AST/Nodes/VariableName";
 import {
   evaluateVars,
   evaluateOptions,
-  getArgValues,
+  evaluateProperty,
 } from "../Functions/functions";
 import { Divider } from "@mui/material";
 
@@ -97,74 +92,24 @@ export const Question = ({
 
   // Evaluate the label for the Question
   const getQuestionLabel = (): string | number => {
-    let questionLabel: string | number = evaluateProperty(question.label);
+    let questionLabel: string | number = evaluateProperty(
+      question.label,
+      formState,
+      functionMap,
+      { ...evaluatedVars }
+    );
     return questionLabel;
-  };
-
-  // Evaluates a specific property of the Question
-  const evaluateProperty = (
-    property: string | FunctionBinding | VariableName
-  ): string => {
-    let propertyValue: string = "";
-
-    if (typeof property === "string" || typeof property === "number") {
-      return property;
-    } else if (property instanceof VariableName) {
-      const functionEvaluator = new FunctionEvaluator();
-      const updatedGlobalVars = { ...window.globalVars };
-      const context: FunctionEvaluatorContext = {
-        formState,
-        globalVars: updatedGlobalVars,
-        vars: { ...evaluatedVars },
-        functions: functionMap,
-        returnValue: 0,
-      };
-      functionEvaluator.visit(context, property);
-
-      window.globalVars = updatedGlobalVars;
-      return context.returnValue;
-    }
-
-    if (typeof property.value === "function") {
-      if (!property.args) {
-        propertyValue = property.value().toString();
-      } else {
-        let args = getArgValues(
-          property.args,
-          { ...evaluatedVars },
-          { ...window.globalVars },
-          formState,
-          functionMap
-        );
-        propertyValue = property.value(args).toString();
-      }
-    } else if (
-      typeof property.value === "number" ||
-      typeof property.value === "string"
-    ) {
-      propertyValue = property.value.toString();
-    } else {
-      const functionEvaluator = new FunctionEvaluator();
-      const updatedGlobalVars = { ...window.globalVars };
-      let context: FunctionEvaluatorContext = {
-        formState,
-        globalVars: updatedGlobalVars,
-        passedArguments: property.args,
-        vars: { ...evaluatedVars },
-        functions: functionMap,
-        returnValue: 0,
-      };
-      functionEvaluator.visit(context, property.value);
-      window.globalVars = updatedGlobalVars;
-      propertyValue = context.returnValue;
-    }
-    return propertyValue.toString();
   };
 
   // Evaluates the correct answer for the question
   const getCorrectAnswer = () => {
     if (!question.correctAnswer) return;
-    const questionCorrectAnswer = evaluateProperty(question.correctAnswer);
+    const questionCorrectAnswer = evaluateProperty(
+      question.correctAnswer,
+      formState,
+      functionMap,
+      { ...evaluatedVars }
+    );
     const updatedFormState = formState;
     updatedFormState
       .get(pageId)

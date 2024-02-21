@@ -13,7 +13,7 @@ import { Cond_Body } from "../Nodes/Cond_Body";
 import { ArrayValue } from "../export";
 import { FunctionEvaluatorError } from "src/Functions/errors";
 
-const LOGGING = false;
+const LOGGING = true;
 
 const log = (...args: any[]) => {
   if (LOGGING) {
@@ -380,7 +380,7 @@ export class FunctionEvaluator implements Visitor<{}, any> {
   }
 
   visitVariableName(context: FunctionEvaluatorContext, node: VariableName) {
-    log("Visiting VariableName");
+    log("Visiting VariableName: ", node);
     // determine if need to return local or global variable
 
     if (context.vars[node.getName()] !== undefined) {
@@ -401,9 +401,9 @@ export class FunctionEvaluator implements Visitor<{}, any> {
     context: FunctionEvaluatorContext,
     parameterNames: VariableName[]
   ) {
-    log("convertFunctionArgumentsToValues");
+    log("convertFunctionArgumentsToValues: ", context.passedArguments);
     context.passedArguments?.forEach((variable, index: number) => {
-      parameterNames[index].accept(context, this);
+      // parameterNames[index].accept(context, this);
       let argumentName = parameterNames[index].getName();
       if (typeof variable === "string" || typeof variable === "number") {
         context.vars[argumentName] = variable;
