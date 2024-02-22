@@ -55,18 +55,23 @@ export const Main = ({ setPagesObj }: MainProps) => {
   };
 
   const evaluateGlobalVariables = (vars: Vars[]) => {
-    const { currentEvaluatedVars } = evaluateVars(
-      vars,
-      {},
-      {},
-      formState,
-      functionMap
-    );
-    window.globalVars = currentEvaluatedVars;
+    try {
+      const { currentEvaluatedVars } = evaluateVars(
+        vars,
+        {},
+        {},
+        formState,
+        functionMap
+      );
+      window.globalVars = currentEvaluatedVars;
+    } catch (err) {
+      setStaticChecksError(err);
+    }
   };
 
   const startQuiz = () => {
     evaluateGlobalVariables(unevaluatedGlobalVars);
+
     if (pages) {
       setPagesObj(pages);
       navigate(pages[0].id);
