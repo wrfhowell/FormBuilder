@@ -28,12 +28,9 @@
 		questions: [
 			{
 				id: "correct-ans-q",
-				label: getCorrectAnswerPageHeader(prevAns),
+				label: getCorrectAnswerPageHeader(FormState["addition-pg"]["addition-q-0"]),
 				isRequired: false,
-				type: textInput,
-				vars: {
-					prevAns: FormState["addition-pg"]["addition-q-0"]
-				}
+				type: textInput
 			}			
 		]
 	},
@@ -68,6 +65,8 @@
     ],
 	vars: {
 		attempts: 1,
-		addNumsReturnVal: 0
+		addNumsReturnVal: 0,
+		randomNum: 8,
+		arrayVar: [4, 5, randomNum]
 	}
 }

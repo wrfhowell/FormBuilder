@@ -59,18 +59,18 @@
 
     functions: [
         classificationNext() {
-            if(isEqual(whatAreYouAns, "Metal")) {
+            if(isEqual(whatAreYouAns(FormState["classification-pg"]["what-are-you"]), "Metal")) {
             return "metal-pg"
-        } else if(isEqual(whatAreYouAns, "Nonmetal")) {
+        } else if(isEqual(whatAreYouAns(FormState["classification-pg"]["what-are-you"]), "Nonmetal")) {
             return "nonmetal-pg"
-        } else if(isEqual(whatAreYouAns, "Metalloid")) {
+        } else if(isEqual(whatAreYouAns(FormState["classification-pg"]["what-are-you"]), "Metalloid")) {
             return "metalloid-pg"
         }
 
             return 0
         },
 
-            metalNext() {
+        metalNext() {
             if(isEqual(whatMetalAreYou, "Alkali Metal")) {
                 return "alkali-metal-pg"
             } else if(isEqual(whatMetalAreYou, "Alkaline Earth Metal")) {
@@ -86,20 +86,24 @@
             return 0
         },
 
-            nonMetalNext() {
-            if(isEqual(whatNonMetalAreYou, "Reactive Nonmetal")) {
+        nonMetalNext() {
+            if(isEqual(whatNonMetalAreYou(FormState["nonmetal-pg"]["what-are-you"]), "Reactive Nonmetal")) {
                 return "reactive-nonmetal-pg"
-            } else if(isEqual(whatNonMetalAreYou, "Noble Gas")) {
+            } else if(isEqual(whatNonMetalAreYou(FormState["nonmetal-pg"]["what-are-you"]), "Noble Gas")) {
                 return "noble-gas-pg"
             }
 
             return 0
-        }
-    ],
+        },
 
-    vars: {
-        whatAreYouAns: FormState["classification-pg"]["what-are-you"],
-        whatMetalAreYouAns: FormState["metal-pg"]["what-are-you"],
-        whatNonMetalAreYou: FormState["nonmetal-pg"]["what-are-you"]
-    }
+        whatAreYouAns(formStateAccess) {
+            return formStateAccess
+        },
+
+
+
+        whatNonMetalAreYou(formStateAccess) {
+                return formStateAccess
+        }
+    ]
 }

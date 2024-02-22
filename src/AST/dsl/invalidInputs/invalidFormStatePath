@@ -10,17 +10,15 @@
                      type: radio,
                      label: "What are you?",
                      options: ["Metal", "Nonmetal", "Metalloid"],
-                     isRequired: true
+                     isRequired: true,
+                     correctAnswer: myTestFun(FormState["rand-pg-id"]["what-are-you"])
                  }
              ]
          }
      ],
      functions: [
-        myTestFun(param1, param2) {
-            return (param1 + param2)
+        myTestFun(param1) {
+            return param1
         }
-     ],
-     vars: {
-        questionAnswer: FormState["rand-pg-id"]["what-are-you"]
-     }
+     ]
  }
