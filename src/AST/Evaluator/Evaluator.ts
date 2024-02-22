@@ -1,4 +1,4 @@
-import { FunctionEvaluatorError } from "src/Functions/errors";
+import { FunctionEvaluatorError } from "../../Functions/errors";
 import { Cond_Body } from "../Nodes/Cond_Body";
 import { Conditional } from "../Nodes/Conditional";
 import { Else_If_Cond } from "../Nodes/Else_If_Cond";

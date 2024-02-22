@@ -545,8 +545,11 @@ export class BaseChecker implements Visitor<{}, any> {
   visitVariable(context: baseCheckerContext, variable: Variable) {
     let variableValue = variable.getVariableValue();
 
+    if(variableValue instanceof FormStateAccess) {
+      throw new CheckerError("Cannot instantiate variable with a Form State access");
+    }
     if (hasAcceptMethod(variableValue)) {
-      variableValue = variableValue.accept(context, this);
+      variableValue.accept(context, this);
     }
   }
 
