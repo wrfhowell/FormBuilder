@@ -2,11 +2,12 @@ import { useState } from "react";
 import { IAnswer } from "./Interfaces";
 import { FormGroup, FormControlLabel, Checkbox } from "@mui/material";
 import React from "react";
+import { VariableName } from "src/AST/Nodes/VariableName";
 
 interface QuestionCheckboxProps {
   id: string;
   setAnswer: (questionId: string, ans: IAnswer) => void;
-  options?: string[];
+  options?: (string | number)[];
 }
 
 export const QuestionCheckbox = ({
@@ -39,6 +40,7 @@ export const QuestionCheckbox = ({
           <FormControlLabel
             onChange={handleCheck}
             control={<Checkbox />}
+            key={item}
             label={item}
             value={item}
           />

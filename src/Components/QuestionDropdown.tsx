@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { IAnswer } from "./Interfaces";
 import { Select, MenuItem, FormControl, InputLabel } from "@mui/material";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { VariableName } from "src/AST/Nodes/VariableName";
 
 interface QuestionDropdownProps {
   id: string;
   setAnswer: (questionId: string, ans: IAnswer) => void;
-  options?: string[];
+  options?: (string | number)[];
 }
 
 export const QuestionDropdown = ({
@@ -14,11 +14,15 @@ export const QuestionDropdown = ({
   setAnswer,
   options,
 }: QuestionDropdownProps) => {
-  const [selection, setSelection] = useState(options ? options[0] : "");
+  const [selection, setSelection] = useState("");
+
+  const optionsInitial: (string | number)[] = options ? ["", ...options] : [""];
+
   const handleChange = (e: any) => {
     setSelection(e.target.value);
     setAnswer(id, { dropdownSelection: e.target.value });
   };
+
   return (
     <FormControl fullWidth>
       <InputLabel id={`dropdown-select-label-${id}`}>Selection</InputLabel>
@@ -29,7 +33,7 @@ export const QuestionDropdown = ({
         label="Selection"
         onChange={handleChange}
       >
-        {options?.map((item) => {
+        {optionsInitial?.map((item) => {
           return (
             <MenuItem key={item} value={item}>
               {item}

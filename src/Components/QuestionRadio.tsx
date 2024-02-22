@@ -5,7 +5,7 @@ import { RadioGroup, Radio, FormControlLabel } from "@mui/material";
 interface QuestionRadioProps {
   id: string;
   setAnswer: (questionId: string, ans: IAnswer) => void;
-  options?: string[];
+  options?: (string | number)[];
 }
 
 export const QuestionRadio = ({
@@ -13,15 +13,13 @@ export const QuestionRadio = ({
   setAnswer,
   options,
 }: QuestionRadioProps) => {
-  const optionsList = options || [];
-
   const handleChange = (e: any) => {
     setAnswer(id, { radioSelection: e.target.value });
   };
 
   return (
     <RadioGroup name="radio-buttons-group">
-      {optionsList.map((option) => (
+      {options?.map((option) => (
         <FormControlLabel
           key={option}
           onChange={handleChange}

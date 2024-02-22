@@ -1,3 +1,4 @@
+import { FunctionEvaluatorError } from "src/Functions/errors";
 import { Cond_Body } from "../Nodes/Cond_Body";
 import { Conditional } from "../Nodes/Conditional";
 import { Else_If_Cond } from "../Nodes/Else_If_Cond";
@@ -32,6 +33,11 @@ export class Evaluator implements Visitor<{}, any> {
   } = {
     getRandomInt: (args: any[]) => {
       // reference: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+      if (args.length < 2) {
+        throw new FunctionEvaluatorError(
+          "Not enough arguments passed to function: getRandomInt"
+        );
+      }
       return Math.floor(Math.random() * (args[1] - args[0] + 1) + args[0]);
     },
     getRandom: (args: any[]) => {
@@ -41,21 +47,51 @@ export class Evaluator implements Visitor<{}, any> {
       return args.join("");
     },
     isEqual: (args: any[]) => {
+      if (args.length < 2) {
+        throw new FunctionEvaluatorError(
+          "Not enough arguments passed to function: getRandomInt"
+        );
+      }
       return args[0] == args[1];
     },
     isGreater: (args: any[]) => {
+      if (args.length < 2) {
+        throw new FunctionEvaluatorError(
+          "Not enough arguments passed to function: getRandomInt"
+        );
+      }
       return args[0] > args[1];
     },
     isGreaterEqual: (args: any[]) => {
+      if (args.length < 2) {
+        throw new FunctionEvaluatorError(
+          "Not enough arguments passed to function: getRandomInt"
+        );
+      }
       return args[0] >= args[1];
     },
     isLess: (args: any[]) => {
+      if (args.length < 2) {
+        throw new FunctionEvaluatorError(
+          "Not enough arguments passed to function: getRandomInt"
+        );
+      }
       return args[0] < args[1];
     },
     isLessEqual: (args: any[]) => {
+      if (args.length < 2) {
+        throw new FunctionEvaluatorError(
+          "Not enough arguments passed to function: getRandomInt"
+        );
+      }
       return args[0] <= args[1];
     },
     roundToInt: (args: any[]) => {
+      if (args.length < 1) {
+        throw new FunctionEvaluatorError(
+          "Not enough arguments passed to function: getRandomInt"
+        );
+      }
       return Math.round(args[0]);
     },
   };
@@ -226,9 +262,11 @@ export class Evaluator implements Visitor<{}, any> {
   }
 
   visitArrayCustom(context: {}, arrayCustom: ArrayCustom) {
-    return arrayCustom
-      .getArrayCustom()
-      .map((option) => option.accept(context, this));
+    return {
+      value: arrayCustom
+        .getArrayCustom()
+        .map((option) => option.accept(context, this)),
+    };
   }
 
   visitExpression(context: {}, expression: Expression) {

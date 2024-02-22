@@ -1,4 +1,4 @@
-import { IPage, IAnswer, IQuestion, FunctionBinding } from "./Interfaces";
+import { IPage, IAnswer, IQuestion } from "./Interfaces";
 import { Question } from "./Question";
 import { Button } from "@mui/material";
 import { useState, useEffect } from "react";
@@ -8,11 +8,9 @@ import { Stack } from "@mui/material";
 import { Divider } from "@mui/material";
 import React from "react";
 import { useGlobalQuizContext } from "./Context";
-import {
-  FunctionEvaluator,
-  FunctionEvaluatorContext,
-} from "../AST/Evaluator/FunctionEvaluator";
-import { VariableName } from "src/AST/Nodes/VariableName";
+import { evaluateProperty } from "src/Functions/functions";
+import { useErrorContext } from "./ErrorContext";
+import { getGlobalVariables } from "src/Functions/window";
 
 interface PageProps {
   page: IPage;
@@ -22,127 +20,59 @@ interface PageProps {
 export const Page = ({ page, iteration }: PageProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { showError } = useErrorContext();
   const { setFormState, formState, functionMap } = useGlobalQuizContext();
   const [userAnswers, setUserAnswers] = useState<Map<string, IAnswer>>(
     new Map()
   );
   const [pageQuestions, setPageQuestions] = useState<IQuestion[]>([]);
+  const [pageHeader, setPageHeader] = useState<string | number>();
+  const [pageInstructions, setPageInstructions] = useState<string | number>();
 
-  const convertIAnswerToAnswer = (
-    questions: IQuestion[],
-    answers: Map<string, IAnswer>
-  ): Map<string, string> => {
-    const new_answers = new Map<string, string>();
-    questions.forEach((question, index) => {
-      if (question.type === "checkbox") {
-        new_answers.set(
-          question.id,
-          (answers.get(question.id)?.checkboxSelection || [""]).join(",")
-        );
-      } else if (question.type === "radio") {
-        new_answers.set(
-          question.id,
-          answers.get(question.id)?.radioSelection || ""
-        );
-      } else if (question.type === "dropdown") {
-        new_answers.set(
-          question.id,
-          answers.get(question.id)?.dropdownSelection?.toString() || ""
-        );
-      } else if (question.type === "textInput") {
-        new_answers.set(
-          question.id,
-          answers.get(question.id)?.textSelection || ""
-        );
-      }
-    });
-    return new_answers;
-  };
-
-  const evaluateProperty = (
-    property: string | FunctionBinding | VariableName
-  ): string => {
-    let propertyValue: string = "";
-
-    if (typeof property === "string") {
-      return property;
-    } else if (property instanceof VariableName) {
-      const functionEvaluator = new FunctionEvaluator();
-      const updatedGlobalVars = { ...window.globalVars };
-      const context: FunctionEvaluatorContext = {
-        formState,
-        vars: {},
-        globalVars: updatedGlobalVars,
-        functions: functionMap,
-        returnValue: 0,
-      };
-      functionEvaluator.visit(context, property);
-      window.globalVars = updatedGlobalVars;
-      return context.returnValue;
-    }
-
-    if (typeof property.value === "function") {
-      if (!property.args) {
-        propertyValue = property.value().toString();
-      } else {
-        let args = property.args;
-        propertyValue = property.value(args).toString();
-      }
-    } else if (
-      typeof property.value === "number" ||
-      typeof property.value === "string"
-    ) {
-      propertyValue = property.value.toString();
-    } else {
-      const functionEvaluator = new FunctionEvaluator();
-      const updatedGlobalVars = { ...window.globalVars };
-
-      let context: FunctionEvaluatorContext = {
-        formState,
-        passedArguments: property.args,
-        vars: {},
-        globalVars: updatedGlobalVars,
-        functions: functionMap,
-        returnValue: 0,
-      };
-      functionEvaluator.visit(context, property.value);
-      window.globalVars = updatedGlobalVars;
-      propertyValue = context.returnValue;
-    }
-    return propertyValue.toString();
-  };
-
-  const validateRequiredQuestions = (
-    questions: IQuestion[],
-    answers_map: Map<string, string>
-  ): boolean => {
+  const validateRequiredQuestions = (): {
+    validationPassed: boolean;
+    requiredQuestionId: string | undefined;
+  } => {
     let validationPassed = true;
-    questions.forEach((question) => {
-      if (question.isRequired && answers_map.get(question.id) === "") {
-        // console.log(`Question ${question.label} is required`);
+    let requiredQuestionId;
+    pageQuestions.forEach((question) => {
+      if (
+        question.isRequired &&
+        formState.get(page.id)?.get(question.id) === ""
+      ) {
         validationPassed = false;
+        requiredQuestionId = question.id;
       }
     });
-    return validationPassed;
+    return { validationPassed, requiredQuestionId };
   };
 
   const handleSubmit = () => {
     if (page.questions) {
-      // let converted_answers = new Map<string, string>();
-      // converted_answers = convertIAnswerToAnswer(pageQuestions, userAnswers);
+      const { validationPassed } = validateRequiredQuestions();
 
-      // const validationPassed = validateRequiredQuestions(
-      //   pageQuestions,
-      //   converted_answers
-      // );
-      // if (validationPassed && page.goTo) {
+      if (!validationPassed) {
+        showError(
+          new Error(`There are still required questions that must be answered`)
+        );
+        return;
+      }
 
       if (page.goTo) {
-        const nextPage = evaluateProperty(page.goTo).replace(/["]/g, "");
-        if (nextPage === location.pathname) {
-          navigate(`/${nextPage}`, { state: iteration + 1 });
-        } else {
-          navigate(`/${nextPage}`);
+        try {
+          const nextPage = evaluateProperty(
+            page.goTo,
+            formState,
+            functionMap,
+            {}
+          ).replace(/["]/g, "");
+          if (nextPage === location.pathname) {
+            navigate(`/${nextPage}`, { state: iteration + 1, replace: true });
+          } else {
+            navigate(`/${nextPage}`, { replace: true });
+          }
+        } catch (err) {
+          showError(err);
         }
       }
     }
@@ -169,14 +99,10 @@ export const Page = ({ page, iteration }: PageProps) => {
     setUserAnswers(currentAnswers);
 
     // Update form state for question
-    const updatedFormState = formState;
+    const updatedFormState = new Map(formState);
     const questionAnswerString = convertIAnswerToString(ans);
-
-    // Check if form state has question
     updatedFormState.get(page.id)?.set(questionId, questionAnswerString);
     setFormState(updatedFormState);
-
-    console.log("updated Form State: ", updatedFormState);
   };
 
   const unravelQuestions = () => {
@@ -189,7 +115,6 @@ export const Page = ({ page, iteration }: PageProps) => {
         while (loopVar > 0) {
           questions.push(Object.assign({}, question));
           questions[questions.length - 1].id = question.id + loopIndex;
-          // console.log(questions);
           loopVar--;
           loopIndex++;
         }
@@ -198,11 +123,74 @@ export const Page = ({ page, iteration }: PageProps) => {
       }
     });
 
-    setPageQuestions(questions);
+    if (page.displayQuestions && page.displayQuestions < questions.length) {
+      let condensedQuestions: any[] = [];
+      const indexesToInclude = generateUniqueNumbers(
+        page.displayQuestions,
+        questions.length
+      );
+      indexesToInclude.forEach((num) => {
+        condensedQuestions.push(questions[num]);
+      });
+      setPageQuestions(condensedQuestions);
+    } else {
+      setPageQuestions(questions);
+    }
+  };
+
+  const generateUniqueNumbers = (count: number, max: number): number[] => {
+    const included = new Set();
+    const numbers: number[] = [];
+    while (numbers.length < count) {
+      let newNum = Math.floor(Math.random() * max);
+      if (!included.has(newNum)) {
+        numbers.push(newNum);
+        included.add(newNum);
+      }
+    }
+    return numbers;
+  };
+
+  const evaluatePageHeader = () => {
+    if (!page.header) return;
+
+    try {
+      const pageHeaderEvaluated = evaluateProperty(
+        page.header,
+        formState,
+        functionMap,
+        {
+          ...getGlobalVariables(),
+        }
+      );
+      setPageHeader(pageHeaderEvaluated);
+    } catch (err) {
+      showError(err);
+    }
+  };
+
+  const evaluatePageInstructions = () => {
+    if (!page.instructions) return;
+
+    try {
+      const pageInstructionsEvaluated = evaluateProperty(
+        page.instructions,
+        formState,
+        functionMap,
+        {
+          ...getGlobalVariables(),
+        }
+      );
+      setPageInstructions(pageInstructionsEvaluated);
+    } catch (err) {
+      showError(err);
+    }
   };
 
   useEffect(() => {
     clearQuestions();
+    evaluatePageHeader();
+    evaluatePageInstructions();
   }, [page, location]);
 
   const clearQuestions = () => {
@@ -215,16 +203,20 @@ export const Page = ({ page, iteration }: PageProps) => {
     }
   }, [pageQuestions, location]);
 
+  useEffect(() => {
+    evaluatePageHeader();
+    evaluatePageInstructions();
+  }, []);
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={4}></Grid>
       <Grid item xs={4}>
         <Stack spacing={2}>
-          <h1>{page.header}</h1>
-          <p>{page.instructions}</p>
+          {pageHeader && <h1>{pageHeader}</h1>}
+          {pageInstructions && <p>{pageInstructions}</p>}
           {pageQuestions?.map((question) => (
             <div key={question.id}>
-              <Divider />
               <Question
                 pageId={page.id}
                 setQuestionUserAnswer={updateAnswers}

@@ -30,7 +30,7 @@ export const GlobalQuizContext = createContext<IGlobalQuizContext>({
 
 export const useGlobalQuizContext = () => useContext(GlobalQuizContext);
 
-export const GlobalQuizContextProvider = ({ children }: any) => {
+export const ContextProvider = ({ children }: any) => {
   const [functionMap, setFunctionMap] = useState<FunctionsContext>({});
   const [formState, setFormState] = useState<IFormStateContext>(new Map());
 
