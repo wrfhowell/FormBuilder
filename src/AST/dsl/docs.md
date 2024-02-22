@@ -98,7 +98,7 @@ A question object creates a new question inside of a page. The only required fie
 ```
 
 - `id: String` - **Required** unique question id (eg. "first-name"). Can be dynamically generated with functions or variables. <!-- TODO: write static check for this -->
-  `label: String`- **Required** this is the question text that appears above an input
+- `label: String`- **Required** this is the question text that appears above an input
 - `type: textInput | radio | checkbox | dropdown` - **Required** question type. textInput creates a simple text input field, radio creates a single select question, checkbox is a multiple select question and dropdown creates a single select question with a dropdown list. For the select questions, a list of `options` must be provided <!-- TODO: write static check to make sure there is a question type -->
 - `options: List` - **Required** when the question type is `radio`, `checkbox` or `dropdown`. Can either be a list of strings, a variable or a function that dynamically generates a list of options. <!-- TODO: write static check to ensure options is present for select questions -->
 - `dependsOn: String` - If this question is conditional on a different question, this should be the question-id of the other question. Use this if you want to show/hide a question based on the response to a different question or if the options available to select are dependent on another question.
@@ -192,12 +192,21 @@ If a question has a 'correctAnswer' listed, this field can be accessed through t
 # API
 
 Functions currently used in examples:
-* stringConcat(args...),
-* isEqual(num1, num2),
-* isGreater(num1, num2),
-* isGreaterEqual(num1, num2),
-* isLess(num1, num2),
-* isLessEqual(num1, num2)
-* getRandom(),
-* getRandomInt(min, max)
-* roundToInt()
+
+- stringConcat(args...),
+- isEqual(num1, num2),
+- isGreater(num1, num2),
+- isGreaterEqual(num1, num2),
+- isLess(num1, num2),
+- isLessEqual(num1, num2)
+- getRandom(),
+- getRandomInt(min, max)
+- roundToInt()
+
+# Notes on Interactivity
+
+The interactivity and dynamic aspects of the application are handled by the DSL itself coupled with a UI framework written using the React JavaScript library. The DSL allows for the quiz definition to be specified, complete with custom functions that execute after specific user input. React is used to render the output of the DSL, and execute the custom functions defined using the DSL.
+
+After the quiz program has been uploaded to the main page, it is parsed into an **Abstract Syntax Tree** (AST). A **Static Checker** is run to determine if there are any errors in the program. An error is thrown by the Static Checker if this is the case, and the error is caught using React which then displays an error on the page. If the Static Checker runs successfully, the `Evaluator` runs through the AST to compile a JavaScript object, which is then used by React to render the questions on the page. The `Evaluator` includes pointers to AST function nodes in the compiled JavaScript object. React is used to maintain state in the UI, which includes variable values, user input.
+
+At any point where React must execute a custom function defined using the DSL, it creates a `FunctionEvaluator`. It calls the visit method of the `FunctionEvaluator`, passing in the program state (with the addition of function arguments and pointers to all custom functions) as a context, and a pointer to the AST node representing the custom function. The `FunctionEvaluator` then traverses the AST to evaluate the custom function, and returns the result back to the React framework to render the results on the screen for the user. If an error is thrown by the `FunctionEvaluator`, it is caught in the React framework, which then displays a Runtime Error on the page to the user.
