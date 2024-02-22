@@ -204,7 +204,6 @@ export const Question = ({
               {question.isRequired && <p>*Required</p>}
             </div>
           )}
-          {/* {getQuestionObj(question.type)} */}
           {questionObj}
         </div>
       )}

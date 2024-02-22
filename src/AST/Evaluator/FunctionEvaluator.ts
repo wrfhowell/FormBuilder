@@ -13,7 +13,7 @@ import { Cond_Body } from "../Nodes/Cond_Body";
 import { ArrayValue } from "../export";
 import { FunctionEvaluatorError } from "src/Functions/errors";
 
-const LOGGING = true;
+const LOGGING = false;
 
 const log = (...args: any[]) => {
   if (LOGGING) {
@@ -414,9 +414,6 @@ export class FunctionEvaluator implements Visitor<{}, any> {
     parameterNames: VariableName[]
   ) {
     log("convertFunctionArgumentsToValues: ", context.passedArguments);
-
-    console.log("passed arguments: ", context.passedArguments);
-    console.log("parameters: ", parameterNames);
 
     const passedArgumentsLength = context.passedArguments?.length || 0;
     if (passedArgumentsLength !== parameterNames.length) {
