@@ -11,7 +11,7 @@
                     id: "what-are-you",
                     type: radio,
                     label: "What are you?",
-                    options: ["Metal", "Nonmetal", "Metalloid"],
+                    options: ["Metal", "Nonmetal"],
                     isRequired: true
                 }
             ]
@@ -21,7 +21,7 @@
             id: "metal-pg",
             header: "Metal",
             instructions: "Please specify the type of metal you are",
-            goTo: metalNext(),
+            goTo: "final-pg",
             questions: [
                 {
                     id: "metal",
@@ -44,7 +44,7 @@
             id: "nonmetal-pg",
             header: "Nonmetal",
             instructions: "Please specify the type of nonmetal you are",
-            goTo: nonMetalNext(),
+            goTo: "final-pg",
             questions: [
                 {
                     id: "nonmetal",
@@ -54,56 +54,46 @@
                     isRequired: true
                 }
             ]
+        },
+
+        {
+            id: "final-pg",
+            header: buildFinalHeader(FormState["nonmetal-pg"]["nonmetal"], FormState["metal-pg"]["metal"]),
+            instructions: "Thank you for filling out the metals quiz!"
         }
     ],
 
     functions: [
         classificationNext() {
-            if(isEqual(whatAreYouAns(FormState["classification-pg"]["what-are-you"]), "Metal")) {
+            whatAreYouAns = getFormState(FormState["classification-pg"]["what-are-you"])
+            if(isEqual(whatAreYouAns, "Metal")) {
             return "metal-pg"
-        } else if(isEqual(whatAreYouAns(FormState["classification-pg"]["what-are-you"]), "Nonmetal")) {
+        } else if(isEqual(whatAreYouAns, "Nonmetal")) {
             return "nonmetal-pg"
-        } else if(isEqual(whatAreYouAns(FormState["classification-pg"]["what-are-you"]), "Metalloid")) {
+        } else if(isEqual(whatAreYouAns, "Metalloid")) {
             return "metalloid-pg"
         }
 
             return 0
         },
 
-        metalNext() {
-            if(isEqual(whatMetalAreYou, "Alkali Metal")) {
-                return "alkali-metal-pg"
-            } else if(isEqual(whatMetalAreYou, "Alkaline Earth Metal")) {
-                return "alkaline-earth-metal-pg"
-            } else if(isEqual(whatMetalAreYou, "Transition Metal")) {
-                return "transition-metal-pg"
-            } else if(isEqual(whatMetalAreYou, "Post-Transition Metal")) {
-                return "post-transition-metal-pg"
-            } else if(isEqual(whatMetalAreYou, "Actinide")) {
-                return "actinide-pg"
+        buildFinalHeader() {
+            if(isEqual(whatAreYouAns, "metal")) {
+                return stringConcat("Looks like you are a ", FormState["metal-pg"]["metal"])
+            } else {
+                return stringConcat("Looks like you are a ", FormState["nonmetal-pg"]["nonmetal"])
             }
-
-            return 0
         },
 
-        nonMetalNext() {
-            if(isEqual(whatNonMetalAreYou(FormState["nonmetal-pg"]["what-are-you"]), "Reactive Nonmetal")) {
-                return "reactive-nonmetal-pg"
-            } else if(isEqual(whatNonMetalAreYou(FormState["nonmetal-pg"]["what-are-you"]), "Noble Gas")) {
-                return "noble-gas-pg"
-            }
 
-            return 0
-        },
-
-        whatAreYouAns(formStateAccess) {
+        getFormState(formStateAccess) {
             return formStateAccess
-        },
-
-
-
-        whatNonMetalAreYou(formStateAccess) {
-                return formStateAccess
         }
-    ]
+
+
+    ],
+
+    vars: {
+        whatAreYouAns: ""
+    }
 }
