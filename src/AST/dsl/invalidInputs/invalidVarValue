@@ -21,6 +21,6 @@
         }
      ],
      vars: {
-        myVar: 5,
+        myVar: FormState["classification-pg"]["what-are-you"]
      }
  }

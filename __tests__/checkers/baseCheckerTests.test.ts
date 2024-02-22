@@ -704,6 +704,30 @@ describe("Base Checker Tests", () => {
     expect(() => parsedProgram.accept({}, checker)).toThrow( "isEqual is already taken by the API library.");
   });
 
+  it("Should throw error due to FormStateAccess in variable instantiation", () => {
+    const file = readFileSync(
+        path.resolve(__dirname,"../../src/AST/dsl/invalidInputs/invalidVarValue"),
+        "utf-8"
+    );
+    const fileStream = CharStreams.fromString(file);
+
+    const lexer = new FormGeneratorLexer(fileStream);
+
+    lexer.reset();
+
+    const tokens = new CommonTokenStream(lexer);
+
+    const parser = new FormGeneratorParser(tokens);
+
+    const visitor = new ParseTreeToAST();
+    //@ts-ignore
+    const parsedProgram = parser.program().accept(visitor);
+
+    const checker = new BaseChecker();
+
+    expect(() => parsedProgram.accept({}, checker)).toThrow( "Cannot instantiate variable with a Form State access");
+  });
+
   it("Should not throw any error with input-math", () => {
     const file = readFileSync(
         path.resolve(__dirname,"../../src/AST/dsl/validInputs/input-math.js"),
