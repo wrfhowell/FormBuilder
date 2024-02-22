@@ -159,7 +159,7 @@ export class Evaluator implements Visitor<{}, any> {
     }
   }
 
-  visitPage(context: {}, page: Page) {
+  visitPage(context: {}, page: Page, nextPageId: string | null = null) {
     let goTo = page.getGoToObject();
     let header = page.getHeader();
     let instructions = page.getInstructions();
@@ -178,6 +178,10 @@ export class Evaluator implements Visitor<{}, any> {
       questions = questions.accept(context, this);
     }
 
+    if (goTo === undefined && nextPageId !== null) {
+      goTo = nextPageId;
+    }
+
     return {
       id: page.getId(),
       goTo: goTo,
@@ -189,7 +193,13 @@ export class Evaluator implements Visitor<{}, any> {
   }
 
   visitPages(context: {}, pages: Pages) {
-    return pages.getPageArray().map((page) => page.accept(context, this));
+    const pageArray = pages.getPageArray();
+    return pageArray.map((page, index) => {
+      // Determine the ID of the next page, if there is one
+      const nextPageId =
+        index + 1 < pageArray.length ? pageArray[index + 1].getId() : null;
+      return this.visitPage(context, page, nextPageId);
+    });
   }
 
   visitProgram(context: any, program: Program) {
