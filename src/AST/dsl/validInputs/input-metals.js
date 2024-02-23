@@ -58,7 +58,7 @@
 
         {
             id: "final-pg",
-            header: buildFinalHeader(FormState["nonmetal-pg"]["nonmetal"], FormState["metal-pg"]["metal"]),
+            header: buildFinalHeader(),
             instructions: "Thank you for filling out the metals quiz!"
         }
     ],
@@ -78,7 +78,7 @@
         },
 
         buildFinalHeader() {
-            if(isEqual(whatAreYouAns, "metal")) {
+            if(isEqual(whatAreYouAns, "Metal")) {
                 return stringConcat("Looks like you are a ", FormState["metal-pg"]["metal"])
             } else {
                 return stringConcat("Looks like you are a ", FormState["nonmetal-pg"]["nonmetal"])
