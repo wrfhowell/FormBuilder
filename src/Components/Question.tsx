@@ -173,9 +173,6 @@ export const Question = ({
 
   // Selectively renders the component based on the value of the dependsOn property
   const evaluateDependsOn = () => {
-    if (!questionsRendered) {
-    }
-
     if (questionsRendered && !question.dependsOn) {
       return;
     } else if (questionsRendered && question.dependsOn) {
