@@ -8,7 +8,7 @@
 	    goTo: additionPgGoto(FormState["addition-pg"]["addition-q-0"], FormState["addition-pg"]["addition-q-0-correctAnswer"]),
             questions: [
                 {
-                    id: "addition-q-",
+                    id: stringConcat("addition-q-",loopIndex),
                     type: textInput,
                     label: getAdditionQuestionLabel(num1, num2),
                     isRequired: true,
@@ -23,20 +23,13 @@
             ]
         },
 	{
-		id: "correct-ans-pg",
-		header: "Correct Answer!",
-		questions: [
-			{
-				id: "correct-ans-q",
-				label: getCorrectAnswerPageHeader(FormState["addition-pg"]["addition-q-0"]),
-				isRequired: false,
-				type: textInput
-			}			
-		]
+		id: "failure-pg",
+		header: "It's been 5 tries. Just give up."
 	},
 	{
-		id: "you-suck-pg",
-		header: "It's been 5 tries. Just give up."
+		id: "correct-ans-pg",
+		header: "Correct Answer!",
+		instructions: getCorrectAnswerPageHeader(FormState["addition-pg"]["addition-q-0"])
 	}
     ],
     functions: [
@@ -55,7 +48,7 @@
 		}
 
 		if (isGreater(attempts, 5)) {
-			return "you-suck-pg"
+			return "failure-pg"
 		}
 		return "addition-pg"
 	},

@@ -216,6 +216,7 @@ export class Evaluator implements Visitor<{}, any> {
   }
 
   visitQuestion(context: {}, question: Question) {
+    let id = question.getId();
     let label = question.getLabel();
     let options = question.getOptions();
     let dependsOn = question.getDependsOn();
@@ -225,6 +226,9 @@ export class Evaluator implements Visitor<{}, any> {
     let correctAnswer = question.getCorrectAnswer();
     let questionVariables = question.getQuestionVariables();
 
+    if (hasAcceptMethod(id)) {
+      id = id.accept(context, this);
+    }
     if (hasAcceptMethod(label)) {
       label = label.accept(context, this);
     }
@@ -242,7 +246,7 @@ export class Evaluator implements Visitor<{}, any> {
     }
 
     return {
-      id: question.getId(),
+      id: id,
       type: question.getQuestionType(),
       label: label,
       options: options,
