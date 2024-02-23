@@ -81,7 +81,7 @@
           label: "City",
           type: dropdown,
           dependsOn: "province",
-          options: getCityOptions(FormState["demographic-info"]["province"]),
+          options: getCityOptions(FormState["address"]["province"]),
           isRequired: true
         },
 

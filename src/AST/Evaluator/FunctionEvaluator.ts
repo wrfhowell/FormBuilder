@@ -320,10 +320,17 @@ export class FunctionEvaluator implements Visitor<{}, any> {
   visitFunctionCustom(context: FunctionEvaluatorContext, node: FunctionCustom) {
     log("Visiting FunctionCustom");
 
-    this.convertFunctionArgumentsToValues(
-      context,
-      node.getFunctionParams() as VariableName[]
-    );
+    try {
+      this.convertFunctionArgumentsToValues(
+        context,
+        node.getFunctionParams() as VariableName[]
+      );
+    } catch (err: any) {
+      let newErrString = `${err.message} at ${node
+        .getFunctionName()
+        .getName()}`;
+      throw new FunctionEvaluatorError(newErrString);
+    }
 
     node.getFunctionBody().accept(context, this);
   }
@@ -407,6 +414,14 @@ export class FunctionEvaluator implements Visitor<{}, any> {
     parameterNames: VariableName[]
   ) {
     log("convertFunctionArgumentsToValues: ", context.passedArguments);
+
+    const passedArgumentsLength = context.passedArguments?.length || 0;
+    if (passedArgumentsLength !== parameterNames.length) {
+      throw new FunctionEvaluatorError(
+        "Incorrect number of arguments passed to function"
+      );
+    }
+
     context.passedArguments?.forEach((variable, index: number) => {
       // parameterNames[index].accept(context, this);
       let argumentName = parameterNames[index].getName();

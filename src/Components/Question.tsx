@@ -1,4 +1,4 @@
-import { IQuestion, IAnswer } from "./Interfaces";
+import { IQuestion, IAnswer, QuestionType } from "./Interfaces";
 import { QuestionRadio } from "./QuestionRadio";
 import { QuestionCheckbox } from "./QuestionCheckbox";
 import { QuestionText } from "./QuestionText";
@@ -32,24 +32,30 @@ export const Question = ({
   const [questionsRendered, setQuestionsRendered] = useState(false);
   const [questionLabel, setQuestionLabel] = useState<string>();
   const { showError } = useErrorContext();
+  const [questionObj, setQuestionObj] = useState<JSX.Element>(<></>);
 
   // Retrieves the correct type of question to render on the page
-  const getQuestionObj = () => {
+  const getQuestionObj = (questionType: QuestionType) => {
     let questionOptions: (string | number)[];
     if (question.options) {
-      questionOptions = evaluateOptions(
-        question.options,
-        evaluatedVars,
-        {
-          ...window.globalVars,
-        },
-        formState,
-        functionMap
-      );
+      try {
+        questionOptions = evaluateOptions(
+          question.options,
+          evaluatedVars,
+          {
+            ...window.globalVars,
+          },
+          formState,
+          functionMap
+        );
+      } catch (err) {
+        showError(err);
+        questionOptions = [];
+      }
     } else {
       questionOptions = [];
     }
-    return {
+    const questionTypes = {
       textInput: (
         <QuestionText id={question.id} setAnswer={setQuestionUserAnswer} />
       ),
@@ -75,6 +81,8 @@ export const Question = ({
         />
       ),
     };
+
+    setQuestionObj(questionTypes[questionType]);
   };
 
   // Get values for each of the variables for the Question
@@ -157,6 +165,7 @@ export const Question = ({
       evaluateQuestionVars();
       getQuestionLabel();
       getCorrectAnswer();
+      getQuestionObj(question.type);
       setQuestionsRendered(true);
     } else if (!questionsRendered && question.dependsOn) {
       const questionAns = formState.get(pageId)?.get(question.dependsOn);
@@ -164,11 +173,13 @@ export const Question = ({
         evaluateQuestionVars();
         getQuestionLabel();
         getCorrectAnswer();
+        getQuestionObj(question.type);
         setQuestionsRendered(true);
       } else if (!question.displayIf && questionAns !== "") {
         evaluateQuestionVars();
         getQuestionLabel();
         getCorrectAnswer();
+        getQuestionObj(question.type);
         setQuestionsRendered(true);
       }
     }
@@ -193,7 +204,7 @@ export const Question = ({
               {question.isRequired && <p>*Required</p>}
             </div>
           )}
-          {getQuestionObj()[question.type]}
+          {questionObj}
         </div>
       )}
     </div>
