@@ -114,7 +114,9 @@ export const Page = ({ page, iteration }: PageProps) => {
         let loopIndex = 0;
         while (loopVar > 0) {
           questions.push(Object.assign({}, question));
-          questions[questions.length - 1].id = question.id + loopIndex;
+          questions[questions.length - 1].vars.push({
+            loopIndex: { value: loopIndex },
+          });
           loopVar--;
           loopIndex++;
         }
@@ -195,6 +197,7 @@ export const Page = ({ page, iteration }: PageProps) => {
 
   const clearQuestions = () => {
     setPageQuestions([]);
+    setPageInstructions("");
   };
 
   useEffect(() => {
@@ -215,12 +218,12 @@ export const Page = ({ page, iteration }: PageProps) => {
         <Stack spacing={2}>
           {pageHeader && <h1>{pageHeader}</h1>}
           {pageInstructions && <p>{pageInstructions}</p>}
-          {pageQuestions?.map((question) => (
-            <div key={question.id}>
+          {pageQuestions?.map((question, index) => (
+            <div key={`question-div-${index}`}>
               <Question
                 pageId={page.id}
                 setQuestionUserAnswer={updateAnswers}
-                key={question.id}
+                key={`question-${index}`}
                 question={question}
               />
             </div>

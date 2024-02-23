@@ -3,7 +3,7 @@ import { QuestionRadio } from "./QuestionRadio";
 import { QuestionCheckbox } from "./QuestionCheckbox";
 import { QuestionText } from "./QuestionText";
 import { QuestionDropdown } from "./QuestionDropdown";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import React from "react";
 import { useGlobalQuizContext } from "./Context";
 import { useErrorContext } from "./ErrorContext";
@@ -31,6 +31,7 @@ export const Question = ({
   }>({});
   const [questionsRendered, setQuestionsRendered] = useState(false);
   const [questionLabel, setQuestionLabel] = useState<string>();
+  const questionId = useRef<string>("");
   const { showError } = useErrorContext();
   const [questionObj, setQuestionObj] = useState<JSX.Element>(<></>);
 
@@ -57,18 +58,21 @@ export const Question = ({
     }
     const questionTypes = {
       textInput: (
-        <QuestionText id={question.id} setAnswer={setQuestionUserAnswer} />
+        <QuestionText
+          id={questionId.current}
+          setAnswer={setQuestionUserAnswer}
+        />
       ),
       dropdown: (
         <QuestionDropdown
-          id={question.id}
+          id={questionId.current}
           setAnswer={setQuestionUserAnswer}
           options={questionOptions}
         />
       ),
       checkbox: (
         <QuestionCheckbox
-          id={question.id}
+          id={questionId.current}
           options={questionOptions}
           setAnswer={setQuestionUserAnswer}
         />
@@ -76,7 +80,7 @@ export const Question = ({
       radio: (
         <QuestionRadio
           options={questionOptions}
-          id={question.id}
+          id={questionId.current}
           setAnswer={setQuestionUserAnswer}
         />
       ),
@@ -102,6 +106,22 @@ export const Question = ({
       setEvaluatedVars(currentEvaluatedVars);
     } catch (err) {
       showError(err);
+    }
+  };
+
+  // Evaluate the question id for the Question
+  const getQuestionId = () => {
+    try {
+      let questionIdEvaluated: string | number = evaluateProperty(
+        question.id,
+        formState,
+        functionMap,
+        { ...evaluatedVars }
+      );
+      questionId.current = questionIdEvaluated;
+    } catch (err) {
+      showError(err);
+      throw err;
     }
   };
 
@@ -137,7 +157,7 @@ export const Question = ({
       const updatedFormState = formState;
       updatedFormState
         .get(pageId)
-        ?.set(`${question.id}-correctAnswer`, questionCorrectAnswer);
+        ?.set(`${questionId.current}-correctAnswer`, questionCorrectAnswer);
       setFormState(updatedFormState);
     } catch (err) {
       showError(err);
@@ -147,7 +167,7 @@ export const Question = ({
   // Adds the Question ID to the Form State for retrieval in other Questions or functions
   const addQuestionIdToFormState = () => {
     const updatedFormState = formState;
-    updatedFormState.get(pageId)?.set(question.id, "");
+    updatedFormState.get(pageId)?.set(questionId.current, "");
     setFormState(updatedFormState);
   };
 
@@ -163,6 +183,7 @@ export const Question = ({
       }
     } else if (!questionsRendered && !question.dependsOn) {
       evaluateQuestionVars();
+      getQuestionId();
       getQuestionLabel();
       getCorrectAnswer();
       getQuestionObj(question.type);
@@ -171,12 +192,14 @@ export const Question = ({
       const questionAns = formState.get(pageId)?.get(question.dependsOn);
       if (question.displayIf && questionAns === question.displayIf) {
         evaluateQuestionVars();
+        getQuestionId();
         getQuestionLabel();
         getCorrectAnswer();
         getQuestionObj(question.type);
         setQuestionsRendered(true);
       } else if (!question.displayIf && questionAns !== "") {
         evaluateQuestionVars();
+        getQuestionId();
         getQuestionLabel();
         getCorrectAnswer();
         getQuestionObj(question.type);
