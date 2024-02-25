@@ -24,7 +24,7 @@
         },
 	{
 		id: "failure-pg",
-		header: "It's been 5 tries. Just give up."
+		header: "You got 5 questions wrong in a row :("
 	},
 	{
 		id: "correct-ans-pg",

@@ -95,7 +95,7 @@ export const Main = ({ setPagesObj }: MainProps) => {
       <Grid item xs={3} md={4}></Grid>
       <Grid item xs={3} md={4}>
         <Box sx={{ marginBottom: 2 }}>
-          <h1>Quiz Creator DSL</h1>
+          <h1>Mountain Learn</h1>
           <h3>Upload Quiz DSL File</h3>
           <Button
             variant="contained"
