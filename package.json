@@ -15,7 +15,8 @@
     "react-start": "react-scripts start",
     "react-build": "react-scripts build",
     "react-test": "react-scripts test",
-    "react-eject": "react-scripts eject"
+    "react-eject": "react-scripts eject",
+    "mountainlearn": "react-scripts start"
   },
   "author": "",
   "license": "ISC",
