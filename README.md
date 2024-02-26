@@ -14,7 +14,8 @@ CPSC 410 Project 1, Group 14
    - [Vars](#vars)
 4. [Form State](#form-state)
 5. [API](#api)
-6. [Notes on Interactivity](#notes-on-interactivity)
+6. [Examples](#examples)
+7. [Notes on Interactivity](#notes-on-interactivity)
 
 ## Overview
 
@@ -253,6 +254,10 @@ The API library provides a number of pre-defined functions that quiz developers 
 - getRandom(),
 - getRandomInt(min, max)
 - roundToInt(num)
+
+## Examples
+
+Several examples of quizzes created using the DSL can be found in the `src/AST/dsl/validInputs` directory in this repository.
 
 ## Notes on Interactivity
 
