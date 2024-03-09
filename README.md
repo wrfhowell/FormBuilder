@@ -1,5 +1,3 @@
-CPSC 410 Project 1, Group 14
-
 <center> <img src="public/mountain-learn-logo.png" alt="Mountain Learn Logo" style="max-height:300px"/>
 <h3>Taking learning from the prairie to the summit</h3> </center>
 
